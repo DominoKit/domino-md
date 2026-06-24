@@ -105,3 +105,17 @@ Completed on 2026-06-24:
 Decision:
 - keep the AST layer buildable and testable before porting the parser internals
 - expand `internal.util.Escaping` to the full upstream-compatible utility only when the parser and renderer layers are ported
+
+## Phase 3 Status
+
+Completed on 2026-06-24:
+- `org.dominokit.markdown.parser` and `org.dominokit.markdown.parser.block` now exist with the public string-based parser API, block parser contracts, source-line abstractions, builder hooks, and post-processing hooks
+- `org.dominokit.markdown.internal.DocumentParser` and the core block parsers now support paragraphs, ATX headings, Setext headings, thematic breaks, block quotes, bullet and ordered lists, fenced code blocks, indented code blocks, and HTML blocks
+- `org.dominokit.markdown.text.Characters` and the parser-side `internal.util.Parsing` helper are now ported to support line walking, indentation, and block-start detection
+- focused JVM tests now cover source-line slicing, source-line aggregation, block parsing outcomes, source-span propagation, builder block-type filtering, and custom inline parser factory wiring
+
+Decisions:
+- keep `Parser` string-only for V1 and continue to omit upstream `Reader` parsing entry points
+- use a temporary plain-text inline parser that emits `Text` and `SoftLineBreak` nodes so block parsing is usable before full inline syntax support lands
+- defer delimiter processing, `parser.beta` scanner utilities, and link reference definition parsing to the next parser phase instead of widening this task
+- keep `internal.util.Escaping.unescapeString` minimal for now, only covering the fenced-code info-string behavior required by the current block parser slice

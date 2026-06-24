@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Minimal escaping helpers needed by the AST layer.
+ * Minimal escaping helpers needed by the AST and block parser layers.
  *
  * <p>This is intentionally scoped to label normalization for the initial AST port and will be
  * expanded when the parser and renderer utilities are ported.
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 public final class Escaping {
 
   private static final Pattern WHITESPACE = Pattern.compile("[ \t\r\n]+");
+  private static final String ESCAPABLE = "!\"#$%&'()*+,./:;<=>?@[\\]^_`{|}~-";
 
   private Escaping() {}
 
@@ -34,5 +35,31 @@ public final class Escaping {
     String trimmed = input.trim();
     String caseFolded = trimmed.toLowerCase(Locale.ROOT).toUpperCase(Locale.ROOT);
     return WHITESPACE.matcher(caseFolded).replaceAll(" ");
+  }
+
+  public static String unescapeString(String input) {
+    int backslash = input.indexOf('\\');
+    if (backslash == -1) {
+      return input;
+    }
+
+    StringBuilder sb = new StringBuilder(input.length());
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (c == '\\' && i + 1 < input.length()) {
+        char next = input.charAt(i + 1);
+        if (isEscapable(next)) {
+          sb.append(next);
+          i++;
+          continue;
+        }
+      }
+      sb.append(c);
+    }
+    return sb.toString();
+  }
+
+  private static boolean isEscapable(char c) {
+    return ESCAPABLE.indexOf(c) >= 0;
   }
 }
