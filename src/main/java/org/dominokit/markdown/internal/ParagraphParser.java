@@ -15,12 +15,8 @@
  */
 package org.dominokit.markdown.internal;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.dominokit.markdown.node.Block;
-import org.dominokit.markdown.node.Paragraph;
-import org.dominokit.markdown.node.SourceSpan;
+import org.dominokit.markdown.node.*;
 import org.dominokit.markdown.parser.InlineParser;
 import org.dominokit.markdown.parser.SourceLine;
 import org.dominokit.markdown.parser.SourceLines;
@@ -31,8 +27,8 @@ import org.dominokit.markdown.parser.block.ParserState;
 public class ParagraphParser extends AbstractBlockParser {
 
   private final Paragraph block = new Paragraph();
-  private final List<SourceLine> paragraphLines = new ArrayList<>();
-  private final List<SourceSpan> paragraphSourceSpans = new ArrayList<>();
+  private final LinkReferenceDefinitionParser linkReferenceDefinitionParser =
+      new LinkReferenceDefinitionParser();
 
   @Override
   public boolean canHaveLazyContinuationLines() {
@@ -46,56 +42,60 @@ public class ParagraphParser extends AbstractBlockParser {
 
   @Override
   public BlockContinue tryContinue(ParserState state) {
-    return state.isBlank() ? BlockContinue.none() : BlockContinue.atIndex(state.getIndex());
+    if (!state.isBlank()) {
+      return BlockContinue.atIndex(state.getIndex());
+    } else {
+      return BlockContinue.none();
+    }
   }
 
   @Override
   public void addLine(SourceLine line) {
-    paragraphLines.add(line);
+    linkReferenceDefinitionParser.parse(line);
   }
 
   @Override
   public void addSourceSpan(SourceSpan sourceSpan) {
-    paragraphSourceSpans.add(sourceSpan);
+    // Some source spans might belong to link reference definitions, others to the paragraph.
+    // The parser will handle that.
+    linkReferenceDefinitionParser.addSourceSpan(sourceSpan);
+  }
+
+  @Override
+  public List<DefinitionMap<?>> getDefinitions() {
+    var map = new DefinitionMap<>(LinkReferenceDefinition.class);
+    for (var def : linkReferenceDefinitionParser.getDefinitions()) {
+      map.putIfAbsent(def.getLabel(), def);
+    }
+    return List.of(map);
   }
 
   @Override
   public void closeBlock() {
-    if (paragraphLines.isEmpty()) {
+    for (var def : linkReferenceDefinitionParser.getDefinitions()) {
+      block.insertBefore(def);
+    }
+
+    if (linkReferenceDefinitionParser.getParagraphLines().isEmpty()) {
       block.unlink();
     } else {
-      block.setSourceSpans(paragraphSourceSpans);
+      block.setSourceSpans(linkReferenceDefinitionParser.getParagraphSourceSpans());
     }
   }
 
   @Override
   public void parseInlines(InlineParser inlineParser) {
-    SourceLines lines = getParagraphLines();
+    SourceLines lines = linkReferenceDefinitionParser.getParagraphLines();
     if (!lines.isEmpty()) {
       inlineParser.parse(lines, block);
     }
   }
 
   public SourceLines getParagraphLines() {
-    return SourceLines.of(paragraphLines);
+    return linkReferenceDefinitionParser.getParagraphLines();
   }
 
   public List<SourceSpan> removeLines(int lines) {
-    int start = Math.max(paragraphSourceSpans.size() - lines, 0);
-    List<SourceSpan> removed =
-        new ArrayList<>(paragraphSourceSpans.subList(start, paragraphSourceSpans.size()));
-    removeLast(lines, paragraphLines);
-    removeLast(lines, paragraphSourceSpans);
-    return Collections.unmodifiableList(removed);
-  }
-
-  private static <T> void removeLast(int count, List<T> list) {
-    if (count >= list.size()) {
-      list.clear();
-      return;
-    }
-    for (int i = 0; i < count; i++) {
-      list.remove(list.size() - 1);
-    }
+    return linkReferenceDefinitionParser.removeLines(lines);
   }
 }

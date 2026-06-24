@@ -13,10 +13,21 @@ Ported source scope so far:
 - `commonmark/src/main/java/org/commonmark/node/*`
 - `commonmark/src/main/java/org/commonmark/parser/*`
 - `commonmark/src/main/java/org/commonmark/parser/block/*`
+- `commonmark/src/main/java/org/commonmark/parser/delimiter/*`
+- `commonmark/src/main/java/org/commonmark/parser/beta/*`
+- `commonmark/src/main/java/org/commonmark/text/AsciiMatcher.java`
+- `commonmark/src/main/java/org/commonmark/text/CharMatcher.java`
 - `commonmark/src/main/java/org/commonmark/text/Characters.java`
+- `commonmark/src/main/java/org/commonmark/internal/Definitions.java`
+- `commonmark/src/main/java/org/commonmark/internal/Bracket.java`
+- `commonmark/src/main/java/org/commonmark/internal/Delimiter.java`
 - `commonmark/src/main/java/org/commonmark/internal/DocumentParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/DocumentBlockParser.java`
+- `commonmark/src/main/java/org/commonmark/internal/InlineParserContextImpl.java`
+- `commonmark/src/main/java/org/commonmark/internal/InlineParserImpl.java`
+- `commonmark/src/main/java/org/commonmark/internal/LinkReferenceDefinitionParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/ParagraphParser.java`
+- `commonmark/src/main/java/org/commonmark/internal/StaggeredDelimiterProcessor.java`
 - `commonmark/src/main/java/org/commonmark/internal/HeadingParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/ThematicBreakParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/BlockQuoteParser.java`
@@ -25,15 +36,30 @@ Ported source scope so far:
 - `commonmark/src/main/java/org/commonmark/internal/ListBlockParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/ListItemParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/HtmlBlockParser.java`
+- `commonmark/src/main/java/org/commonmark/internal/inline/*`
+- `commonmark/src/main/java/org/commonmark/internal/util/LinkScanner.java`
+- `commonmark/src/main/java/org/commonmark/internal/util/Escaping.java`
+- `commonmark/src/main/resources/org/commonmark/internal/util/entities.txt` data adapted into generated Java source
 
 Current local targets:
 - `src/main/java/org/dominokit/markdown/node/*`
 - `src/main/java/org/dominokit/markdown/parser/*`
 - `src/main/java/org/dominokit/markdown/parser/block/*`
+- `src/main/java/org/dominokit/markdown/parser/delimiter/*`
+- `src/main/java/org/dominokit/markdown/parser/beta/*`
+- `src/main/java/org/dominokit/markdown/text/AsciiMatcher.java`
+- `src/main/java/org/dominokit/markdown/text/CharMatcher.java`
 - `src/main/java/org/dominokit/markdown/text/Characters.java`
+- `src/main/java/org/dominokit/markdown/internal/Definitions.java`
+- `src/main/java/org/dominokit/markdown/internal/Bracket.java`
+- `src/main/java/org/dominokit/markdown/internal/Delimiter.java`
 - `src/main/java/org/dominokit/markdown/internal/DocumentParser.java`
 - `src/main/java/org/dominokit/markdown/internal/DocumentBlockParser.java`
+- `src/main/java/org/dominokit/markdown/internal/InlineParserContextImpl.java`
+- `src/main/java/org/dominokit/markdown/internal/InlineParserImpl.java`
+- `src/main/java/org/dominokit/markdown/internal/LinkReferenceDefinitionParser.java`
 - `src/main/java/org/dominokit/markdown/internal/ParagraphParser.java`
+- `src/main/java/org/dominokit/markdown/internal/StaggeredDelimiterProcessor.java`
 - `src/main/java/org/dominokit/markdown/internal/HeadingParser.java`
 - `src/main/java/org/dominokit/markdown/internal/ThematicBreakParser.java`
 - `src/main/java/org/dominokit/markdown/internal/BlockQuoteParser.java`
@@ -42,7 +68,10 @@ Current local targets:
 - `src/main/java/org/dominokit/markdown/internal/ListBlockParser.java`
 - `src/main/java/org/dominokit/markdown/internal/ListItemParser.java`
 - `src/main/java/org/dominokit/markdown/internal/HtmlBlockParser.java`
-- `src/main/java/org/dominokit/markdown/internal/util/Escaping.java` as a temporary compatibility helper while parser and renderer support is still incomplete
+- `src/main/java/org/dominokit/markdown/internal/inline/*`
+- `src/main/java/org/dominokit/markdown/internal/util/Escaping.java`
+- `src/main/java/org/dominokit/markdown/internal/util/LinkScanner.java`
+- `src/main/java/org/dominokit/markdown/internal/util/Html5Entities.java` generated from upstream entity data to avoid runtime resource loading
 - `src/main/java/org/dominokit/markdown/internal/util/Parsing.java`
 
 ## Adaptations Made
@@ -51,11 +80,10 @@ The ported code was intentionally kept close to upstream, with these changes:
 - package root changed from `org.commonmark` to `org.dominokit.markdown`
 - Apache project headers were added to local source files
 - `Parser` currently exposes a string-only entry point and does not include upstream `Reader`-based parsing helpers
-- a temporary inline parser currently emits plain `Text` and `SoftLineBreak` nodes so the block parser can be integrated before the inline syntax port
-- `HeadingParser` uses local/manual ATX heading scanning instead of porting the full upstream `parser.beta` scanner package in this phase
-- link reference definition parsing and delimiter processing are intentionally deferred to the next parser phase
-- a minimal `Escaping` helper was introduced first for label normalization and then expanded only as far as the current parser slice requires
-- JVM tests were rewritten locally in JUnit 4 style to match this repository build
+- `HeadingParser` still uses local/manual ATX heading scanning instead of porting the upstream heading scanner stack
+- the inline parser, delimiter stack, and reference-definition parser were ported in a later phase after the block parser foundation was already integrated
+- `Html5Entities` embeds the upstream entity table as generated Java source so the port keeps the no-classpath-resource-loading constraint
+- local JVM tests cover the same parser slices as upstream but were rewritten in JUnit 4 style to match this repository build
 
 ## Licensing Note
 

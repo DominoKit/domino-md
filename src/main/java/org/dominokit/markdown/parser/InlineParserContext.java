@@ -15,11 +15,59 @@
  */
 package org.dominokit.markdown.parser;
 
-/**
- * Context object for inline parser construction.
- *
- * <p>The initial Phase 3 block parser uses a plain-text inline parser and does not expose
- * definitions or delimiter processors yet. The interface is kept so Phase 4 can grow the API
- * without changing the public factory shape.
- */
-public interface InlineParserContext {}
+import java.util.List;
+import java.util.Set;
+import org.dominokit.markdown.node.LinkReferenceDefinition;
+import org.dominokit.markdown.parser.beta.InlineContentParserFactory;
+import org.dominokit.markdown.parser.beta.LinkProcessor;
+import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
+
+/** Context for inline parsing. */
+public interface InlineParserContext {
+
+  /**
+   * @return custom inline content parsers that have been configured with {@link
+   *     Parser.Builder#customInlineContentParserFactory(InlineContentParserFactory)}
+   */
+  List<InlineContentParserFactory> getCustomInlineContentParserFactories();
+
+  /**
+   * @return custom delimiter processors that have been configured with {@link
+   *     Parser.Builder#customDelimiterProcessor(DelimiterProcessor)}
+   */
+  List<DelimiterProcessor> getCustomDelimiterProcessors();
+
+  /**
+   * @return custom link processors that have been configured with {@link
+   *     Parser.Builder#linkProcessor}.
+   */
+  List<LinkProcessor> getCustomLinkProcessors();
+
+  /**
+   * @return custom link markers that have been configured with {@link Parser.Builder#linkMarker}.
+   */
+  Set<Character> getCustomLinkMarkers();
+
+  /**
+   * Look up a {@link LinkReferenceDefinition} for a given label.
+   *
+   * <p>Note that the passed in label does not need to be normalized; implementations are
+   * responsible for doing the normalization before lookup.
+   *
+   * @param label the link label to look up
+   * @return the definition if one exists, {@code null} otherwise
+   * @deprecated use {@link #getDefinition} with {@link LinkReferenceDefinition} instead
+   */
+  @Deprecated
+  LinkReferenceDefinition getLinkReferenceDefinition(String label);
+
+  /**
+   * Look up a definition of a type for a given label.
+   *
+   * <p>Note that the passed in label does not need to be normalized; implementations are
+   * responsible for doing the normalization before lookup.
+   *
+   * @return the definition if one exists, null otherwise
+   */
+  <D> D getDefinition(Class<D> type, String label);
+}

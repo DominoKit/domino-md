@@ -17,6 +17,7 @@ package org.dominokit.markdown.parser.block;
 
 import java.util.List;
 import org.dominokit.markdown.node.Block;
+import org.dominokit.markdown.node.DefinitionMap;
 import org.dominokit.markdown.node.SourceSpan;
 import org.dominokit.markdown.parser.InlineParser;
 import org.dominokit.markdown.parser.SourceLine;
@@ -47,7 +48,7 @@ public abstract class AbstractBlockParser implements BlockParser {
   }
 
   @Override
-  public List<?> getDefinitions() {
+  public List<DefinitionMap<?>> getDefinitions() {
     return List.of();
   }
 

@@ -119,3 +119,18 @@ Decisions:
 - use a temporary plain-text inline parser that emits `Text` and `SoftLineBreak` nodes so block parsing is usable before full inline syntax support lands
 - defer delimiter processing, `parser.beta` scanner utilities, and link reference definition parsing to the next parser phase instead of widening this task
 - keep `internal.util.Escaping.unescapeString` minimal for now, only covering the fenced-code info-string behavior required by the current block parser slice
+
+## Phase 4 Status
+
+Completed on 2026-06-24:
+- `org.dominokit.markdown.parser.beta` and `org.dominokit.markdown.parser.delimiter` now exist with the scanner, custom inline parser, link processor, and delimiter extension APIs needed by the inline parser
+- `org.dominokit.markdown.internal.InlineParserImpl` now ports the real inline parsing pipeline for escapes, entities, code spans, emphasis, strong emphasis, inline links, reference links, images, hard and soft line breaks, and inline HTML
+- `org.dominokit.markdown.internal.LinkReferenceDefinitionParser` and `Definitions` are now wired back through `ParagraphParser`, `DocumentParser`, and `InlineParserContext` so reference definitions are collected during block parsing and resolved during inline parsing
+- parser-side utility support now includes `LinkScanner`, `AsciiMatcher`, `CharMatcher`, and a generated `Html5Entities` table that avoids runtime classpath resource loading while preserving named-entity decoding
+- focused JVM tests now cover link reference definition parsing, scanner traversal and source extraction, inline syntax AST output, custom inline content parsers, custom delimiter processors, link markers, and inline context definition lookups
+
+Decisions:
+- keep `Parser` string-only for V1 and continue to omit upstream `Reader` parsing entry points even though the upstream parser supports them
+- replace the temporary plain-text inline parser entirely in this phase instead of layering additional behavior onto it
+- preserve the no-classpath-loading rule by embedding the upstream HTML5 entity data in generated Java source rather than loading `entities.txt` at runtime
+- leave HTML rendering, raw HTML output policy, and URL sanitization for the next phase now that the parser-side AST is feature-complete for the V1 inline syntax set
