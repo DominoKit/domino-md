@@ -94,3 +94,14 @@ Phase 2 and onward should treat this scope as the definition of the first code s
 - HTML renderer compiles with explicit URL sanitization configuration
 - no Elemental2 dependency exists in the parser/renderer code
 - no classpath resource loading remains in the ported core
+
+## Phase 2 Status
+
+Completed on 2026-06-24:
+- `org.dominokit.markdown.node` now exists with the base tree model, source-span types, visitor support, list/link/code/html node types, and reference-definition support
+- focused JVM tests now cover node relinking, visitor mutation safety, source-span slicing and merging, fence-length validation, and definition-label normalization
+- `org.dominokit.markdown.internal.util.Escaping` currently contains only the minimal label-normalization helper required by `DefinitionMap`
+
+Decision:
+- keep the AST layer buildable and testable before porting the parser internals
+- expand `internal.util.Escaping` to the full upstream-compatible utility only when the parser and renderer layers are ported
