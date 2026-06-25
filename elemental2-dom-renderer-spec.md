@@ -1,6 +1,7 @@
 # Elemental2 DOM Renderer Spec
 
 Status date: 2026-06-25
+Implementation status: implemented on 2026-06-25
 
 ## Purpose
 
@@ -18,6 +19,13 @@ Markdown AST. The editor, toolbar, layout, and higher-level UI concerns remain d
 - preserve the current parser and AST boundary
 - keep URL sanitization, raw HTML policy, and extensibility explicit
 - support GWT/browser compilation and execution in this repository
+
+## Implementation Result
+
+- implemented in `org.dominokit.markdown.renderer.elemental2`
+- uses detached `DocumentFragment` output and direct `DomGlobal.document` node construction
+- keeps the parser and AST free of Elemental2 dependencies
+- verified through `MarkdownSuite` browser tests and full `mvn -q verify`
 
 ## Non-Goals
 

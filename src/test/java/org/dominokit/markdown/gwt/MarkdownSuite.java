@@ -16,14 +16,22 @@
 package org.dominokit.markdown.gwt;
 
 import com.google.gwt.junit.client.GWTTestCase;
+import elemental2.dom.DomGlobal;
+import elemental2.dom.Element;
 import org.dominokit.markdown.parser.Parser;
+import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
+import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
+import org.dominokit.markdown.renderer.elemental2.SoftBreakRendering;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
+import org.dominokit.markdown.renderer.html.UrlSanitizer;
 
 public class MarkdownSuite extends GWTTestCase {
 
   private static final Parser PARSER = Parser.builder().build();
   private static final HtmlRenderer RENDERER =
       HtmlRenderer.builder().percentEncodeUrls(true).build();
+  private static final Elemental2Renderer ELEMENTAL2_RENDERER =
+      Elemental2Renderer.builder().percentEncodeUrls(true).build();
 
   @Override
   public String getModuleName() {
@@ -34,5 +42,136 @@ public class MarkdownSuite extends GWTTestCase {
     for (GwtRenderingCases.RenderingCase testCase : GwtRenderingCases.CASES) {
       assertEquals(testCase.html(), RENDERER.render(PARSER.parse(testCase.markdown())));
     }
+  }
+
+  public void testElemental2RendererShouldRenderSafeDomCases() {
+    for (Elemental2RenderingCases.RenderingCase testCase : Elemental2RenderingCases.CASES) {
+      assertEquals(
+          testCase.html(),
+          serialize(ELEMENTAL2_RENDERER.render(PARSER.parse(testCase.markdown()))));
+    }
+  }
+
+  public void testElemental2RendererShouldSupportRawHtmlHandlerOverride() {
+    Elemental2Renderer renderer =
+        Elemental2Renderer.builder()
+            .rawHtmlHandler(
+                new org.dominokit.markdown.renderer.elemental2.RawHtmlHandler() {
+                  @Override
+                  public elemental2.dom.Node renderInline(String literal) {
+                    Element code = DomGlobal.document.createElement("code");
+                    code.setAttribute("data-inline-raw", "true");
+                    code.textContent = literal;
+                    return code;
+                  }
+
+                  @Override
+                  public elemental2.dom.Node renderBlock(String literal) {
+                    Element section = DomGlobal.document.createElement("section");
+                    section.setAttribute("data-block-raw", "true");
+                    section.textContent = literal;
+                    return section;
+                  }
+                })
+            .build();
+
+    assertEquals(
+        "<p>before <code data-inline-raw=\"true\">&lt;span&gt;</code> after</p>",
+        serialize(renderer.render(PARSER.parse("before <span> after\n"))));
+    assertEquals(
+        "<section data-block-raw=\"true\">&lt;div&gt;block&lt;/div&gt;</section>",
+        serialize(renderer.render(PARSER.parse("<div>block</div>\n"))));
+  }
+
+  public void testElemental2RendererShouldSupportAttributeProviders() {
+    Elemental2Renderer renderer =
+        Elemental2Renderer.builder()
+            .attributeProviderFactory(
+                context ->
+                    (node, tagName, attributes) -> {
+                      if (node instanceof org.dominokit.markdown.node.FencedCodeBlock
+                          && "pre".equals(tagName)) {
+                        attributes.put("data-code-block", "fenced");
+                      } else if (node instanceof org.dominokit.markdown.node.FencedCodeBlock
+                          && "code".equals(tagName)) {
+                        attributes.remove("class");
+                        attributes.put("data-info", "custom");
+                      }
+                    })
+            .build();
+
+    assertEquals(
+        "<pre data-code-block=\"fenced\"><code data-info=\"custom\">content\n</code></pre>",
+        serialize(renderer.render(PARSER.parse("```java\ncontent\n```\n"))));
+  }
+
+  public void testElemental2RendererShouldSupportCustomNodeRenderers() {
+    Elemental2Renderer renderer =
+        Elemental2Renderer.builder()
+            .nodeRendererFactory(
+                context ->
+                    new ElementNodeRenderer() {
+                      @Override
+                      public java.util.Set<Class<? extends org.dominokit.markdown.node.Node>>
+                          getNodeTypes() {
+                        return java.util.Set.of(org.dominokit.markdown.node.Link.class);
+                      }
+
+                      @Override
+                      public void render(org.dominokit.markdown.node.Node node) {
+                        context.append(DomGlobal.document.createTextNode("test"));
+                      }
+                    })
+            .build();
+
+    assertEquals("<p>foo test</p>", serialize(renderer.render(PARSER.parse("foo [bar](/url)"))));
+  }
+
+  public void testElemental2RendererShouldSanitizeUrls() {
+    Elemental2Renderer renderer =
+        Elemental2Renderer.builder()
+            .sanitizeUrls(true)
+            .urlSanitizer(
+                new UrlSanitizer() {
+                  @Override
+                  public String sanitizeLinkUrl(String url) {
+                    return "/safe?from=" + url;
+                  }
+
+                  @Override
+                  public String sanitizeImageUrl(String url) {
+                    return "/image?from=" + url;
+                  }
+                })
+            .build();
+
+    assertEquals(
+        "<p><a rel=\"nofollow\" href=\"/safe?from=docs\">link</a></p>",
+        serialize(renderer.render(PARSER.parse("[link](docs)"))));
+    assertEquals(
+        "<p><img src=\"/image?from=icon.png\" alt=\"alt\"></p>",
+        serialize(renderer.render(PARSER.parse("![alt](icon.png)"))));
+  }
+
+  public void testElemental2RendererShouldExposeSoftBreakModes() {
+    Elemental2Renderer brRenderer =
+        Elemental2Renderer.builder().softBreakRendering(SoftBreakRendering.BR_ELEMENT).build();
+    Elemental2Renderer spaceRenderer =
+        Elemental2Renderer.builder().softBreakRendering(SoftBreakRendering.SPACE_TEXT).build();
+
+    assertEquals("<p>foo<br>bar</p>", serialize(brRenderer.render(PARSER.parse("foo\nbar"))));
+    assertEquals("<p>foo bar</p>", serialize(spaceRenderer.render(PARSER.parse("foo\nbar"))));
+  }
+
+  public void testElemental2RendererShouldOmitSingleParagraphWhenConfigured() {
+    Elemental2Renderer renderer = Elemental2Renderer.builder().omitSingleParagraphP(true).build();
+
+    assertEquals("hi <em>there</em>", serialize(renderer.render(PARSER.parse("hi *there*"))));
+  }
+
+  private static String serialize(elemental2.dom.DocumentFragment fragment) {
+    Element container = DomGlobal.document.createElement("div");
+    container.appendChild(fragment);
+    return container.innerHTML;
   }
 }

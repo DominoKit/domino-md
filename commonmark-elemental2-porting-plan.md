@@ -2298,6 +2298,17 @@ Specification:
 elemental2-dom-renderer-spec.md
 ```
 
+Completed on 2026-06-25:
+- `org.dominokit.markdown.renderer.elemental2` now provides a DOM renderer that returns detached
+  `DocumentFragment` instances built from real `elemental2.dom` nodes
+- raw HTML defaults to safe literal-text rendering, with explicit `RawHtmlHandler` hooks for
+  caller-owned custom rendering
+- URL sanitization, percent-encoding, attribute providers, node renderer overrides, and
+  `omitSingleParagraphP` support are aligned with the existing HTML renderer model
+- browser-side verification now covers shared DOM rendering cases plus raw HTML fallback and
+  override behavior, attribute providers, custom node renderers, URL sanitization, and soft break
+  modes
+
 ### Phase 8 — Elemental2 Editor MVP (Deferred To domino-ui Project)
 
 Tasks:

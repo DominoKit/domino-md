@@ -24,6 +24,7 @@ Main module and browser test descriptors:
 
 Browser-side shared rendering assertions:
 - `src/test/java/org/dominokit/markdown/gwt/GwtRenderingCases.java`
+- `src/test/java/org/dominokit/markdown/gwt/Elemental2RenderingCases.java`
 - `src/test/java/org/dominokit/markdown/gwt/GwtRenderingCasesJvmTest.java`
 - `src/test/java/org/dominokit/markdown/gwt/MarkdownSuite.java`
 
@@ -42,6 +43,11 @@ Outcome:
 - browser-side `GWTTestCase` rendering suite passes
 - main markdown GWT module compiles successfully
 - full repository `verify` passes with the browser compile/test path enabled
+
+Phase 7A follow-up:
+- the Elemental2 DOM renderer also passes browser-side rendering assertions inside
+  `MarkdownSuite`
+- `pom.xml` now carries `elemental2-dom`, and `Markdown.gwt.xml` inherits `elemental2.dom.Dom`
 
 ## Compatibility Adaptations
 
