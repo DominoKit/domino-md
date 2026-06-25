@@ -43,6 +43,7 @@ Ported source scope so far:
 - `commonmark/src/main/java/org/commonmark/internal/util/LinkScanner.java`
 - `commonmark/src/main/java/org/commonmark/internal/util/Escaping.java`
 - `commonmark/src/main/resources/org/commonmark/internal/util/entities.txt` data adapted into generated Java source
+- `commonmark/src/main/java/org/commonmark/text/Characters.java` with additional local GWT-compatibility adaptation
 - `commonmark/src/test/java/org/commonmark/test/SpecCoreTest.java`
 - `commonmark-test-util/src/main/java/org/commonmark/testutil/example/Example.java`
 - `commonmark-test-util/src/main/java/org/commonmark/testutil/example/ExampleReader.java`
@@ -83,8 +84,12 @@ Current local targets:
 - `src/main/java/org/dominokit/markdown/internal/util/LinkScanner.java`
 - `src/main/java/org/dominokit/markdown/internal/util/Html5Entities.java` generated from upstream entity data to avoid runtime resource loading
 - `src/main/java/org/dominokit/markdown/internal/util/Parsing.java`
+- `src/main/java/org/dominokit/markdown/text/UnicodeCharacterData.java` generated from JDK Character classification data for GWT-safe Unicode checks
 - `src/test/java/org/dominokit/markdown/conformance/CommonMarkSpecTest.java`
+- `src/test/java/org/dominokit/markdown/gwt/*`
 - `src/test/resources/spec.txt`
+- `src/main/resources/org/dominokit/Markdown.gwt.xml`
+- `src/test/resources/org/dominokit/MarkdownTest.gwt.xml`
 
 ## Adaptations Made
 
@@ -96,7 +101,9 @@ The ported code was intentionally kept close to upstream, with these changes:
 - `HeadingParser` now uses the upstream-style scanner-based ATX heading parsing instead of the earlier local/manual closing-hash scan
 - the inline parser, delimiter stack, and reference-definition parser were ported in a later phase after the block parser foundation was already integrated
 - `Html5Entities` embeds the upstream entity table as generated Java source so the port keeps the no-classpath-resource-loading constraint
-- local JVM tests cover the same parser, HTML renderer, and core spec conformance slices as upstream but were rewritten in JUnit 4 style to match this repository build
+- `UnicodeCharacterData` embeds generated Unicode category ranges so the port keeps JVM/GWT parity without relying on `Character.getType(int)` support that GWT does not emulate
+- several runtime parser helpers now use local manual scanners instead of `java.util.regex.Pattern` so the browser-transpiled build works on the repository's GWT toolchain
+- local JVM and browser tests cover the same parser, HTML renderer, and core spec conformance slices as upstream but were rewritten in JUnit 4 / `GWTTestCase` style to match this repository build
 
 ## Licensing Note
 

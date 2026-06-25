@@ -160,3 +160,17 @@ Decisions:
 - keep the conformance harness strict with no failure allowlist while the current snapshot is fully green
 - match upstream core spec rendering by enabling `percentEncodeUrls(true)` in the conformance renderer configuration
 - keep spec resources and harness code test-scoped so the runtime core port remains free of classpath resource dependencies
+
+## Phase 7 Status
+
+Completed on 2026-06-25:
+- `src/main/resources/org/dominokit/Markdown.gwt.xml` and `src/test/resources/org/dominokit/MarkdownTest.gwt.xml` now define a real browser-compilation path for the markdown core and its GWT browser tests
+- `src/test/java/org/dominokit/markdown/gwt/MarkdownSuite.java` now runs transpiled `GWTTestCase` assertions over shared parser/renderer cases that are also checked on the JVM by `GwtRenderingCasesJvmTest`
+- `pom.xml` now wires `gwt:test` into Maven `test` and `gwt:compile` into Maven `verify`, so `mvn verify` proves both browser execution and browser compilation
+- browser compatibility fixes now remove JVM-only dependencies from the runtime core, including generated Unicode category tables for `Characters` and manual parsing replacements for regex-heavy paths in escaping, HTML block detection, autolinks, and backslash escapes
+- the current browser-toolchain validation snapshot is recorded in `gwt-compatibility-report.md`
+
+Decisions:
+- use the repository's existing GWT 2.13.1 toolchain as the browser-transpilation proof path instead of introducing a second parallel J2CL-specific Maven module in this phase
+- keep the parser and renderer free of GWT runtime APIs even while adding browser compilation support, limiting compatibility changes to data tables and parser internals
+- validate browser parity through shared rendering fixtures executed in both plain JVM tests and `GWTTestCase`

@@ -67,6 +67,7 @@
         <maven.gwt.plugin>1.1.0</maven.gwt.plugin>
         <elemental2.version>1.2.3</elemental2.version>
         <gwt.version>2.13.1</gwt.version>
+        <markdown.gwt.module>org.dominokit.Markdown</markdown.gwt.module>
     </properties>
 
     <dependencies>
@@ -87,13 +88,13 @@
             <groupId>org.gwtproject</groupId>
             <artifactId>gwt-user</artifactId>
             <version>${gwt.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.gwtproject</groupId>
             <artifactId>gwt-dev</artifactId>
             <version>${gwt.version}</version>
-            <scope>test</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     <build>
@@ -122,8 +123,32 @@
                 <configuration>
                     <sourceLevel>11</sourceLevel>
                     <failOnError>true</failOnError>
-                    <moduleName>org.dominokit.domino.logger.Logging</moduleName>
+                    <moduleName>${markdown.gwt.module}</moduleName>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>markdown-browser-tests</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <draftCompile>true</draftCompile>
+                            <test>MarkdownSuite</test>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>markdown-gwt-compile</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <draftCompile>true</draftCompile>
+                            <style>PRETTY</style>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>com.coveo</groupId>

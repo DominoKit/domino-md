@@ -53,7 +53,7 @@ public class Characters {
 
   public static boolean isLetter(CharSequence s, int index) {
     int codePoint = Character.codePointAt(s, index);
-    return Character.isLetter(codePoint);
+    return UnicodeCharacterData.isLetter(codePoint);
   }
 
   public static boolean isSpaceOrTab(CharSequence s, int index) {
@@ -72,36 +72,23 @@ public class Characters {
    *     punctuation character</a>
    */
   public static boolean isPunctuationCodePoint(int codePoint) {
-    switch (Character.getType(codePoint)) {
-        // General category "P" (punctuation)
-      case Character.DASH_PUNCTUATION:
-      case Character.START_PUNCTUATION:
-      case Character.END_PUNCTUATION:
-      case Character.CONNECTOR_PUNCTUATION:
-      case Character.OTHER_PUNCTUATION:
-      case Character.INITIAL_QUOTE_PUNCTUATION:
-      case Character.FINAL_QUOTE_PUNCTUATION:
-        // General category "S" (symbol)
-      case Character.MATH_SYMBOL:
-      case Character.CURRENCY_SYMBOL:
-      case Character.MODIFIER_SYMBOL:
-      case Character.OTHER_SYMBOL:
+    if (UnicodeCharacterData.isPunctuationOrSymbol(codePoint)) {
+      return true;
+    }
+
+    switch (codePoint) {
+      case '$':
+      case '+':
+      case '<':
+      case '=':
+      case '>':
+      case '^':
+      case '`':
+      case '|':
+      case '~':
         return true;
       default:
-        switch (codePoint) {
-          case '$':
-          case '+':
-          case '<':
-          case '=':
-          case '>':
-          case '^':
-          case '`':
-          case '|':
-          case '~':
-            return true;
-          default:
-            return false;
-        }
+        return false;
     }
   }
 
@@ -120,7 +107,7 @@ public class Characters {
       case '\r':
         return true;
       default:
-        return Character.getType(codePoint) == Character.SPACE_SEPARATOR;
+        return UnicodeCharacterData.isSpaceSeparator(codePoint);
     }
   }
 

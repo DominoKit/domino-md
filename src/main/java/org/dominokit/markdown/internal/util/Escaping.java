@@ -17,8 +17,6 @@ package org.dominokit.markdown.internal.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Escaping {
 
@@ -26,50 +24,8 @@ public class Escaping {
 
   public static final String ENTITY = "&(?:#x[a-f0-9]{1,6}|#[0-9]{1,7}|[a-z][a-z0-9]{1,31});";
 
-  private static final Pattern BACKSLASH_OR_AMP = Pattern.compile("[\\\\&]");
-
-  private static final Pattern ENTITY_OR_ESCAPED_CHAR =
-      Pattern.compile("\\\\" + ESCAPABLE + '|' + ENTITY, Pattern.CASE_INSENSITIVE);
-
-  // From RFC 3986 (see "reserved", "unreserved") except don't escape '[' or ']' to be compatible
-  // with JS encodeURI
-  private static final Pattern ESCAPE_IN_URI =
-      Pattern.compile("(%[a-fA-F0-9]{0,2}|[^:/?#@!$&'()*+,;=a-zA-Z0-9\\-._~])");
-
   private static final char[] HEX_DIGITS =
       new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-  private static final Pattern WHITESPACE = Pattern.compile("[ \t\r\n]+");
-
-  private static final Replacer UNESCAPE_REPLACER =
-      (input, sb) -> {
-        if (input.charAt(0) == '\\') {
-          sb.append(input, 1, input.length());
-        } else {
-          sb.append(Html5Entities.entityToString(input));
-        }
-      };
-
-  private static final Replacer URI_REPLACER =
-      (input, sb) -> {
-        if (input.startsWith("%")) {
-          if (input.length() == 3) {
-            // Already percent-encoded, preserve
-            sb.append(input);
-          } else {
-            // %25 is the percent-encoding for %
-            sb.append("%25");
-            sb.append(input, 1, input.length());
-          }
-        } else {
-          byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
-          for (byte b : bytes) {
-            sb.append('%');
-            sb.append(HEX_DIGITS[(b >> 4) & 0xF]);
-            sb.append(HEX_DIGITS[b & 0xF]);
-          }
-        }
-      };
 
   public static String escapeHtml(String input) {
     // Avoid building a new string in the majority of cases (nothing to escape)
@@ -109,15 +65,54 @@ public class Escaping {
 
   /** Replace entities and backslash escapes with literal characters. */
   public static String unescapeString(String s) {
-    if (BACKSLASH_OR_AMP.matcher(s).find()) {
-      return replaceAll(ENTITY_OR_ESCAPED_CHAR, s, UNESCAPE_REPLACER);
-    } else {
+    if (!containsBackslashOrAmp(s)) {
       return s;
     }
+
+    StringBuilder sb = new StringBuilder(s.length());
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '\\' && i + 1 < s.length() && isEscapable(s.charAt(i + 1))) {
+        sb.append(s.charAt(i + 1));
+        i++;
+      } else if (c == '&') {
+        int entityEnd = findEntityEnd(s, i);
+        if (entityEnd != -1) {
+          sb.append(Html5Entities.entityToString(s.substring(i, entityEnd)));
+          i = entityEnd - 1;
+        } else {
+          sb.append(c);
+        }
+      } else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
   public static String percentEncodeUrl(String s) {
-    return replaceAll(ESCAPE_IN_URI, s, URI_REPLACER);
+    StringBuilder sb = new StringBuilder(s.length() + 16);
+    for (int i = 0; i < s.length(); ) {
+      int codePoint = Character.codePointAt(s, i);
+      int charCount = Character.charCount(codePoint);
+
+      if (codePoint == '%') {
+        if (i + 2 < s.length() && isHexDigit(s.charAt(i + 1)) && isHexDigit(s.charAt(i + 2))) {
+          sb.append(s, i, i + 3);
+          i += 3;
+        } else {
+          sb.append("%25");
+          i++;
+        }
+      } else if (isUriSafeCodePoint(codePoint)) {
+        sb.appendCodePoint(codePoint);
+        i += charCount;
+      } else {
+        appendPercentEncodedCodePoint(sb, s.substring(i, i + charCount));
+        i += charCount;
+      }
+    }
+    return sb.toString();
   }
 
   public static String normalizeLabelContent(String input) {
@@ -130,31 +125,176 @@ public class Escaping {
     // "\u1E9E".toUpperCase(Locale.ROOT)  -> "\u1E9E"
     String caseFolded = trimmed.toLowerCase(Locale.ROOT).toUpperCase(Locale.ROOT);
 
-    return WHITESPACE.matcher(caseFolded).replaceAll(" ");
+    return collapseWhitespace(caseFolded);
   }
 
-  private static String replaceAll(Pattern p, String s, Replacer replacer) {
-    Matcher matcher = p.matcher(s);
+  public static boolean isEscapable(char c) {
+    switch (c) {
+      case '!':
+      case '"':
+      case '#':
+      case '$':
+      case '%':
+      case '&':
+      case '\'':
+      case '(':
+      case ')':
+      case '*':
+      case '+':
+      case ',':
+      case '-':
+      case '.':
+      case '/':
+      case ':':
+      case ';':
+      case '<':
+      case '=':
+      case '>':
+      case '?':
+      case '@':
+      case '[':
+      case '\\':
+      case ']':
+      case '^':
+      case '_':
+      case '`':
+      case '{':
+      case '|':
+      case '}':
+      case '~':
+        return true;
+      default:
+        return false;
+    }
+  }
 
-    if (!matcher.find()) {
-      return s;
+  private static boolean containsBackslashOrAmp(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (c == '\\' || c == '&') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static int findEntityEnd(String s, int start) {
+    int length = s.length();
+    if (start + 3 >= length || s.charAt(start) != '&') {
+      return -1;
     }
 
-    StringBuilder sb = new StringBuilder(s.length() + 16);
-    int lastEnd = 0;
-    do {
-      sb.append(s, lastEnd, matcher.start());
-      replacer.replace(matcher.group(), sb);
-      lastEnd = matcher.end();
-    } while (matcher.find());
+    int index = start + 1;
+    if (s.charAt(index) == '#') {
+      index++;
+      if (index >= length) {
+        return -1;
+      }
+      if (s.charAt(index) == 'x' || s.charAt(index) == 'X') {
+        index++;
+        int digitsStart = index;
+        while (index < length && index - digitsStart < 6 && isHexDigit(s.charAt(index))) {
+          index++;
+        }
+        if (index == digitsStart || index >= length || s.charAt(index) != ';') {
+          return -1;
+        }
+        return index + 1;
+      }
 
-    if (lastEnd != s.length()) {
-      sb.append(s, lastEnd, s.length());
+      int digitsStart = index;
+      while (index < length && index - digitsStart < 7 && isDigit(s.charAt(index))) {
+        index++;
+      }
+      if (index == digitsStart || index >= length || s.charAt(index) != ';') {
+        return -1;
+      }
+      return index + 1;
+    }
+
+    if (!isAsciiLetter(s.charAt(index))) {
+      return -1;
+    }
+    index++;
+    while (index < length && index - start - 1 < 32 && isAsciiLetterOrDigit(s.charAt(index))) {
+      index++;
+    }
+    if (index >= length || s.charAt(index) != ';') {
+      return -1;
+    }
+    return index + 1;
+  }
+
+  private static String collapseWhitespace(String input) {
+    StringBuilder sb = new StringBuilder(input.length());
+    boolean previousWhitespace = false;
+    for (int i = 0; i < input.length(); i++) {
+      char c = input.charAt(i);
+      if (isAsciiWhitespace(c)) {
+        if (!previousWhitespace) {
+          sb.append(' ');
+          previousWhitespace = true;
+        }
+      } else {
+        sb.append(c);
+        previousWhitespace = false;
+      }
     }
     return sb.toString();
   }
 
-  private interface Replacer {
-    void replace(String input, StringBuilder sb);
+  private static boolean isUriSafeCodePoint(int codePoint) {
+    return (codePoint >= 'A' && codePoint <= 'Z')
+        || (codePoint >= 'a' && codePoint <= 'z')
+        || (codePoint >= '0' && codePoint <= '9')
+        || codePoint == ':'
+        || codePoint == '/'
+        || codePoint == '?'
+        || codePoint == '#'
+        || codePoint == '@'
+        || codePoint == '!'
+        || codePoint == '$'
+        || codePoint == '&'
+        || codePoint == '\''
+        || codePoint == '('
+        || codePoint == ')'
+        || codePoint == '*'
+        || codePoint == '+'
+        || codePoint == ','
+        || codePoint == ';'
+        || codePoint == '='
+        || codePoint == '-'
+        || codePoint == '.'
+        || codePoint == '_'
+        || codePoint == '~';
+  }
+
+  private static void appendPercentEncodedCodePoint(StringBuilder sb, String value) {
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    for (byte b : bytes) {
+      sb.append('%');
+      sb.append(HEX_DIGITS[(b >> 4) & 0xF]);
+      sb.append(HEX_DIGITS[b & 0xF]);
+    }
+  }
+
+  private static boolean isHexDigit(char c) {
+    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+  }
+
+  private static boolean isDigit(char c) {
+    return c >= '0' && c <= '9';
+  }
+
+  private static boolean isAsciiLetter(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+  }
+
+  private static boolean isAsciiLetterOrDigit(char c) {
+    return isAsciiLetter(c) || isDigit(c);
+  }
+
+  private static boolean isAsciiWhitespace(char c) {
+    return c == ' ' || c == '\t' || c == '\r' || c == '\n';
   }
 }

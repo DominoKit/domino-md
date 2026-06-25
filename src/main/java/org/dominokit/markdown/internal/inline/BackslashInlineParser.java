@@ -16,7 +16,6 @@
 package org.dominokit.markdown.internal.inline;
 
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.dominokit.markdown.internal.util.Escaping;
 import org.dominokit.markdown.node.HardLineBreak;
 import org.dominokit.markdown.node.Text;
@@ -29,8 +28,6 @@ import org.dominokit.markdown.parser.beta.*;
  */
 public class BackslashInlineParser implements InlineContentParser {
 
-  private static final Pattern ESCAPABLE = Pattern.compile('^' + Escaping.ESCAPABLE);
-
   @Override
   public ParsedInline tryParse(InlineParserState inlineParserState) {
     Scanner scanner = inlineParserState.scanner();
@@ -41,7 +38,7 @@ public class BackslashInlineParser implements InlineContentParser {
     if (next == '\n') {
       scanner.next();
       return ParsedInline.of(new HardLineBreak(), scanner.position());
-    } else if (ESCAPABLE.matcher(String.valueOf(next)).matches()) {
+    } else if (Escaping.isEscapable(next)) {
       scanner.next();
       return ParsedInline.of(new Text(String.valueOf(next)), scanner.position());
     } else {

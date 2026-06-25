@@ -166,7 +166,7 @@ public class LinkScanner {
           break;
         default:
           // or control character
-          if (Character.isISOControl(c)) {
+          if (isAsciiControl(c)) {
             return !empty;
           }
           scanner.next();
@@ -214,5 +214,9 @@ public class LinkScanner {
         return true;
     }
     return false;
+  }
+
+  private static boolean isAsciiControl(char c) {
+    return (c >= 0 && c <= 0x1F) || c == 0x7F;
   }
 }
