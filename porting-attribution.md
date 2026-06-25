@@ -1,6 +1,6 @@
 # Porting Attribution
 
-Status date: 2026-06-24
+Status date: 2026-06-25
 
 ## Scope
 
@@ -15,6 +15,8 @@ Ported source scope so far:
 - `commonmark/src/main/java/org/commonmark/parser/block/*`
 - `commonmark/src/main/java/org/commonmark/parser/delimiter/*`
 - `commonmark/src/main/java/org/commonmark/parser/beta/*`
+- `commonmark/src/main/java/org/commonmark/renderer/*`
+- `commonmark/src/main/java/org/commonmark/renderer/html/*`
 - `commonmark/src/main/java/org/commonmark/text/AsciiMatcher.java`
 - `commonmark/src/main/java/org/commonmark/text/CharMatcher.java`
 - `commonmark/src/main/java/org/commonmark/text/Characters.java`
@@ -25,6 +27,7 @@ Ported source scope so far:
 - `commonmark/src/main/java/org/commonmark/internal/DocumentBlockParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/InlineParserContextImpl.java`
 - `commonmark/src/main/java/org/commonmark/internal/InlineParserImpl.java`
+- `commonmark/src/main/java/org/commonmark/internal/renderer/NodeRendererMap.java`
 - `commonmark/src/main/java/org/commonmark/internal/LinkReferenceDefinitionParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/ParagraphParser.java`
 - `commonmark/src/main/java/org/commonmark/internal/StaggeredDelimiterProcessor.java`
@@ -47,6 +50,8 @@ Current local targets:
 - `src/main/java/org/dominokit/markdown/parser/block/*`
 - `src/main/java/org/dominokit/markdown/parser/delimiter/*`
 - `src/main/java/org/dominokit/markdown/parser/beta/*`
+- `src/main/java/org/dominokit/markdown/renderer/*`
+- `src/main/java/org/dominokit/markdown/renderer/html/*`
 - `src/main/java/org/dominokit/markdown/text/AsciiMatcher.java`
 - `src/main/java/org/dominokit/markdown/text/CharMatcher.java`
 - `src/main/java/org/dominokit/markdown/text/Characters.java`
@@ -57,6 +62,7 @@ Current local targets:
 - `src/main/java/org/dominokit/markdown/internal/DocumentBlockParser.java`
 - `src/main/java/org/dominokit/markdown/internal/InlineParserContextImpl.java`
 - `src/main/java/org/dominokit/markdown/internal/InlineParserImpl.java`
+- `src/main/java/org/dominokit/markdown/internal/renderer/NodeRendererMap.java`
 - `src/main/java/org/dominokit/markdown/internal/LinkReferenceDefinitionParser.java`
 - `src/main/java/org/dominokit/markdown/internal/ParagraphParser.java`
 - `src/main/java/org/dominokit/markdown/internal/StaggeredDelimiterProcessor.java`
@@ -80,10 +86,11 @@ The ported code was intentionally kept close to upstream, with these changes:
 - package root changed from `org.commonmark` to `org.dominokit.markdown`
 - Apache project headers were added to local source files
 - `Parser` currently exposes a string-only entry point and does not include upstream `Reader`-based parsing helpers
+- the HTML renderer port currently includes only the upstream core renderer and HTML renderer packages, while the upstream Markdown and plain-text renderers remain deferred
 - `HeadingParser` still uses local/manual ATX heading scanning instead of porting the upstream heading scanner stack
 - the inline parser, delimiter stack, and reference-definition parser were ported in a later phase after the block parser foundation was already integrated
 - `Html5Entities` embeds the upstream entity table as generated Java source so the port keeps the no-classpath-resource-loading constraint
-- local JVM tests cover the same parser slices as upstream but were rewritten in JUnit 4 style to match this repository build
+- local JVM tests cover the same parser and HTML renderer slices as upstream but were rewritten in JUnit 4 style to match this repository build
 
 ## Licensing Note
 

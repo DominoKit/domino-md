@@ -1,6 +1,6 @@
 # V1 Scope List
 
-Status date: 2026-06-24
+Status date: 2026-06-25
 
 ## Upstream Baseline
 
@@ -134,3 +134,16 @@ Decisions:
 - replace the temporary plain-text inline parser entirely in this phase instead of layering additional behavior onto it
 - preserve the no-classpath-loading rule by embedding the upstream HTML5 entity data in generated Java source rather than loading `entities.txt` at runtime
 - leave HTML rendering, raw HTML output policy, and URL sanitization for the next phase now that the parser-side AST is feature-complete for the V1 inline syntax set
+
+## Phase 5 Status
+
+Completed on 2026-06-25:
+- `org.dominokit.markdown.renderer` and `org.dominokit.markdown.renderer.html` now exist with the public renderer contracts, HTML renderer builder, HTML writer, attribute-provider hooks, node-renderer override hooks, and URL sanitization interfaces
+- `org.dominokit.markdown.renderer.html.CoreHtmlNodeRenderer` now renders the V1 AST surface for documents, headings, paragraphs, block quotes, ordered and unordered lists, code blocks, thematic breaks, links, images, emphasis, strong emphasis, text, code spans, inline HTML, block HTML, and hard and soft line breaks
+- `org.dominokit.markdown.internal.renderer.NodeRendererMap` now ports the upstream first-registered-wins node-dispatch behavior and renderer lifecycle callbacks used by the HTML renderer context
+- focused JVM tests now cover raw-versus-escaped HTML rendering, attribute escaping, default and custom URL sanitization, percent-encoded URL output, attribute provider mutation, node renderer overrides, image alt-text extraction, single-paragraph omission, softbreak customization, and builder-based extension wiring
+
+Decisions:
+- keep the renderer slice HTML-only for V1 and continue to defer upstream Markdown and plain-text renderers
+- preserve the parser and renderer boundary by keeping the renderer string-based and free of Elemental2, DOM, and sanitizer-library dependencies
+- reuse the upstream renderer extension points closely so later custom nodes and extension modules can hook into rendering without reworking the public API
