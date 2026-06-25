@@ -147,3 +147,16 @@ Decisions:
 - keep the renderer slice HTML-only for V1 and continue to defer upstream Markdown and plain-text renderers
 - preserve the parser and renderer boundary by keeping the renderer string-based and free of Elemental2, DOM, and sanitizer-library dependencies
 - reuse the upstream renderer extension points closely so later custom nodes and extension modules can hook into rendering without reworking the public API
+
+## Phase 6 Status
+
+Completed on 2026-06-25:
+- `src/test/resources/spec.txt` now imports the upstream CommonMark core spec examples used to measure parser and HTML renderer conformance
+- `src/test/java/org/dominokit/markdown/conformance/CommonMarkSpecTest.java` now provides a checked-in conformance harness for full-spec HTML rendering comparison, imported-example count validation, and AST text-node normalization checks
+- the last remaining spec mismatch was fixed by replacing the temporary local ATX-heading scan in `HeadingParser` with the upstream scanner-based closing-hash handling
+- the current core conformance snapshot is recorded in `commonmark-compliance-report.md` with `652 / 652` examples passing and `known-failures.md` currently empty
+
+Decisions:
+- keep the conformance harness strict with no failure allowlist while the current snapshot is fully green
+- match upstream core spec rendering by enabling `percentEncodeUrls(true)` in the conformance renderer configuration
+- keep spec resources and harness code test-scoped so the runtime core port remains free of classpath resource dependencies

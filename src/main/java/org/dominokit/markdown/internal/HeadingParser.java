@@ -15,11 +15,14 @@
  */
 package org.dominokit.markdown.internal;
 
+import org.dominokit.markdown.internal.util.Parsing;
 import org.dominokit.markdown.node.Block;
 import org.dominokit.markdown.node.Heading;
 import org.dominokit.markdown.parser.InlineParser;
 import org.dominokit.markdown.parser.SourceLine;
 import org.dominokit.markdown.parser.SourceLines;
+import org.dominokit.markdown.parser.beta.Position;
+import org.dominokit.markdown.parser.beta.Scanner;
 import org.dominokit.markdown.parser.block.AbstractBlockParser;
 import org.dominokit.markdown.parser.block.AbstractBlockParserFactory;
 import org.dominokit.markdown.parser.block.BlockContinue;
@@ -57,7 +60,7 @@ public class HeadingParser extends AbstractBlockParser {
 
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
-      if (state.getIndent() >= 4) {
+      if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT) {
         return BlockStart.none();
       }
 
@@ -86,65 +89,60 @@ public class HeadingParser extends AbstractBlockParser {
   }
 
   private static HeadingParser getAtxHeading(SourceLine line) {
-    CharSequence content = line.getContent();
-    int length = content.length();
+    Scanner scanner = Scanner.of(SourceLines.of(line));
+    int level = scanner.matchMultiple('#');
 
-    int level = 0;
-    while (level < length && content.charAt(level) == '#') {
-      level++;
-    }
     if (level == 0 || level > 6) {
       return null;
     }
-    if (level == length) {
+
+    if (!scanner.hasNext()) {
       return new HeadingParser(level, SourceLines.empty());
     }
 
-    char next = content.charAt(level);
+    char next = scanner.peek();
     if (next != ' ' && next != '\t') {
       return null;
     }
 
-    int start = Characters.skipSpaceTab(content, level, length);
-    int end = trimClosingSequence(content, start, length);
-    if (start >= end) {
+    scanner.whitespace();
+    Position start = scanner.position();
+    Position end = start;
+    boolean hashCanEnd = true;
+
+    while (scanner.hasNext()) {
+      char c = scanner.peek();
+      switch (c) {
+        case '#':
+          if (hashCanEnd) {
+            scanner.matchMultiple('#');
+            int whitespace = scanner.whitespace();
+            if (scanner.hasNext()) {
+              end = scanner.position();
+            }
+            hashCanEnd = whitespace > 0;
+          } else {
+            scanner.next();
+            end = scanner.position();
+          }
+          break;
+        case ' ':
+        case '\t':
+          hashCanEnd = true;
+          scanner.next();
+          break;
+        default:
+          hashCanEnd = false;
+          scanner.next();
+          end = scanner.position();
+      }
+    }
+
+    SourceLines source = scanner.getSource(start, end);
+    if (source.getContent().isEmpty()) {
       return new HeadingParser(level, SourceLines.empty());
     }
-    return new HeadingParser(level, SourceLines.of(line.substring(start, end)));
-  }
-
-  private static int trimClosingSequence(CharSequence content, int start, int length) {
-    int end = length;
-    while (end > start) {
-      char c = content.charAt(end - 1);
-      if (c == ' ' || c == '\t') {
-        end--;
-      } else {
-        break;
-      }
-    }
-
-    int hashesStart = end;
-    while (hashesStart > start && content.charAt(hashesStart - 1) == '#') {
-      hashesStart--;
-    }
-
-    if (hashesStart < end && hashesStart > start) {
-      char beforeHashes = content.charAt(hashesStart - 1);
-      if (beforeHashes == ' ' || beforeHashes == '\t') {
-        end = hashesStart - 1;
-        while (end > start) {
-          char c = content.charAt(end - 1);
-          if (c == ' ' || c == '\t') {
-            end--;
-          } else {
-            break;
-          }
-        }
-      }
-    }
-
-    return end;
+    return new HeadingParser(level, source);
   }
 
   private static int getSetextHeadingLevel(CharSequence line, int index) {
