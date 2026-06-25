@@ -72,7 +72,6 @@ Deliver a browser-safe Markdown engine foundation that:
 
 ### Core features deferred
 
-- Markdown-to-Markdown rendering
 - automatic extension discovery
 - JVM stream or file parsing helpers
 - JPMS module descriptors
@@ -194,7 +193,13 @@ Completed on 2026-06-25:
 - the core plain-text renderer now covers documents, headings, paragraphs, block quotes, ordered and unordered lists, code blocks, links, images, HTML nodes, and hard and soft line breaks
 - extension integration now covers strikethrough, task list items, and tables, with autolinks flowing through the core link rendering path
 - focused JVM and browser-path tests now cover line-break modes, node-renderer overrides, extension plain-text output, and transpiled `GWTTestCase` execution
+- `org.dominokit.markdown.renderer.markdown` now exists with the upstream-shaped `MarkdownRenderer` API, writer, context, factory, and core node renderer
+- the Markdown renderer now covers canonical rendering for the core AST surface, plus extension hooks for strikethrough, task list items, and tables, with autolinks flowing through the core link rendering path
+- focused JVM tests now cover representative exact round-trips, manual AST rendering edge cases, extension idempotence, and full-spec semantic round-trips across the checked-in 652 CommonMark examples
+- browser-path tests now also execute Markdown renderer assertions inside `MarkdownSuite`
 
 Decisions:
 - keep the text renderer browser-safe and string-based, with no DOM or JVM I/O dependencies
 - stay close to upstream `TextContentRenderer` while replacing whitespace-collapsing regex behavior with manual scanning for browser compatibility
+- keep the Markdown renderer browser-safe and string-based, with no DOM or JVM I/O dependencies
+- stay close to upstream `MarkdownRenderer` while replacing ordered-list regex and line-splitting helpers with manual scanning for browser compatibility

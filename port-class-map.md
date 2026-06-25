@@ -42,7 +42,7 @@ Do not port yet:
 | `org.commonmark.parser.beta` | `org.dominokit.markdown.parser.beta` | Port | Keep package for initial compatibility even though it is experimental upstream. |
 | `org.commonmark.renderer` | `org.dominokit.markdown.renderer` | Port | Keep base renderer contracts. |
 | `org.commonmark.renderer.html` | `org.dominokit.markdown.renderer.html` | Port | Main rendering target for MVP. |
-| `org.commonmark.renderer.markdown` | `org.dominokit.markdown.renderer.markdown` | Defer | Not needed for MVP. |
+| `org.commonmark.renderer.markdown` | `org.dominokit.markdown.renderer.markdown` | Port | Browser-safe Markdown renderer now implemented. |
 | `org.commonmark.renderer.text` | `org.dominokit.markdown.renderer.text` | Port | Browser-safe plain-text renderer now implemented. |
 | `org.commonmark.text` | `org.dominokit.markdown.text` | Port | Used by parser internals. |
 | `org.commonmark.internal` | `org.dominokit.markdown.internal` | Port selectively | Keep only parser and HTML support internals needed by MVP. |
@@ -121,6 +121,14 @@ Port first:
 - `CoreHtmlNodeRenderer`
 - `HtmlWriter`
 
+### Markdown Renderer API
+
+Ported:
+- `MarkdownRenderer`
+- `MarkdownNodeRendererContext`
+- `MarkdownNodeRendererFactory`
+- `MarkdownWriter`
+
 ### Text Renderer API
 
 Ported:
@@ -135,7 +143,6 @@ Ported:
 - `module-info.java`
 - `org.commonmark.internal.util.LineReader`
 - any code reachable only from `parseReader(Reader)`
-- all `renderer.markdown.*` classes
 
 ## Special Handling
 

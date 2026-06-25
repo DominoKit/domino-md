@@ -30,6 +30,7 @@ import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
 import org.dominokit.markdown.renderer.elemental2.SoftBreakRendering;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
 import org.dominokit.markdown.renderer.html.UrlSanitizer;
+import org.dominokit.markdown.renderer.markdown.MarkdownRenderer;
 import org.dominokit.markdown.renderer.text.LineBreakRendering;
 import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
@@ -40,6 +41,7 @@ public class MarkdownSuite extends GWTTestCase {
       HtmlRenderer.builder().percentEncodeUrls(true).build();
   private static final Elemental2Renderer ELEMENTAL2_RENDERER =
       Elemental2Renderer.builder().percentEncodeUrls(true).build();
+  private static final MarkdownRenderer MARKDOWN_RENDERER = MarkdownRenderer.builder().build();
   private static final TextContentRenderer TEXT_RENDERER = TextContentRenderer.builder().build();
   private static final Set<Extension> ENGINE_EXTENSIONS =
       Set.of(
@@ -238,6 +240,25 @@ public class MarkdownSuite extends GWTTestCase {
     assertEquals("A | B\n1 | 2", renderer.render(parser.parse("A|B\n---|---\n1|2")));
     assertEquals(
         "\"www.example.com\" (http://www.example.com)",
+        renderer.render(parser.parse("www.example.com")));
+  }
+
+  public void testMarkdownRendererShouldSupportBrowserBuild() {
+    assertEquals("# Hello\n", MARKDOWN_RENDERER.render(PARSER.parse("# Hello\n")));
+    assertEquals("Foo\nbar\n===\n", MARKDOWN_RENDERER.render(PARSER.parse("Foo\nbar\n===\n")));
+    assertEquals("1\\. Foo\n", MARKDOWN_RENDERER.render(PARSER.parse("1\\. Foo\n")));
+    assertEquals("[a](ä)\n", MARKDOWN_RENDERER.render(PARSER.parse("[a](ä)\n")));
+  }
+
+  public void testMarkdownRendererShouldSupportExtensionSetInBrowserBuild() {
+    Parser parser = Parser.builder().extensions(ENGINE_EXTENSIONS).build();
+    MarkdownRenderer renderer = MarkdownRenderer.builder().extensions(ENGINE_EXTENSIONS).build();
+
+    assertEquals("~foo~\n", renderer.render(parser.parse("~foo~")));
+    assertEquals("- [x] task\n", renderer.render(parser.parse("- [x] task\n")));
+    assertEquals("|A|B|\n|---|---|\n|1|2|\n", renderer.render(parser.parse("A|B\n---|---\n1|2")));
+    assertEquals(
+        "[www.example.com](http://www.example.com)\n",
         renderer.render(parser.parse("www.example.com")));
   }
 

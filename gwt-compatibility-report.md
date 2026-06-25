@@ -54,6 +54,8 @@ Phase 11 follow-up:
   tables, and autolinks on both HTML and Elemental2 DOM renderers
 - browser-side tests now also execute the plain-text `TextContentRenderer` path, including
   extension-backed output for strikethrough, task list items, tables, and autolinks
+- browser-side tests now also execute the Markdown renderer path, including canonical output for
+  headings, escaping, links, strikethrough, task list items, tables, and autolinks
 
 ## Compatibility Adaptations
 

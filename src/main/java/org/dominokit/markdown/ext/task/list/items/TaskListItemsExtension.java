@@ -15,14 +15,20 @@
  */
 package org.dominokit.markdown.ext.task.list.items;
 
+import java.util.Set;
 import org.dominokit.markdown.Extension;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemElementNodeRenderer;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemHtmlNodeRenderer;
+import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemMarkdownNodeRenderer;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemPostProcessor;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemTextContentNodeRenderer;
 import org.dominokit.markdown.parser.Parser;
+import org.dominokit.markdown.renderer.NodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
+import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererContext;
+import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererFactory;
+import org.dominokit.markdown.renderer.markdown.MarkdownRenderer;
 import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
 /** Extension for GitHub-style task list items. */
@@ -30,7 +36,8 @@ public final class TaskListItemsExtension
     implements Parser.ParserExtension,
         HtmlRenderer.HtmlRendererExtension,
         Elemental2Renderer.Elemental2RendererExtension,
-        TextContentRenderer.TextContentRendererExtension {
+        TextContentRenderer.TextContentRendererExtension,
+        MarkdownRenderer.MarkdownRendererExtension {
 
   private TaskListItemsExtension() {}
 
@@ -56,5 +63,21 @@ public final class TaskListItemsExtension
   @Override
   public void extend(TextContentRenderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(TaskListItemTextContentNodeRenderer::new);
+  }
+
+  @Override
+  public void extend(MarkdownRenderer.Builder rendererBuilder) {
+    rendererBuilder.nodeRendererFactory(
+        new MarkdownNodeRendererFactory() {
+          @Override
+          public NodeRenderer create(MarkdownNodeRendererContext context) {
+            return new TaskListItemMarkdownNodeRenderer(context);
+          }
+
+          @Override
+          public Set<Character> getSpecialCharacters() {
+            return Set.of();
+          }
+        });
   }
 }

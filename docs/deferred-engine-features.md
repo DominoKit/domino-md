@@ -5,16 +5,17 @@ Status date: 2026-06-25
 ## Purpose
 
 This document explains the remaining non-UI engine features that are still deferred after the core
-parser, HTML renderer, Elemental2 DOM renderer, GWT compatibility work, extension phase, and the
-plain-text renderer follow-up.
+parser, HTML renderer, Elemental2 DOM renderer, GWT compatibility work, extension phase, the
+plain-text renderer follow-up, and the Markdown renderer follow-up.
 
 Implemented follow-up:
 
 - plain-text rendering in `org.dominokit.markdown.renderer.text`, completed on 2026-06-25
+- Markdown-to-Markdown rendering in `org.dominokit.markdown.renderer.markdown`, completed on
+  2026-06-25
 
 The remaining deferred features are:
 
-- Markdown-to-Markdown rendering
 - automatic extension discovery
 - JVM stream or file parsing helpers
 - JPMS module descriptors
@@ -47,14 +48,12 @@ surface. Some are better implemented as optional JVM-only layers.
 
 Recommended implementation order:
 
-1. Markdown-to-Markdown rendering
-2. automatic extension discovery
-3. JVM stream or file parsing helpers
-4. JPMS module descriptors
+1. automatic extension discovery
+2. JVM stream or file parsing helpers
+3. JPMS module descriptors
 
 Rationale:
 
-- the Markdown renderer is larger but still pure renderer work over the existing AST
 - automatic discovery can be added with compile-time generated loaders for browser builds while
   keeping the explicit extension model stable
 - JVM parsing helpers are useful, but they should stay outside the browser-safe core and can wait
@@ -65,12 +64,13 @@ Rationale:
 
 | Feature | Recommended package or module | Browser-safe | Main output |
 | --- | --- | --- | --- |
-| Markdown-to-Markdown rendering | `org.dominokit.markdown.renderer.markdown` | yes, after small compatibility fixes | canonical Markdown text |
 | automatic extension discovery | optional discovery support layer with generated browser loader and optional JVM bridge later | yes, for the generated-loader path | discovered `Extension` instances |
 | JVM stream or file parsing helpers | separate JVM-only parser helper module | no | `Node` from `Reader`, `InputStream`, `Path`, or `File` |
 | JPMS module descriptors | `module-info.java` per final artifact | JVM-only concern | explicit Java modules |
 
 ## Markdown-to-Markdown Rendering
+
+Status: implemented on 2026-06-25.
 
 ### What it is
 
@@ -155,9 +155,9 @@ public interface MarkdownNodeRendererFactory {
 That should be kept in this fork because it is the cleanest way to let extension renderers declare
 their syntax needs without hard-coding them into the core renderer.
 
-### Implementation approach
+### Implementation summary
 
-Port the upstream package shape closely:
+The implementation now exists in:
 
 - `MarkdownRenderer`
 - `MarkdownWriter`
@@ -165,11 +165,15 @@ Port the upstream package shape closely:
 - `MarkdownNodeRendererFactory`
 - `CoreMarkdownNodeRenderer`
 
-Expected compatibility edits:
+Browser-safe compatibility notes:
 
-- upstream `CoreMarkdownNodeRenderer` uses regex in a few places
-- this fork should replace those runtime regex paths with manual scanners where doing so avoids
-  GWT regressions, following the same approach already used in the parser compatibility fixes
+- the public API stays close to upstream `MarkdownRenderer`
+- ordered-list marker detection and line splitting use manual scanners instead of regex-based or
+  `split`-based runtime helpers
+- extension hooks now cover strikethrough, task list items, and tables, while autolinks flow
+  through the core link rendering path
+- a spec-style semantic round-trip test now checks all 652 checked-in CommonMark examples by
+  comparing HTML output after `parse -> render markdown -> parse -> render html`
 
 ### Important limitation
 
@@ -183,14 +187,15 @@ Examples of expected normalization:
 
 The contract is AST equivalence after reparse, not source equivalence.
 
-### Tests
+### Verification summary
 
-Add:
+Covered by:
 
-- direct renderer fixture tests for all core node types
-- AST round-trip tests: `parse -> render markdown -> parse again -> compare structure`
-- extension round-trip tests for strikethrough, tables, task list items, and autolinks
-- GWT/browser rendering tests if the package is kept browser-safe
+- direct renderer fixture tests for representative core node types
+- idempotence and semantic round-trip tests for strikethrough, tables, task list items, and
+  autolinks
+- CommonMark spec semantic round-trip coverage across all checked-in examples
+- browser-path execution through `MarkdownSuite`
 
 ## Plain-Text Rendering
 
@@ -614,21 +619,15 @@ This reduces semantic drift and makes future upstream comparison easier.
 
 ### Milestone A
 
-- port `renderer.markdown`
-- add AST round-trip tests
-- add extension-specific markdown rendering tests
-
-### Milestone B
-
 - add optional generated extension discovery using `domino-auto`
 - keep explicit registration as the documented primary path
 
-### Milestone C
+### Milestone B
 
 - add JVM-only `ParserIo`
 - document it as the migration path for `Reader` or file-based parsing
 
-### Milestone D
+### Milestone C
 
 - decide whether artifact split is needed before JPMS
 - add `module-info.java` only after that decision is stable
@@ -639,9 +638,9 @@ The next deferred engine implementation should start with renderers, not JVM hel
 
 Specifically:
 
-1. implement `renderer.markdown`
-2. add optional generated extension discovery
-3. add the JVM-only helper layer
+1. add optional generated extension discovery
+2. add the JVM-only helper layer
+3. add JPMS only after the artifact layout is stable
 
 That sequence keeps the engine moving forward without reopening the parser architecture or
 introducing JVM-only dependencies into the core too early.
