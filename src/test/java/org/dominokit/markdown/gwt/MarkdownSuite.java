@@ -30,6 +30,8 @@ import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
 import org.dominokit.markdown.renderer.elemental2.SoftBreakRendering;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
 import org.dominokit.markdown.renderer.html.UrlSanitizer;
+import org.dominokit.markdown.renderer.text.LineBreakRendering;
+import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
 public class MarkdownSuite extends GWTTestCase {
 
@@ -38,6 +40,7 @@ public class MarkdownSuite extends GWTTestCase {
       HtmlRenderer.builder().percentEncodeUrls(true).build();
   private static final Elemental2Renderer ELEMENTAL2_RENDERER =
       Elemental2Renderer.builder().percentEncodeUrls(true).build();
+  private static final TextContentRenderer TEXT_RENDERER = TextContentRenderer.builder().build();
   private static final Set<Extension> ENGINE_EXTENSIONS =
       Set.of(
           StrikethroughExtension.create(),
@@ -212,6 +215,30 @@ public class MarkdownSuite extends GWTTestCase {
     assertEquals(
         "<p><a href=\"http://www.example.com\">www.example.com</a></p>",
         serialize(renderer.render(parser.parse("www.example.com"))));
+  }
+
+  public void testTextContentRendererShouldSupportBrowserBuild() {
+    assertEquals(
+        "Heading\nParagraph", TEXT_RENDERER.render(PARSER.parse("# Heading\n\nParagraph")));
+    assertEquals(
+        "alpha beta gamma",
+        TextContentRenderer.builder()
+            .lineBreakRendering(LineBreakRendering.STRIP)
+            .build()
+            .render(PARSER.parse("alpha\nbeta\n\ngamma")));
+  }
+
+  public void testTextContentRendererShouldSupportExtensionSetInBrowserBuild() {
+    Parser parser = Parser.builder().extensions(ENGINE_EXTENSIONS).build();
+    TextContentRenderer renderer =
+        TextContentRenderer.builder().extensions(ENGINE_EXTENSIONS).build();
+
+    assertEquals("foo", renderer.render(parser.parse("~~foo~~")));
+    assertEquals("- [x] task", renderer.render(parser.parse("- [x] task\n")));
+    assertEquals("A | B\n1 | 2", renderer.render(parser.parse("A|B\n---|---\n1|2")));
+    assertEquals(
+        "\"www.example.com\" (http://www.example.com)",
+        renderer.render(parser.parse("www.example.com")));
   }
 
   private static String serialize(elemental2.dom.DocumentFragment fragment) {

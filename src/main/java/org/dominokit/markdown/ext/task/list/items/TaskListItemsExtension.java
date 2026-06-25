@@ -19,15 +19,18 @@ import org.dominokit.markdown.Extension;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemElementNodeRenderer;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemHtmlNodeRenderer;
 import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemPostProcessor;
+import org.dominokit.markdown.ext.task.list.items.internal.TaskListItemTextContentNodeRenderer;
 import org.dominokit.markdown.parser.Parser;
 import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
+import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
 /** Extension for GitHub-style task list items. */
 public final class TaskListItemsExtension
     implements Parser.ParserExtension,
         HtmlRenderer.HtmlRendererExtension,
-        Elemental2Renderer.Elemental2RendererExtension {
+        Elemental2Renderer.Elemental2RendererExtension,
+        TextContentRenderer.TextContentRendererExtension {
 
   private TaskListItemsExtension() {}
 
@@ -48,5 +51,10 @@ public final class TaskListItemsExtension
   @Override
   public void extend(Elemental2Renderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(TaskListItemElementNodeRenderer::new);
+  }
+
+  @Override
+  public void extend(TextContentRenderer.Builder rendererBuilder) {
+    rendererBuilder.nodeRendererFactory(TaskListItemTextContentNodeRenderer::new);
   }
 }

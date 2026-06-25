@@ -5,12 +5,16 @@ Status date: 2026-06-25
 ## Purpose
 
 This document explains the remaining non-UI engine features that are still deferred after the core
-parser, HTML renderer, Elemental2 DOM renderer, GWT compatibility work, and extension phase.
+parser, HTML renderer, Elemental2 DOM renderer, GWT compatibility work, extension phase, and the
+plain-text renderer follow-up.
 
-These features are:
+Implemented follow-up:
+
+- plain-text rendering in `org.dominokit.markdown.renderer.text`, completed on 2026-06-25
+
+The remaining deferred features are:
 
 - Markdown-to-Markdown rendering
-- plain-text rendering
 - automatic extension discovery
 - JVM stream or file parsing helpers
 - JPMS module descriptors
@@ -43,15 +47,13 @@ surface. Some are better implemented as optional JVM-only layers.
 
 Recommended implementation order:
 
-1. plain-text rendering
-2. Markdown-to-Markdown rendering
-3. automatic extension discovery
-4. JVM stream or file parsing helpers
-5. JPMS module descriptors
+1. Markdown-to-Markdown rendering
+2. automatic extension discovery
+3. JVM stream or file parsing helpers
+4. JPMS module descriptors
 
 Rationale:
 
-- the text renderer is small, self-contained, and browser-safe
 - the Markdown renderer is larger but still pure renderer work over the existing AST
 - automatic discovery can be added with compile-time generated loaders for browser builds while
   keeping the explicit extension model stable
@@ -64,7 +66,6 @@ Rationale:
 | Feature | Recommended package or module | Browser-safe | Main output |
 | --- | --- | --- | --- |
 | Markdown-to-Markdown rendering | `org.dominokit.markdown.renderer.markdown` | yes, after small compatibility fixes | canonical Markdown text |
-| plain-text rendering | `org.dominokit.markdown.renderer.text` | yes | readable plain text |
 | automatic extension discovery | optional discovery support layer with generated browser loader and optional JVM bridge later | yes, for the generated-loader path | discovered `Extension` instances |
 | JVM stream or file parsing helpers | separate JVM-only parser helper module | no | `Node` from `Reader`, `InputStream`, `Path`, or `File` |
 | JPMS module descriptors | `module-info.java` per final artifact | JVM-only concern | explicit Java modules |
@@ -193,6 +194,8 @@ Add:
 
 ## Plain-Text Rendering
 
+Status: implemented on 2026-06-25.
+
 ### What it is
 
 A renderer that extracts readable text content from the AST without Markdown or HTML markup.
@@ -261,29 +264,33 @@ The line break policy should stay compatible with upstream:
 - `COMPACT`: use single line breaks between blocks
 - `SEPARATE_BLOCKS`: preserve clearer block separation
 
-### Implementation approach
+### Implementation summary
 
-This is the easiest remaining renderer to port because:
-
-- it is pure Java
-- it only depends on the AST
-- it already fits the existing `NodeRendererMap` pattern
-
-Implementation should closely follow upstream:
+The implementation now exists in:
 
 - `TextContentRenderer`
 - `TextContentWriter`
 - `CoreTextContentNodeRenderer`
+- `TextContentNodeRendererContext`
+- `TextContentNodeRendererFactory`
+- `LineBreakRendering`
 
-### Tests
+Browser-safe compatibility notes:
 
-Add:
+- the public API stays close to upstream `TextContentRenderer`
+- whitespace collapsing uses manual scanning instead of regex to stay aligned with the browser-safe
+  runtime rules
+- extension hooks now cover strikethrough, task list items, and tables, while autolinks flow
+  through the core link rendering path
 
-- fixture tests for all line break modes
-- list formatting tests
-- block quote and code block tests
-- extension tests for tables and task list items
-- browser tests if the renderer is kept in the transpiled surface
+### Verification summary
+
+Covered by:
+
+- fixture tests for all line-break modes
+- list, block quote, code block, and link formatting tests
+- extension tests for strikethrough, tables, task list items, and autolinks
+- browser-path execution through `MarkdownSuite`
 
 ## Automatic Extension Discovery
 
@@ -607,27 +614,21 @@ This reduces semantic drift and makes future upstream comparison easier.
 
 ### Milestone A
 
-- port `renderer.text`
-- add tests
-- keep browser compatibility green
-
-### Milestone B
-
 - port `renderer.markdown`
 - add AST round-trip tests
 - add extension-specific markdown rendering tests
 
-### Milestone C
+### Milestone B
 
 - add optional generated extension discovery using `domino-auto`
 - keep explicit registration as the documented primary path
 
-### Milestone D
+### Milestone C
 
 - add JVM-only `ParserIo`
 - document it as the migration path for `Reader` or file-based parsing
 
-### Milestone E
+### Milestone D
 
 - decide whether artifact split is needed before JPMS
 - add `module-info.java` only after that decision is stable
@@ -638,8 +639,8 @@ The next deferred engine implementation should start with renderers, not JVM hel
 
 Specifically:
 
-1. implement `renderer.text`
-2. implement `renderer.markdown`
+1. implement `renderer.markdown`
+2. add optional generated extension discovery
 3. add the JVM-only helper layer
 
 That sequence keeps the engine moving forward without reopening the parser architecture or

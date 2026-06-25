@@ -73,7 +73,6 @@ Deliver a browser-safe Markdown engine foundation that:
 ### Core features deferred
 
 - Markdown-to-Markdown rendering
-- plain-text rendering
 - automatic extension discovery
 - JVM stream or file parsing helpers
 - JPMS module descriptors
@@ -187,3 +186,15 @@ Decisions:
 - use the repository's existing GWT 2.13.1 toolchain as the browser-transpilation proof path instead of introducing a second parallel J2CL-specific Maven module in this phase
 - keep the parser and renderer free of GWT runtime APIs even while adding browser compilation support, limiting compatibility changes to data tables and parser internals
 - validate browser parity through shared rendering fixtures executed in both plain JVM tests and `GWTTestCase`
+
+## Deferred Engine Follow-Up Status
+
+Completed on 2026-06-25:
+- `org.dominokit.markdown.renderer.text` now exists with the upstream-shaped `TextContentRenderer` API, writer, context, factory, and line-break mode types
+- the core plain-text renderer now covers documents, headings, paragraphs, block quotes, ordered and unordered lists, code blocks, links, images, HTML nodes, and hard and soft line breaks
+- extension integration now covers strikethrough, task list items, and tables, with autolinks flowing through the core link rendering path
+- focused JVM and browser-path tests now cover line-break modes, node-renderer overrides, extension plain-text output, and transpiled `GWTTestCase` execution
+
+Decisions:
+- keep the text renderer browser-safe and string-based, with no DOM or JVM I/O dependencies
+- stay close to upstream `TextContentRenderer` while replacing whitespace-collapsing regex behavior with manual scanning for browser compatibility

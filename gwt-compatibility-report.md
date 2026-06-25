@@ -52,6 +52,8 @@ Phase 7A follow-up:
 Phase 11 follow-up:
 - browser-side tests now also cover the shipped extension set for strikethrough, task list items,
   tables, and autolinks on both HTML and Elemental2 DOM renderers
+- browser-side tests now also execute the plain-text `TextContentRenderer` path, including
+  extension-backed output for strikethrough, task list items, tables, and autolinks
 
 ## Compatibility Adaptations
 

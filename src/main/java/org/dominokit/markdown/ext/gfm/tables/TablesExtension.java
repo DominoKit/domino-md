@@ -19,15 +19,18 @@ import org.dominokit.markdown.Extension;
 import org.dominokit.markdown.ext.gfm.tables.internal.TableBlockParser;
 import org.dominokit.markdown.ext.gfm.tables.internal.TableElementNodeRenderer;
 import org.dominokit.markdown.ext.gfm.tables.internal.TableHtmlNodeRenderer;
+import org.dominokit.markdown.ext.gfm.tables.internal.TableTextContentNodeRenderer;
 import org.dominokit.markdown.parser.Parser;
 import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
+import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
 /** Extension for GitHub-style pipe tables. */
 public final class TablesExtension
     implements Parser.ParserExtension,
         HtmlRenderer.HtmlRendererExtension,
-        Elemental2Renderer.Elemental2RendererExtension {
+        Elemental2Renderer.Elemental2RendererExtension,
+        TextContentRenderer.TextContentRendererExtension {
 
   private TablesExtension() {}
 
@@ -48,5 +51,10 @@ public final class TablesExtension
   @Override
   public void extend(Elemental2Renderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(TableElementNodeRenderer::new);
+  }
+
+  @Override
+  public void extend(TextContentRenderer.Builder rendererBuilder) {
+    rendererBuilder.nodeRendererFactory(TableTextContentNodeRenderer::new);
   }
 }

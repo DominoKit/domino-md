@@ -19,9 +19,11 @@ import org.dominokit.markdown.Extension;
 import org.dominokit.markdown.ext.gfm.strikethrough.internal.StrikethroughDelimiterProcessor;
 import org.dominokit.markdown.ext.gfm.strikethrough.internal.StrikethroughElementNodeRenderer;
 import org.dominokit.markdown.ext.gfm.strikethrough.internal.StrikethroughHtmlNodeRenderer;
+import org.dominokit.markdown.ext.gfm.strikethrough.internal.StrikethroughTextContentNodeRenderer;
 import org.dominokit.markdown.parser.Parser;
 import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
 import org.dominokit.markdown.renderer.html.HtmlRenderer;
+import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
 /**
  * Extension for GFM strikethrough using {@code ~} or {@code ~~}.
@@ -31,7 +33,8 @@ import org.dominokit.markdown.renderer.html.HtmlRenderer;
 public final class StrikethroughExtension
     implements Parser.ParserExtension,
         HtmlRenderer.HtmlRendererExtension,
-        Elemental2Renderer.Elemental2RendererExtension {
+        Elemental2Renderer.Elemental2RendererExtension,
+        TextContentRenderer.TextContentRendererExtension {
 
   private final boolean requireTwoTildes;
 
@@ -60,6 +63,11 @@ public final class StrikethroughExtension
   @Override
   public void extend(Elemental2Renderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(StrikethroughElementNodeRenderer::new);
+  }
+
+  @Override
+  public void extend(TextContentRenderer.Builder rendererBuilder) {
+    rendererBuilder.nodeRendererFactory(StrikethroughTextContentNodeRenderer::new);
   }
 
   public static final class Builder {
