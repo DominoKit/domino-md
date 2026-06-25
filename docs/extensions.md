@@ -32,6 +32,18 @@ Elemental2Renderer domRenderer =
     Elemental2Renderer.builder().extensions(extensions).build();
 ```
 
+## Bundled discovery
+
+The engine also exposes a browser-safe helper for the bundled extension set:
+
+```java
+List<Extension> extensions = ExtensionDiscovery.load();
+
+Parser parser = Parser.builder().extensions(extensions).build();
+HtmlRenderer htmlRenderer = HtmlRenderer.builder().extensions(extensions).build();
+Elemental2Renderer domRenderer = Elemental2Renderer.builder().extensions(extensions).build();
+```
+
 ## Notes
 
 - Strikethrough supports `~text~` and `~~text~~` by default.
@@ -39,4 +51,7 @@ Elemental2Renderer domRenderer =
 - Tables use the GitHub-style pipe table syntax with alignment markers.
 - Autolink turns plain URLs, email addresses, and `www.` links into normal `Link` nodes during a
   parser post-processing pass.
-- No automatic extension discovery is performed.
+- `ExtensionDiscovery.load()` returns the bundled engine extensions in deterministic order.
+- Multi-artifact browser aggregation is still a higher-level build concern because a discovery
+  loader generated inside this artifact cannot see extensions introduced later by a consuming
+  application build.

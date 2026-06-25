@@ -18,12 +18,9 @@ package org.dominokit.markdown.gwt;
 import com.google.gwt.junit.client.GWTTestCase;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.Element;
-import java.util.Set;
+import java.util.List;
 import org.dominokit.markdown.Extension;
-import org.dominokit.markdown.ext.autolink.AutolinkExtension;
-import org.dominokit.markdown.ext.gfm.strikethrough.StrikethroughExtension;
-import org.dominokit.markdown.ext.gfm.tables.TablesExtension;
-import org.dominokit.markdown.ext.task.list.items.TaskListItemsExtension;
+import org.dominokit.markdown.extensions.discovery.ExtensionDiscovery;
 import org.dominokit.markdown.parser.Parser;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
@@ -43,12 +40,7 @@ public class MarkdownSuite extends GWTTestCase {
       Elemental2Renderer.builder().percentEncodeUrls(true).build();
   private static final MarkdownRenderer MARKDOWN_RENDERER = MarkdownRenderer.builder().build();
   private static final TextContentRenderer TEXT_RENDERER = TextContentRenderer.builder().build();
-  private static final Set<Extension> ENGINE_EXTENSIONS =
-      Set.of(
-          StrikethroughExtension.create(),
-          TaskListItemsExtension.create(),
-          TablesExtension.create(),
-          AutolinkExtension.create());
+  private static final List<Extension> ENGINE_EXTENSIONS = ExtensionDiscovery.load();
 
   @Override
   public String getModuleName() {
@@ -200,6 +192,22 @@ public class MarkdownSuite extends GWTTestCase {
     assertEquals(
         "<p><a href=\"http://www.example.com\">www.example.com</a></p>\n",
         renderer.render(parser.parse("www.example.com")));
+  }
+
+  public void testExtensionDiscoveryShouldLoadBundledExtensionsInBrowserBuild() {
+    assertEquals(4, ENGINE_EXTENSIONS.size());
+    assertEquals(
+        "org.dominokit.markdown.ext.gfm.strikethrough.StrikethroughExtension",
+        ENGINE_EXTENSIONS.get(0).getClass().getName());
+    assertEquals(
+        "org.dominokit.markdown.ext.task.list.items.TaskListItemsExtension",
+        ENGINE_EXTENSIONS.get(1).getClass().getName());
+    assertEquals(
+        "org.dominokit.markdown.ext.gfm.tables.TablesExtension",
+        ENGINE_EXTENSIONS.get(2).getClass().getName());
+    assertEquals(
+        "org.dominokit.markdown.ext.autolink.AutolinkExtension",
+        ENGINE_EXTENSIONS.get(3).getClass().getName());
   }
 
   public void testElemental2RendererShouldSupportExtensionSetInBrowserBuild() {

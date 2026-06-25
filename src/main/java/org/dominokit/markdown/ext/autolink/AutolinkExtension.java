@@ -27,6 +27,11 @@ public final class AutolinkExtension implements Parser.ParserExtension {
 
   private final Set<AutolinkType> linkTypes;
 
+  /** Creates the default autolink extension configuration. */
+  public AutolinkExtension() {
+    this(new Builder());
+  }
+
   private AutolinkExtension(Builder builder) {
     this.linkTypes = builder.linkTypes;
   }

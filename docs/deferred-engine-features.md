@@ -10,13 +10,14 @@ plain-text renderer follow-up, and the Markdown renderer follow-up.
 
 Implemented follow-up:
 
+- bundled extension discovery in `org.dominokit.markdown.extensions.discovery`, completed on
+  2026-06-25
 - plain-text rendering in `org.dominokit.markdown.renderer.text`, completed on 2026-06-25
 - Markdown-to-Markdown rendering in `org.dominokit.markdown.renderer.markdown`, completed on
   2026-06-25
 
 The remaining deferred features are:
 
-- automatic extension discovery
 - JVM stream or file parsing helpers
 - JPMS module descriptors
 
@@ -48,23 +49,19 @@ surface. Some are better implemented as optional JVM-only layers.
 
 Recommended implementation order:
 
-1. automatic extension discovery
-2. JVM stream or file parsing helpers
-3. JPMS module descriptors
+1. JVM stream or file parsing helpers
+2. JPMS module descriptors
 
 Rationale:
 
-- automatic discovery can be added with compile-time generated loaders for browser builds while
-  keeping the explicit extension model stable
 - JVM parsing helpers are useful, but they should stay outside the browser-safe core and can wait
-  until after the renderer and discovery work
+  until after the renderer and bundled discovery work
 - JPMS should be last because it is sensitive to the final artifact and package layout
 
 ## Feature Summary
 
 | Feature | Recommended package or module | Browser-safe | Main output |
 | --- | --- | --- | --- |
-| automatic extension discovery | optional discovery support layer with generated browser loader and optional JVM bridge later | yes, for the generated-loader path | discovered `Extension` instances |
 | JVM stream or file parsing helpers | separate JVM-only parser helper module | no | `Node` from `Reader`, `InputStream`, `Path`, or `File` |
 | JPMS module descriptors | `module-info.java` per final artifact | JVM-only concern | explicit Java modules |
 
@@ -318,11 +315,15 @@ The project intentionally removed runtime `ServiceLoader` behavior from the brow
 That decision should stay intact. What changed is that browser-safe discovery is still feasible if
 it is done at compile time and the generated runtime code is plain Java.
 
-### Recommended design
+## Automatic Extension Discovery
+
+Status: implemented for bundled engine extensions on 2026-06-25.
+
+### Implemented design
 
 Do not add hidden auto-discovery into `Parser`, `HtmlRenderer`, or `Elemental2Renderer` directly.
 
-Recommended approach:
+Implemented approach:
 
 - keep explicit `extensions(...)` registration as the core API
 - add an optional discovery support layer, for example:
@@ -332,10 +333,13 @@ org.dominokit.markdown.extensions.discovery
 ```
 
 - keep browser and JVM discovery concerns behind that layer instead of in the core builders
-- use `domino-auto` for the browser-compatible implementation
+- keep `ExtensionDiscovery.load()` browser-safe by returning the bundled engine extension set
 - add a JVM `ServiceLoader` bridge only later if it is still needed
+- preserve `META-INF/services/org.dominokit.markdown.Extension` registrations and public no-arg
+  constructors on the bundled extension classes so a later aggregate build can still use
+  `domino-auto`
 
-### Recommended public API
+### Implemented public API
 
 Prefer a helper utility instead of hidden builder magic:
 
@@ -361,20 +365,17 @@ public final class StandardExtensionSets {
 }
 ```
 
-### How it works
+### How it works now
 
-Browser-compatible path:
+Current browser-safe path:
 
-1. Keep `org.dominokit.markdown.Extension` as the service interface.
-2. Register implementations in `META-INF/services/org.dominokit.markdown.Extension`.
-3. Add `domino-auto-api` and the `domino-auto-processor` annotation processor to the build that
-   owns discovery.
-4. Configure `domino-auto` to include `org.dominokit.markdown`, either with processor arguments or
-   with `@DominoAuto(include = "org.dominokit.markdown")`.
-5. Let the processor generate `org.dominokit.markdown.Extension_ServiceLoader`.
-6. Have `ExtensionDiscovery.load()` delegate to `Extension_ServiceLoader.load()`.
-7. Pass the resulting collection into the existing builder `extensions(...)` methods for
-   `Parser`, `HtmlRenderer`, and `Elemental2Renderer`.
+1. Keep `org.dominokit.markdown.Extension` as the registry contract.
+2. Register the bundled extension classes in
+   `META-INF/services/org.dominokit.markdown.Extension`.
+3. Expose `StandardExtensionSets.coreGfm()` as the deterministic built-in extension list.
+4. Have `ExtensionDiscovery.load()` delegate to that bundled standard set.
+5. Pass the resulting collection into the existing builder `extensions(...)` methods for `Parser`,
+   `HtmlRenderer`, and `Elemental2Renderer`.
 
 Example shape:
 
@@ -386,24 +387,16 @@ HtmlRenderer htmlRenderer = HtmlRenderer.builder().extensions(extensions).build(
 Elemental2Renderer domRenderer = Elemental2Renderer.builder().extensions(extensions).build();
 ```
 
-Optional later JVM bridge:
+### Why the broader browser discovery problem remains deferred
 
-- isolate it from browser builds
-- use `ServiceLoader.load(Extension.class, classLoader)`
-- normalize the discovered list through the same ordering policy used by the generated-loader path
+A loader generated inside `domino-md` can only see the service registrations that are present when
+this artifact itself is compiled. It cannot automatically aggregate additional extension providers
+introduced later by a consuming application build without moving the generation step to that higher
+level build.
 
-### Ordering and determinism
-
-Discovery order should not be left implicit.
-
-`domino-auto` currently builds the generated loader from discovered service entries, and that path
-should be treated as unordered unless the discovery layer normalizes it.
-
-Recommended policy:
-
-- introduce an optional ordering contract such as `OrderedExtension`
-- sort discovered extensions before handing them to builders
-- if no explicit order contract exists, fall back to a stable secondary key such as class name
+That means this phase intentionally solves bundled engine discovery and leaves application-wide
+browser aggregation for a later aggregate module or application build, where `domino-auto` can be
+applied without baking a stale generated loader into this artifact.
 
 ### Important boundary
 
@@ -412,18 +405,18 @@ This feature should not reintroduce runtime classpath scanning or reflection int
 That means:
 
 - the core builders stay explicit and side-effect free
-- browser discovery uses generated code, not runtime scanning
-- any later JVM `ServiceLoader` bridge stays isolated from the browser-safe runtime surface
+- bundled browser discovery stays static and explicit
+- any later aggregate `domino-auto` generation or JVM `ServiceLoader` bridge stays isolated from
+  the browser-safe runtime surface
 
 ### Tests
 
 Add:
 
-- a compile-time smoke test that proves `Extension_ServiceLoader` is generated
 - JVM and browser tests that call `ExtensionDiscovery.load()` and wire the result through
-  `Parser`, `HtmlRenderer`, and `Elemental2Renderer`
-- ordering tests that prove the discovery layer returns a deterministic extension order
-- integration tests for missing or duplicate registrations if the helper layer validates them
+  `Parser`, `HtmlRenderer`, `MarkdownRenderer`, `TextContentRenderer`, and `Elemental2Renderer`
+- ordering tests that prove the bundled discovery layer returns a deterministic extension order
+- documentation for the remaining application-level aggregation boundary
 
 ## JVM Stream Or File Parsing Helpers
 

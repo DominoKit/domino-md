@@ -44,6 +44,7 @@ Do not port yet:
 | `org.commonmark.renderer.html` | `org.dominokit.markdown.renderer.html` | Port | Main rendering target for MVP. |
 | `org.commonmark.renderer.markdown` | `org.dominokit.markdown.renderer.markdown` | Port | Browser-safe Markdown renderer now implemented. |
 | `org.commonmark.renderer.text` | `org.dominokit.markdown.renderer.text` | Port | Browser-safe plain-text renderer now implemented. |
+| n/a | `org.dominokit.markdown.extensions.discovery` | New | Browser-safe bundled extension discovery helpers. |
 | `org.commonmark.text` | `org.dominokit.markdown.text` | Port | Used by parser internals. |
 | `org.commonmark.internal` | `org.dominokit.markdown.internal` | Port selectively | Keep only parser and HTML support internals needed by MVP. |
 | `org.commonmark.internal.inline` | `org.dominokit.markdown.internal.inline` | Port | Required by inline parser. |

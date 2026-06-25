@@ -39,7 +39,8 @@ public final class TaskListItemsExtension
         TextContentRenderer.TextContentRendererExtension,
         MarkdownRenderer.MarkdownRendererExtension {
 
-  private TaskListItemsExtension() {}
+  /** Creates the default task list items extension configuration. */
+  public TaskListItemsExtension() {}
 
   public static Extension create() {
     return new TaskListItemsExtension();

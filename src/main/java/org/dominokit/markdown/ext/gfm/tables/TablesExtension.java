@@ -39,7 +39,8 @@ public final class TablesExtension
         TextContentRenderer.TextContentRendererExtension,
         MarkdownRenderer.MarkdownRendererExtension {
 
-  private TablesExtension() {}
+  /** Creates the default tables extension configuration. */
+  public TablesExtension() {}
 
   public static Extension create() {
     return new TablesExtension();

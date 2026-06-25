@@ -45,6 +45,11 @@ public final class StrikethroughExtension
 
   private final boolean requireTwoTildes;
 
+  /** Creates the default strikethrough extension configuration. */
+  public StrikethroughExtension() {
+    this(new Builder());
+  }
+
   private StrikethroughExtension(Builder builder) {
     this.requireTwoTildes = builder.requireTwoTildes;
   }

@@ -72,7 +72,6 @@ Deliver a browser-safe Markdown engine foundation that:
 
 ### Core features deferred
 
-- automatic extension discovery
 - JVM stream or file parsing helpers
 - JPMS module descriptors
 
@@ -80,8 +79,9 @@ Design reference:
 - `docs/deferred-engine-features.md`
 
 Current deferral notes:
-- automatic extension discovery remains deferred, but the intended browser-compatible path is
-  compile-time generated loaders via `domino-auto`, not runtime `ServiceLoader`
+- bundled extension discovery is available via `ExtensionDiscovery.load()`
+- application-level browser aggregation remains deferred, and the intended path is compile-time
+  generated loaders via `domino-auto`, not runtime `ServiceLoader`
 - JVM stream or file parsing helpers and JPMS module descriptors are intentionally late-stage
   JVM-only work
 

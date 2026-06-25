@@ -1,0 +1,4 @@
+org.dominokit.markdown.ext.gfm.strikethrough.StrikethroughExtension
+org.dominokit.markdown.ext.task.list.items.TaskListItemsExtension
+org.dominokit.markdown.ext.gfm.tables.TablesExtension
+org.dominokit.markdown.ext.autolink.AutolinkExtension
