@@ -496,7 +496,8 @@ API: java.util.ServiceLoader
 Risk: High
 Used for: auto-loading extensions
 Replacement: explicit builder registration
-Decision: remove ServiceLoader path from browser build
+Decision: remove runtime ServiceLoader path from browser build; use generated loaders later if
+needed
 ```
 
 ---
@@ -1164,9 +1165,9 @@ public interface HtmlRendererExtension {
 }
 ```
 
-### 9.3 No ServiceLoader
+### 9.3 No Runtime ServiceLoader
 
-Do not auto-discover extensions with `ServiceLoader`.
+Do not auto-discover extensions with runtime `ServiceLoader`.
 
 Browser builds should use explicit registration:
 
@@ -1176,6 +1177,9 @@ Parser parser = Parser.builder()
         .extension(TaskListExtension.create())
         .build();
 ```
+
+If automatic discovery is added later, it should still feed the explicit builder API and should use
+compile-time generated loaders such as `domino-auto`, not runtime scanning.
 
 ### 9.4 Extension Priority
 
@@ -2531,7 +2535,7 @@ E030 Add accessibility pass
 
 ## 18. Compatibility Replacement Examples
 
-### 18.1 Replacing `ServiceLoader`
+### 18.1 Replacing Runtime `ServiceLoader`
 
 Do not use:
 
@@ -2545,6 +2549,12 @@ Use:
 Parser.builder()
         .extension(MyExtension.create())
         .build();
+```
+
+Optional later browser-safe discovery can use generated code such as:
+
+```java
+Extension_ServiceLoader.load()
 ```
 
 ### 18.2 Replacing Classpath Resource Loading

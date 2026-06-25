@@ -30,8 +30,10 @@ These deferred features must respect the current architecture:
 - the parser core remains the single source of truth for Markdown parsing
 - `Parser.parse(String)` remains the baseline parse path
 - explicit builder registration remains the default extension model
-- browser-safe code must not depend on `java.io.File`, `java.nio.file`, `ServiceLoader`, or other
-  JVM-only APIs
+- browser-safe runtime code must not depend on `java.io.File`, `java.nio.file`,
+  `java.util.ServiceLoader`, or other JVM-only APIs
+- compile-time code generation is acceptable when the generated runtime output stays plain Java and
+  browser-safe
 - Elemental2 remains a renderer concern, not a parser concern
 
 That means not every deferred feature should be added directly into the existing core package
@@ -43,17 +45,18 @@ Recommended implementation order:
 
 1. plain-text rendering
 2. Markdown-to-Markdown rendering
-3. JVM stream or file parsing helpers
-4. automatic extension discovery
+3. automatic extension discovery
+4. JVM stream or file parsing helpers
 5. JPMS module descriptors
 
 Rationale:
 
 - the text renderer is small, self-contained, and browser-safe
 - the Markdown renderer is larger but still pure renderer work over the existing AST
-- JVM parsing helpers are useful, but they should stay outside the browser-safe core
-- automatic discovery is intentionally JVM-only and should come after the explicit extension model
-  is already stable
+- automatic discovery can be added with compile-time generated loaders for browser builds while
+  keeping the explicit extension model stable
+- JVM parsing helpers are useful, but they should stay outside the browser-safe core and can wait
+  until after the renderer and discovery work
 - JPMS should be last because it is sensitive to the final artifact and package layout
 
 ## Feature Summary
@@ -62,7 +65,7 @@ Rationale:
 | --- | --- | --- | --- |
 | Markdown-to-Markdown rendering | `org.dominokit.markdown.renderer.markdown` | yes, after small compatibility fixes | canonical Markdown text |
 | plain-text rendering | `org.dominokit.markdown.renderer.text` | yes | readable plain text |
-| automatic extension discovery | separate JVM-only helper module | no | discovered `Extension` instances |
+| automatic extension discovery | optional discovery support layer with generated browser loader and optional JVM bridge later | yes, for the generated-loader path | discovered `Extension` instances |
 | JVM stream or file parsing helpers | separate JVM-only parser helper module | no | `Node` from `Reader`, `InputStream`, `Path`, or `File` |
 | JPMS module descriptors | `module-info.java` per final artifact | JVM-only concern | explicit Java modules |
 
@@ -286,35 +289,39 @@ Add:
 
 ### What it is
 
-A JVM convenience feature that finds extensions on the classpath automatically instead of requiring
-explicit registration in code.
+An optional convenience feature that finds extension implementations automatically instead of
+requiring every consumer to register them manually in code.
 
 ### Why it is useful
 
 - server-side applications that want convention-based setup
+- browser applications that want a prebuilt standard extension bundle
 - CLI tools that load feature packs from the classpath
 - test harnesses that want a default extension bundle
 
 ### Why it is still deferred
 
-The project intentionally removed `ServiceLoader`-style behavior from the browser-safe path.
+The project intentionally removed runtime `ServiceLoader` behavior from the browser-safe path.
 
-That decision should stay intact.
+That decision should stay intact. What changed is that browser-safe discovery is still feasible if
+it is done at compile time and the generated runtime code is plain Java.
 
 ### Recommended design
 
-Do not add auto-discovery into `Parser`, `HtmlRenderer`, or `Elemental2Renderer` directly.
+Do not add hidden auto-discovery into `Parser`, `HtmlRenderer`, or `Elemental2Renderer` directly.
 
 Recommended approach:
 
 - keep explicit `extensions(...)` registration as the core API
-- add a separate JVM-only helper module, for example:
+- add an optional discovery support layer, for example:
 
 ```text
 org.dominokit.markdown.extensions.discovery
 ```
 
-or a similarly named artifact that is excluded from browser builds
+- keep browser and JVM discovery concerns behind that layer instead of in the core builders
+- use `domino-auto` for the browser-compatible implementation
+- add a JVM `ServiceLoader` bridge only later if it is still needed
 
 ### Recommended public API
 
@@ -323,6 +330,13 @@ Prefer a helper utility instead of hidden builder magic:
 ```java
 public final class ExtensionDiscovery {
     public static List<Extension> load();
+}
+```
+
+Optional later JVM-only overload:
+
+```java
+public final class ExtensionDiscovery {
     public static List<Extension> load(ClassLoader classLoader);
 }
 ```
@@ -337,33 +351,67 @@ public final class StandardExtensionSets {
 
 ### How it works
 
-On the JVM only:
+Browser-compatible path:
 
+1. Keep `org.dominokit.markdown.Extension` as the service interface.
+2. Register implementations in `META-INF/services/org.dominokit.markdown.Extension`.
+3. Add `domino-auto-api` and the `domino-auto-processor` annotation processor to the build that
+   owns discovery.
+4. Configure `domino-auto` to include `org.dominokit.markdown`, either with processor arguments or
+   with `@DominoAuto(include = "org.dominokit.markdown")`.
+5. Let the processor generate `org.dominokit.markdown.Extension_ServiceLoader`.
+6. Have `ExtensionDiscovery.load()` delegate to `Extension_ServiceLoader.load()`.
+7. Pass the resulting collection into the existing builder `extensions(...)` methods for
+   `Parser`, `HtmlRenderer`, and `Elemental2Renderer`.
+
+Example shape:
+
+```java
+List<Extension> extensions = ExtensionDiscovery.load();
+
+Parser parser = Parser.builder().extensions(extensions).build();
+HtmlRenderer htmlRenderer = HtmlRenderer.builder().extensions(extensions).build();
+Elemental2Renderer domRenderer = Elemental2Renderer.builder().extensions(extensions).build();
+```
+
+Optional later JVM bridge:
+
+- isolate it from browser builds
 - use `ServiceLoader.load(Extension.class, classLoader)`
-- instantiate extension implementations listed under `META-INF/services`
-- optionally sort them if a later `Prioritized` contract is introduced
-- pass the resulting collection into existing builder `extensions(...)` methods
+- normalize the discovered list through the same ordering policy used by the generated-loader path
+
+### Ordering and determinism
+
+Discovery order should not be left implicit.
+
+`domino-auto` currently builds the generated loader from discovered service entries, and that path
+should be treated as unordered unless the discovery layer normalizes it.
+
+Recommended policy:
+
+- introduce an optional ordering contract such as `OrderedExtension`
+- sort discovered extensions before handing them to builders
+- if no explicit order contract exists, fall back to a stable secondary key such as class name
 
 ### Important boundary
 
-This feature should not participate in GWT or browser builds.
+This feature should not reintroduce runtime classpath scanning or reflection into browser builds.
 
-That means one of these must be true:
+That means:
 
-- the implementation lives in a separate JVM-only artifact
-- or it is isolated in a package excluded from browser compilation
-
-The first option is cleaner.
+- the core builders stay explicit and side-effect free
+- browser discovery uses generated code, not runtime scanning
+- any later JVM `ServiceLoader` bridge stays isolated from the browser-safe runtime surface
 
 ### Tests
 
-Add JVM-only integration tests that:
+Add:
 
-- load synthetic service registrations
-- confirm ordering behavior
-- confirm duplicate or unsupported registrations are handled predictably
-
-No browser tests are needed for this feature.
+- a compile-time smoke test that proves `Extension_ServiceLoader` is generated
+- JVM and browser tests that call `ExtensionDiscovery.load()` and wire the result through
+  `Parser`, `HtmlRenderer`, and `Elemental2Renderer`
+- ordering tests that prove the discovery layer returns a deterministic extension order
+- integration tests for missing or duplicate registrations if the helper layer validates them
 
 ## JVM Stream Or File Parsing Helpers
 
@@ -539,7 +587,8 @@ and documented path.
 The deferred backlog naturally splits into:
 
 - browser-safe renderers: Markdown renderer and text renderer
-- JVM-only helpers: discovery, parser I/O helpers, JPMS support
+- browser-compatible generated discovery: optional extension loading via `domino-auto`
+- JVM-only helpers: parser I/O helpers and JPMS support
 
 That split should be preserved in package layout and build wiring.
 
@@ -570,13 +619,13 @@ This reduces semantic drift and makes future upstream comparison easier.
 
 ### Milestone C
 
-- add JVM-only `ParserIo`
-- document it as the migration path for `Reader` or file-based parsing
+- add optional generated extension discovery using `domino-auto`
+- keep explicit registration as the documented primary path
 
 ### Milestone D
 
-- add optional JVM-only extension discovery helper
-- keep it outside the browser-safe core
+- add JVM-only `ParserIo`
+- document it as the migration path for `Reader` or file-based parsing
 
 ### Milestone E
 

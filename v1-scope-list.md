@@ -81,6 +81,12 @@ Deliver a browser-safe Markdown engine foundation that:
 Design reference:
 - `docs/deferred-engine-features.md`
 
+Current deferral notes:
+- automatic extension discovery remains deferred, but the intended browser-compatible path is
+  compile-time generated loaders via `domino-auto`, not runtime `ServiceLoader`
+- JVM stream or file parsing helpers and JPMS module descriptors are intentionally late-stage
+  JVM-only work
+
 ### Product features deferred
 
 - Elemental2 editor UI, owned by the `domino-ui` project
