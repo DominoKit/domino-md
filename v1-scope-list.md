@@ -80,11 +80,15 @@ Deliver a browser-safe Markdown engine foundation that:
 
 ### Product features deferred
 
-- Elemental2 editor UI
+- Elemental2 editor UI, owned by the `domino-ui` project
 - Domino UI wrapper
 - split-view preview shell
 - toolbar commands
 - browser demo app
+
+### Post-V1 optional renderer work
+
+- Elemental2 DOM renderer phase, specified in `elemental2-dom-renderer-spec.md`
 
 ## Acceptance Criteria For Completing V1 Core Port Start
 

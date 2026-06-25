@@ -2274,7 +2274,31 @@ browser tests pass
 compatibility gaps documented
 ```
 
-### Phase 8 — Elemental2 Editor MVP
+### Phase 7A — Elemental2 DOM Renderer
+
+Tasks:
+
+- add an Elemental2 DOM renderer beside the HTML string renderer
+- render the Markdown AST to `elemental2.dom` nodes
+- define raw HTML policy without relying on `innerHTML`
+- reuse URL sanitization behavior where practical
+- add browser-side renderer tests
+
+Deliverables:
+
+```text
+Markdown AST renders to Elemental2 DOM nodes
+browser-side renderer tests pass
+no parser internals leaked into UI code
+```
+
+Specification:
+
+```text
+elemental2-dom-renderer-spec.md
+```
+
+### Phase 8 — Elemental2 Editor MVP (Deferred To domino-ui Project)
 
 Tasks:
 
@@ -2296,7 +2320,7 @@ live preview works
 no parser internals leaked into editor
 ```
 
-### Phase 9 — Toolbar Commands
+### Phase 9 — Toolbar Commands (Deferred To domino-ui Project)
 
 Tasks:
 
@@ -2322,7 +2346,7 @@ selection preservation works
 command tests pass
 ```
 
-### Phase 10 — Editor Enhancements
+### Phase 10 — Editor Enhancements (Deferred To domino-ui Project)
 
 Tasks:
 
@@ -2365,7 +2389,7 @@ extensions work in parser + renderer
 browser tests pass
 ```
 
-### Phase 12 — Domino UI Wrapper
+### Phase 12 — Domino UI Wrapper (Deferred To domino-ui Project)
 
 Tasks:
 
