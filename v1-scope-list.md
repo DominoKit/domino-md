@@ -78,6 +78,9 @@ Deliver a browser-safe Markdown engine foundation that:
 - JVM stream or file parsing helpers
 - JPMS module descriptors
 
+Design reference:
+- `docs/deferred-engine-features.md`
+
 ### Product features deferred
 
 - Elemental2 editor UI, owned by the `domino-ui` project

@@ -2754,6 +2754,7 @@ docs/html-renderer.md
 docs/elemental2-editor.md
 docs/security.md
 docs/extensions.md
+docs/deferred-engine-features.md
 docs/testing.md
 docs/gwt-j2cl-compatibility.md
 docs/domino-ui-wrapper.md
