@@ -18,6 +18,12 @@ package org.dominokit.markdown.gwt;
 import com.google.gwt.junit.client.GWTTestCase;
 import elemental2.dom.DomGlobal;
 import elemental2.dom.Element;
+import java.util.Set;
+import org.dominokit.markdown.Extension;
+import org.dominokit.markdown.ext.autolink.AutolinkExtension;
+import org.dominokit.markdown.ext.gfm.strikethrough.StrikethroughExtension;
+import org.dominokit.markdown.ext.gfm.tables.TablesExtension;
+import org.dominokit.markdown.ext.task.list.items.TaskListItemsExtension;
 import org.dominokit.markdown.parser.Parser;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.Elemental2Renderer;
@@ -32,6 +38,12 @@ public class MarkdownSuite extends GWTTestCase {
       HtmlRenderer.builder().percentEncodeUrls(true).build();
   private static final Elemental2Renderer ELEMENTAL2_RENDERER =
       Elemental2Renderer.builder().percentEncodeUrls(true).build();
+  private static final Set<Extension> ENGINE_EXTENSIONS =
+      Set.of(
+          StrikethroughExtension.create(),
+          TaskListItemsExtension.create(),
+          TablesExtension.create(),
+          AutolinkExtension.create());
 
   @Override
   public String getModuleName() {
@@ -167,6 +179,39 @@ public class MarkdownSuite extends GWTTestCase {
     Elemental2Renderer renderer = Elemental2Renderer.builder().omitSingleParagraphP(true).build();
 
     assertEquals("hi <em>there</em>", serialize(renderer.render(PARSER.parse("hi *there*"))));
+  }
+
+  public void testHtmlRendererShouldSupportExtensionSetInBrowserBuild() {
+    Parser parser = Parser.builder().extensions(ENGINE_EXTENSIONS).build();
+    HtmlRenderer renderer = HtmlRenderer.builder().extensions(ENGINE_EXTENSIONS).build();
+
+    assertEquals("<p><del>foo</del></p>\n", renderer.render(parser.parse("~~foo~~")));
+    assertEquals(
+        "<ul>\n<li><input type=\"checkbox\" disabled=\"\" checked=\"\"> task</li>\n</ul>\n",
+        renderer.render(parser.parse("- [x] task\n")));
+    assertEquals(
+        "<table>\n<thead>\n<tr>\n<th>A</th>\n<th>B</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>2</td>\n</tr>\n</tbody>\n</table>\n",
+        renderer.render(parser.parse("A|B\n---|---\n1|2")));
+    assertEquals(
+        "<p><a href=\"http://www.example.com\">www.example.com</a></p>\n",
+        renderer.render(parser.parse("www.example.com")));
+  }
+
+  public void testElemental2RendererShouldSupportExtensionSetInBrowserBuild() {
+    Parser parser = Parser.builder().extensions(ENGINE_EXTENSIONS).build();
+    Elemental2Renderer renderer =
+        Elemental2Renderer.builder().percentEncodeUrls(true).extensions(ENGINE_EXTENSIONS).build();
+
+    assertEquals("<p><del>foo</del></p>", serialize(renderer.render(parser.parse("~~foo~~"))));
+    assertEquals(
+        "<ul><li><input type=\"checkbox\" value=\"on\" disabled=\"\" checked=\"\"> task</li></ul>",
+        serialize(renderer.render(parser.parse("- [x] task\n"))));
+    assertEquals(
+        "<table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>",
+        serialize(renderer.render(parser.parse("A|B\n---|---\n1|2"))));
+    assertEquals(
+        "<p><a href=\"http://www.example.com\">www.example.com</a></p>",
+        serialize(renderer.render(parser.parse("www.example.com"))));
   }
 
   private static String serialize(elemental2.dom.DocumentFragment fragment) {

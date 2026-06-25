@@ -49,6 +49,10 @@ Phase 7A follow-up:
   `MarkdownSuite`
 - `pom.xml` now carries `elemental2-dom`, and `Markdown.gwt.xml` inherits `elemental2.dom.Dom`
 
+Phase 11 follow-up:
+- browser-side tests now also cover the shipped extension set for strikethrough, task list items,
+  tables, and autolinks on both HTML and Elemental2 DOM renderers
+
 ## Compatibility Adaptations
 
 The browser toolchain exposed a small set of JVM-only assumptions which were removed in this phase:

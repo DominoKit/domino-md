@@ -2400,6 +2400,16 @@ extensions work in parser + renderer
 browser tests pass
 ```
 
+Completed on 2026-06-25:
+- added optional extension packages for GFM strikethrough, task list items, pipe tables, and
+  autolinks
+- extensions now register through the existing parser, HTML renderer, and Elemental2 renderer
+  builder hooks without adding automatic discovery
+- tables use a custom block parser, strikethrough uses a custom delimiter processor, and task list
+  items plus autolinks use parser post-processors
+- browser-side tests now cover the extension set on both HTML output and Elemental2 DOM rendering
+- extension usage and registration examples are documented in `docs/extensions.md`
+
 ### Phase 12 — Domino UI Wrapper (Deferred To domino-ui Project)
 
 Tasks:
