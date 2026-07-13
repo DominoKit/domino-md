@@ -18,6 +18,13 @@ package org.dominokit.markdown.internal.util;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
+/**
+ * Escaping and normalization helpers shared across parsing and rendering.
+ *
+ * <p>The methods in this class intentionally mirror CommonMark's escaping behavior so the parser,
+ * HTML renderer, and Markdown re-renderer all make consistent decisions about entity decoding,
+ * URL encoding, and reference-label normalization.
+ */
 public class Escaping {
 
   public static final String ESCAPABLE = "[!\"#$%&'()*+,./:;<=>?@\\[\\\\\\]^_`{|}~-]";
@@ -27,6 +34,14 @@ public class Escaping {
   private static final char[] HEX_DIGITS =
       new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
+  /**
+   * Escape characters that are unsafe in HTML text or attribute values.
+   *
+   * <p>The method only allocates a new string if escaping is actually required.
+   *
+   * @param input text to escape
+   * @return escaped HTML text, or the original string when no escaping is needed
+   */
   public static String escapeHtml(String input) {
     // Avoid building a new string in the majority of cases (nothing to escape)
     StringBuilder sb = null;
@@ -63,7 +78,12 @@ public class Escaping {
     return sb != null ? sb.toString() : input;
   }
 
-  /** Replace entities and backslash escapes with literal characters. */
+  /**
+   * Replace entities and backslash escapes with literal characters.
+   *
+   * @param s text to unescape
+   * @return the unescaped string
+   */
   public static String unescapeString(String s) {
     if (!containsBackslashOrAmp(s)) {
       return s;
@@ -90,6 +110,15 @@ public class Escaping {
     return sb.toString();
   }
 
+  /**
+   * Percent-encode a URL or URI component using UTF-8 bytes.
+   *
+   * <p>Existing percent escapes are preserved when they already look valid, while unsafe
+   * characters are encoded one code point at a time.
+   *
+   * @param s URL or URL component to encode
+   * @return percent-encoded URL text
+   */
   public static String percentEncodeUrl(String s) {
     StringBuilder sb = new StringBuilder(s.length() + 16);
     for (int i = 0; i < s.length(); ) {
@@ -115,6 +144,15 @@ public class Escaping {
     return sb.toString();
   }
 
+  /**
+   * Normalize a link-label candidate according to CommonMark rules.
+   *
+   * <p>The input is trimmed, case-folded, and internal whitespace is collapsed to a single space so
+   * labels that differ only in formatting still resolve to the same definition.
+   *
+   * @param input raw link label content
+   * @return normalized label text
+   */
   public static String normalizeLabelContent(String input) {
     String trimmed = input.trim();
 
@@ -128,6 +166,12 @@ public class Escaping {
     return collapseWhitespace(caseFolded);
   }
 
+  /**
+   * Determine whether a character can be escaped with a backslash in Markdown.
+   *
+   * @param c character to test
+   * @return {@code true} if the character can be escaped
+   */
   public static boolean isEscapable(char c) {
     switch (c) {
       case '!':
@@ -168,6 +212,12 @@ public class Escaping {
     }
   }
 
+  /**
+   * Determine whether the string contains any character that could trigger unescaping work.
+   *
+   * @param s input text
+   * @return {@code true} when the string contains backslashes or ampersands
+   */
   private static boolean containsBackslashOrAmp(String s) {
     for (int i = 0; i < s.length(); i++) {
       char c = s.charAt(i);
@@ -178,6 +228,13 @@ public class Escaping {
     return false;
   }
 
+  /**
+   * Find the end index of an HTML entity starting at {@code start}, or {@code -1} if none exists.
+   *
+   * @param s input text
+   * @param start start index of the potential entity
+   * @return exclusive end index of the entity, or {@code -1}
+   */
   private static int findEntityEnd(String s, int start) {
     int length = s.length();
     if (start + 3 >= length || s.charAt(start) != '&') {
@@ -225,6 +282,12 @@ public class Escaping {
     return index + 1;
   }
 
+  /**
+   * Collapse ASCII whitespace runs to a single space.
+   *
+   * @param input text to normalize
+   * @return whitespace-collapsed text
+   */
   private static String collapseWhitespace(String input) {
     StringBuilder sb = new StringBuilder(input.length());
     boolean previousWhitespace = false;
@@ -243,6 +306,7 @@ public class Escaping {
     return sb.toString();
   }
 
+  /** @return whether the code point may be written to a URL without percent-encoding */
   private static boolean isUriSafeCodePoint(int codePoint) {
     return (codePoint >= 'A' && codePoint <= 'Z')
         || (codePoint >= 'a' && codePoint <= 'z')
@@ -269,6 +333,7 @@ public class Escaping {
         || codePoint == '~';
   }
 
+  /** Append the UTF-8 percent-encoded form of the supplied string fragment. */
   private static void appendPercentEncodedCodePoint(StringBuilder sb, String value) {
     byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
     for (byte b : bytes) {
@@ -278,22 +343,27 @@ public class Escaping {
     }
   }
 
+  /** @return whether the character is a hexadecimal digit */
   private static boolean isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
   }
 
+  /** @return whether the character is an ASCII decimal digit */
   private static boolean isDigit(char c) {
     return c >= '0' && c <= '9';
   }
 
+  /** @return whether the character is an ASCII letter */
   private static boolean isAsciiLetter(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
   }
 
+  /** @return whether the character is an ASCII letter or digit */
   private static boolean isAsciiLetterOrDigit(char c) {
     return isAsciiLetter(c) || isDigit(c);
   }
 
+  /** @return whether the character is one of the Markdown ASCII whitespace characters */
   private static boolean isAsciiWhitespace(char c) {
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
   }

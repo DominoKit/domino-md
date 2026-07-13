@@ -15,20 +15,27 @@
  */
 package org.dominokit.markdown.node;
 
-/** Inline HTML element. */
+/**
+ * An inline HTML fragment.
+ *
+ * <p>The literal content is emitted directly or escaped depending on the configured renderer.
+ */
 public class HtmlInline extends Node {
 
   private String literal;
 
+  /** Dispatch this HTML fragment to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the raw HTML literal */
   public String getLiteral() {
     return literal;
   }
 
+  /** Set the raw HTML literal. */
   public void setLiteral(String literal) {
     this.literal = literal;
   }

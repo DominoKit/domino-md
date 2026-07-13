@@ -15,9 +15,15 @@
  */
 package org.dominokit.markdown.node;
 
-/** A node that extensions can subclass to define custom nodes. */
+/**
+ * Base class for extension-defined custom nodes.
+ *
+ * <p>Custom nodes participate in the standard visitor and tree model while allowing extensions to
+ * carry additional state not known to the core parser.
+ */
 public abstract class CustomNode extends Node {
 
+  /** Dispatch this custom node to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

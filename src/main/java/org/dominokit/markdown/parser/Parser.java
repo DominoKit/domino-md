@@ -30,9 +30,13 @@ import org.dominokit.markdown.parser.block.BlockParserFactory;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 
 /**
- * Parses input text to a tree of nodes.
+ * Configurable entry point for turning Markdown text into an AST.
  *
- * <p>Start with the {@link #builder} method, configure the parser and build it. Example:
+ * <p>The parser orchestrates block parsing, inline parsing, reference-definition collection, and
+ * post-processing. Use {@link #builder()} to assemble a parser with custom extensions or
+ * additional syntax handlers.
+ *
+ * <p>Example:
  *
  * <pre><code>
  * Parser parser = Parser.builder().build();
@@ -51,6 +55,14 @@ public class Parser {
   private final IncludeSourceSpans includeSourceSpans;
   private final int maxOpenBlockParsers;
 
+  /**
+   * Capture the builder state into an immutable parser instance.
+   *
+   * <p>The constructor copies the builder configuration and eagerly validates the inline parser
+   * setup so invalid combinations fail fast instead of surfacing later during parsing.
+   *
+   * @param builder parser configuration source
+   */
   private Parser(Builder builder) {
     this.blockParserFactories =
         DocumentParser.calculateBlockParserFactories(
@@ -101,6 +113,12 @@ public class Parser {
     return postProcess(document);
   }
 
+  /**
+   * Create a fresh internal parser state for one parse invocation.
+   *
+   * <p>Each call gets its own document parser so the public {@link Parser} instance remains
+   * reusable and thread-safe.
+   */
   private DocumentParser createDocumentParser() {
     return new DocumentParser(
         blockParserFactories,
@@ -113,6 +131,12 @@ public class Parser {
         maxOpenBlockParsers);
   }
 
+  /**
+   * Apply configured post-processors in registration order.
+   *
+   * <p>Post-processors receive the output of the preceding stage, so each one can transform the
+   * document tree before the next one runs.
+   */
   private Node postProcess(Node document) {
     for (PostProcessor postProcessor : postProcessors) {
       document = postProcessor.process(document);
@@ -243,14 +267,16 @@ public class Parser {
     }
 
     /**
-     * Add a factory for a custom inline content parser, for extending inline parsing or overriding
-     * built-in parsing.
+     * Add a factory for a custom inline content parser, for extending inline parsing or
+     * overriding built-in parsing.
      *
-     * <p>Note that parsers are triggered based on a special character as specified by {@link
+     * <p>Parsers are triggered by the characters returned from {@link
      * InlineContentParserFactory#getTriggerCharacters()}. It is possible to register multiple
-     * parsers for the same character, or even for some built-in special character such as {@code
-     * `}. The custom parsers are tried first in order in which they are registered, and then the
-     * built-in ones.
+     * parsers for the same character, or even for built-in trigger characters such as {@code `}.
+     * Custom parsers are tried first in registration order, followed by the built-ins.
+     *
+     * @param inlineContentParserFactory factory to register
+     * @return this builder for chaining
      */
     public Builder customInlineContentParserFactory(
         InlineContentParserFactory inlineContentParserFactory) {
@@ -262,16 +288,13 @@ public class Parser {
     /**
      * Add a custom delimiter processor for inline parsing.
      *
-     * <p>Note that multiple delimiter processors with the same characters can be added, as long as
-     * they have a different minimum length. In that case, the processor with the shortest matching
-     * length is used. Adding more than one delimiter processor with the same character and minimum
-     * length is invalid.
+     * <p>Multiple delimiter processors with the same character can be added as long as their
+     * minimum lengths differ. In that case, the shortest processor that can handle the current run
+     * wins. If you need more control over how parsing is done, consider {@link
+     * #customInlineContentParserFactory(InlineContentParserFactory)} instead.
      *
-     * <p>If you want more control over how parsing is done, you might want to use {@link
-     * #customInlineContentParserFactory} instead.
-     *
-     * @param delimiterProcessor a delimiter processor implementation
-     * @return {@code this}
+     * @param delimiterProcessor delimiter processor implementation to register
+     * @return this builder for chaining
      */
     public Builder customDelimiterProcessor(DelimiterProcessor delimiterProcessor) {
       Objects.requireNonNull(delimiterProcessor, "delimiterProcessor must not be null");
@@ -280,14 +303,13 @@ public class Parser {
     }
 
     /**
-     * Add a custom link/image processor for inline parsing.
+     * Add a custom link or image processor for inline parsing.
      *
-     * <p>Multiple link processors can be added, and will be tried in order in which they were
-     * added. If no link processor applies, the normal behavior applies. That means these can
-     * override built-in link parsing.
+     * <p>Processors are tried in registration order. If none of them applies, the normal link
+     * resolution behavior is used, so these processors can override built-in link parsing.
      *
-     * @param linkProcessor a link processor implementation
-     * @return {@code this}
+     * @param linkProcessor link processor implementation to register
+     * @return this builder for chaining
      */
     public Builder linkProcessor(LinkProcessor linkProcessor) {
       Objects.requireNonNull(linkProcessor, "linkProcessor must not be null");
@@ -296,17 +318,14 @@ public class Parser {
     }
 
     /**
-     * Add a custom link marker for link processing. A link marker is a character like {@code !}
-     * which, if it appears before the {@code [} of a link, changes the meaning of the link.
+     * Add a custom link marker for link processing.
      *
-     * <p>If a link marker followed by a valid link is parsed, the {@link
-     * org.dominokit.markdown.parser.beta.LinkInfo} that is passed to {@link LinkProcessor} will
-     * have its {@link LinkInfo#marker()} set. A link processor should check the {@link
-     * Text#getLiteral()} and then do any processing, and will probably want to use {@link
-     * LinkResult#includeMarker()}.
+     * <p>A link marker is a character like {@code !} that changes the meaning of the following
+     * bracket sequence. When a marker is present, the parsed {@link LinkInfo} includes it and link
+     * processors may choose to preserve it via {@link LinkResult#includeMarker()}.
      *
-     * @param linkMarker a link marker character
-     * @return {@code this}
+     * @param linkMarker the marker character to add
+     * @return this builder for chaining
      */
     public Builder linkMarker(Character linkMarker) {
       Objects.requireNonNull(linkMarker, "linkMarker must not be null");
@@ -314,6 +333,14 @@ public class Parser {
       return this;
     }
 
+    /**
+     * Register a post-processor that can transform the parsed AST after inline parsing completes.
+     *
+     * <p>Post-processors are executed in the order they are added.
+     *
+     * @param postProcessor the post-processing step to add
+     * @return this builder for chaining
+     */
     public Builder postProcessor(PostProcessor postProcessor) {
       Objects.requireNonNull(postProcessor, "postProcessor must not be null");
       postProcessors.add(postProcessor);
@@ -321,23 +348,28 @@ public class Parser {
     }
 
     /**
-     * Overrides the parser used for inline markdown processing.
+     * Override the factory used for inline markdown processing.
      *
-     * <p>Provide an implementation of InlineParserFactory which provides a custom inline parser to
-     * modify how the following are parsed: bold (**) italic (*) strikethrough (~~) backtick quote
-     * (`) link ([title](http://)) image (![alt](http://))
+     * <p>Provide a custom factory to change how inline syntax such as emphasis, code spans, links,
+     * and images are parsed. When this method is not called, the default inline parser
+     * implementation is used.
      *
-     * <p>Note that if this method is not called or the inline parser factory is set to null, then
-     * the default implementation will be used.
-     *
-     * @param inlineParserFactory an inline parser factory implementation
-     * @return {@code this}
+     * @param inlineParserFactory custom inline parser factory
+     * @return this builder for chaining
      */
     public Builder inlineParserFactory(InlineParserFactory inlineParserFactory) {
       this.inlineParserFactory = inlineParserFactory;
       return this;
     }
 
+    /**
+     * Resolve the inline parser factory to use for the final parser.
+     *
+     * <p>If the user did not supply one, the default {@link InlineParserImpl} implementation is
+     * used.
+     *
+     * @return the inline parser factory that should back the parser instance
+     */
     private InlineParserFactory getInlineParserFactory() {
       if (inlineParserFactory != null) {
         return inlineParserFactory;
@@ -347,8 +379,9 @@ public class Parser {
     }
   }
 
-  /** Extension for {@link Parser}. */
+  /** Extension contract for {@link Parser}. */
   public interface ParserExtension extends Extension {
+    /** Contribute parser configuration to the supplied builder. */
     void extend(Builder parserBuilder);
   }
 }

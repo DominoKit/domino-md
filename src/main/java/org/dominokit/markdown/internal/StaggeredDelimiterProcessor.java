@@ -34,25 +34,41 @@ class StaggeredDelimiterProcessor implements DelimiterProcessor {
   private LinkedList<DelimiterProcessor> processors =
       new LinkedList<>(); // in reverse getMinLength order
 
+  /**
+   * Create a staggered processor for a single delimiter character.
+   *
+   * @param delim delimiter character handled by the processor set
+   */
   StaggeredDelimiterProcessor(char delim) {
     this.delim = delim;
   }
 
+  /** @return the delimiter character accepted on the opening side */
   @Override
   public char getOpeningCharacter() {
     return delim;
   }
 
+  /** @return the delimiter character accepted on the closing side */
   @Override
   public char getClosingCharacter() {
     return delim;
   }
 
+  /** @return the minimum delimiter run length across all registered child processors */
   @Override
   public int getMinLength() {
     return minLength;
   }
 
+  /**
+   * Register a child delimiter processor.
+   *
+   * <p>Processors are kept in descending minimum-length order so the first processor whose
+   * threshold fits the current delimiter run wins.
+   *
+   * @param dp processor to register
+   */
   void add(DelimiterProcessor dp) {
     final int len = dp.getMinLength();
     ListIterator<DelimiterProcessor> it = processors.listIterator();
@@ -83,6 +99,12 @@ class StaggeredDelimiterProcessor implements DelimiterProcessor {
     }
   }
 
+  /**
+   * Select the child processor that should handle a run of the supplied length.
+   *
+   * @param len delimiter run length
+   * @return the best matching processor
+   */
   private DelimiterProcessor findProcessor(int len) {
     for (DelimiterProcessor p : processors) {
       if (p.getMinLength() <= len) {
@@ -92,6 +114,13 @@ class StaggeredDelimiterProcessor implements DelimiterProcessor {
     return processors.getFirst();
   }
 
+  /**
+   * Dispatch processing to the best matching child processor.
+   *
+   * @param openingRun opening delimiter run
+   * @param closingRun closing delimiter run
+   * @return the number of delimiters consumed
+   */
   @Override
   public int process(DelimiterRun openingRun, DelimiterRun closingRun) {
     return findProcessor(openingRun.length()).process(openingRun, closingRun);

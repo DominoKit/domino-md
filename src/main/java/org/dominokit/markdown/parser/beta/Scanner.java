@@ -21,6 +21,12 @@ import org.dominokit.markdown.parser.SourceLine;
 import org.dominokit.markdown.parser.SourceLines;
 import org.dominokit.markdown.text.CharMatcher;
 
+/**
+ * Scanner over a sequence of source lines.
+ *
+ * <p>The scanner hides the distinction between line boundaries and character positions so inline
+ * parsing can reason in terms of a single cursor with save/restore support.
+ */
 public class Scanner {
 
   /**
@@ -47,6 +53,13 @@ public class Scanner {
   private SourceLine line = SourceLine.of("", null);
   private int lineLength = 0;
 
+  /**
+   * Create a scanner positioned at a specific line and character index.
+   *
+   * @param lines source lines to scan
+   * @param lineIndex line index to start on
+   * @param index character index within the line
+   */
   Scanner(List<SourceLine> lines, int lineIndex, int index) {
     this.lines = lines;
     this.lineIndex = lineIndex;
@@ -57,10 +70,18 @@ public class Scanner {
     }
   }
 
+  /** Create a scanner positioned at the beginning of the supplied lines. */
   public static Scanner of(SourceLines lines) {
     return new Scanner(lines.getLines(), 0, 0);
   }
 
+  /**
+   * Return the current character, treating line boundaries as explicit newline characters.
+   *
+   * <p>At the end of the final line this returns {@link #END} instead of a newline.
+   *
+   * @return the current character or {@link #END}
+   */
   public char peek() {
     if (index < lineLength) {
       return line.getContent().charAt(index);
@@ -74,6 +95,11 @@ public class Scanner {
     }
   }
 
+  /**
+   * Return the current Unicode code point, honoring surrogate pairs when present.
+   *
+   * @return the current code point or {@link #END}
+   */
   public int peekCodePoint() {
     if (index < lineLength) {
       char c = line.getContent().charAt(index);
@@ -94,6 +120,11 @@ public class Scanner {
     }
   }
 
+  /**
+   * Return the previous Unicode code point, or {@link #END} before the start of input.
+   *
+   * @return the previous code point or {@link #END}
+   */
   public int peekPreviousCodePoint() {
     if (index > 0) {
       int prev = index - 1;
@@ -114,6 +145,7 @@ public class Scanner {
     }
   }
 
+  /** @return whether advancing would still remain within the input */
   public boolean hasNext() {
     if (index < lineLength) {
       return true;
@@ -123,6 +155,7 @@ public class Scanner {
     }
   }
 
+  /** Advance the scanner by one character or across a line boundary. */
   public void next() {
     index++;
     if (index > lineLength) {
@@ -139,7 +172,7 @@ public class Scanner {
   /**
    * Check if the specified char is next and advance the position.
    *
-   * @param c the char to check (including newline characters)
+   * @param c the char to check, including newline characters
    * @return true if matched and position was advanced, false otherwise
    */
   public boolean next(char c) {
@@ -155,7 +188,7 @@ public class Scanner {
    * Check if we have the specified content on the line and advanced the position. Note that if you
    * want to match newline characters, use {@link #next(char)}.
    *
-   * @param content the text content to match on a single line (excluding newline characters)
+   * @param content the text content to match on a single line, excluding newline characters
    * @return true if matched and position was advanced, false otherwise
    */
   public boolean next(String content) {
@@ -173,6 +206,12 @@ public class Scanner {
     }
   }
 
+  /**
+   * Consume and count consecutive occurrences of the supplied character.
+   *
+   * @param c character to match
+   * @return number of matched characters
+   */
   public int matchMultiple(char c) {
     int count = 0;
     while (peek() == c) {
@@ -182,6 +221,12 @@ public class Scanner {
     return count;
   }
 
+  /**
+   * Consume and count consecutive characters matching the supplied matcher.
+   *
+   * @param matcher character matcher
+   * @return number of matched characters
+   */
   public int match(CharMatcher matcher) {
     int count = 0;
     while (matcher.matches(peek())) {
@@ -191,6 +236,11 @@ public class Scanner {
     return count;
   }
 
+  /**
+   * Consume and count consecutive whitespace characters.
+   *
+   * @return number of whitespace characters consumed
+   */
   public int whitespace() {
     int count = 0;
     while (true) {
@@ -210,6 +260,12 @@ public class Scanner {
     }
   }
 
+  /**
+   * Find the next occurrence of {@code c}, returning its relative offset or {@code -1}.
+   *
+   * @param c character to find
+   * @return relative offset to the next occurrence, or {@code -1}
+   */
   public int find(char c) {
     int count = 0;
     while (true) {
@@ -224,6 +280,12 @@ public class Scanner {
     }
   }
 
+  /**
+   * Find the next character that matches the supplied matcher.
+   *
+   * @param matcher character matcher
+   * @return relative offset to the next match, or {@code -1}
+   */
   public int find(CharMatcher matcher) {
     int count = 0;
     while (true) {
@@ -241,10 +303,16 @@ public class Scanner {
   // Don't expose the int index, because it would be good if we could switch input to a List<String>
   // of lines later
   // instead of one contiguous String.
+  /** @return the current scanner position */
   public Position position() {
     return new Position(lineIndex, index);
   }
 
+  /**
+   * Restore the scanner to a previously saved position.
+   *
+   * @param position position to restore
+   */
   public void setPosition(Position position) {
     checkPosition(position.lineIndex, position.index);
     this.lineIndex = position.lineIndex;
@@ -255,6 +323,15 @@ public class Scanner {
   // For cases where the caller appends the result to a StringBuilder, we could offer another method
   // to avoid some
   // unnecessary copying.
+  /**
+   * Extract the source between two positions.
+   *
+   * <p>The returned source lines preserve line breaks and source spans for the selected range.
+   *
+   * @param begin inclusive start position
+   * @param end exclusive end position
+   * @return source lines representing the requested slice
+   */
   public SourceLines getSource(Position begin, Position end) {
     if (begin.lineIndex == end.lineIndex) {
       // Shortcut for common case of text from a single line
@@ -283,11 +360,22 @@ public class Scanner {
     }
   }
 
+  /**
+   * Set the scanner's current line and cache its length.
+   *
+   * @param line current source line
+   */
   private void setLine(SourceLine line) {
     this.line = line;
     this.lineLength = line.getContent().length();
   }
 
+  /**
+   * Validate that a saved position refers to a legal line and character offset.
+   *
+   * @param lineIndex line index to validate
+   * @param index character index to validate
+   */
   private void checkPosition(int lineIndex, int index) {
     if (lineIndex < 0 || lineIndex >= lines.size()) {
       throw new IllegalArgumentException(

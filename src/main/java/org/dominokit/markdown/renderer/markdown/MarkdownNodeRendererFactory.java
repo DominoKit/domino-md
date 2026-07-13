@@ -18,7 +18,12 @@ package org.dominokit.markdown.renderer.markdown;
 import java.util.Set;
 import org.dominokit.markdown.renderer.NodeRenderer;
 
-/** Factory for instantiating node renderers for custom Markdown rendering. */
+/**
+ * Factory for Markdown node renderers.
+ *
+ * <p>Factories are instantiated per render pass so custom renderers can observe the current
+ * writer and escape configuration.
+ */
 public interface MarkdownNodeRendererFactory {
 
   /**

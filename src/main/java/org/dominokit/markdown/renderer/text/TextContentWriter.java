@@ -20,6 +20,13 @@ import java.util.LinkedList;
 import java.util.Objects;
 import org.dominokit.markdown.text.Characters;
 
+/**
+ * Writer for plain-text rendering.
+ *
+ * <p>The writer collapses whitespace, preserves only the minimal punctuation needed for readable
+ * output, and tracks block/prefix state so nested structures such as lists and quotes remain
+ * legible.
+ */
 public class TextContentWriter {
 
   private final Appendable buffer;
@@ -30,33 +37,53 @@ public class TextContentWriter {
   private String blockSeparator;
   private char lastChar;
 
+  /**
+   * Create a writer using the default compact line-break mode.
+   *
+   * @param out destination for generated text
+   */
   public TextContentWriter(Appendable out) {
     this(out, LineBreakRendering.COMPACT);
   }
 
+  /**
+   * Create a writer with an explicit line-break mode.
+   *
+   * @param out destination for generated text
+   * @param lineBreakRendering policy for block separators and line breaks
+   */
   public TextContentWriter(Appendable out, LineBreakRendering lineBreakRendering) {
     this.buffer = Objects.requireNonNull(out, "out must not be null");
     this.lineBreakRendering =
         Objects.requireNonNull(lineBreakRendering, "lineBreakRendering must not be null");
   }
 
+  /** Write a single collapsed whitespace character if the last output character requires it. */
   public void whitespace() {
     if (lastChar != 0 && lastChar != ' ') {
       write(' ');
     }
   }
 
+  /** Write a colon if the previous character is not already a colon. */
   public void colon() {
     if (lastChar != 0 && lastChar != ':') {
       write(':');
     }
   }
 
+  /** Write a newline and re-emit any active prefixes. */
   public void line() {
     append('\n');
     writePrefixes();
   }
 
+  /**
+   * Queue a block separator according to the current line-break mode and nesting tightness.
+   *
+   * <p>The actual separator is written lazily so adjacent block writes can still collapse or
+   * expand spacing based on the surrounding content.
+   */
   public void block() {
     if (lineBreakRendering == LineBreakRendering.STRIP) {
       blockSeparator = " ";
@@ -67,10 +94,17 @@ public class TextContentWriter {
     }
   }
 
+  /** Clear any pending block separator. */
   public void resetBlock() {
     blockSeparator = null;
   }
 
+  /**
+   * Write text while collapsing internal whitespace to a single space.
+   *
+   * <p>This is the normal path for plain text output, because inline rendering often wants to
+   * preserve words without preserving source formatting.
+   */
   public void writeStripped(String s) {
     flushBlockSeparator();
     boolean pendingWhitespace = false;
@@ -90,11 +124,13 @@ public class TextContentWriter {
     }
   }
 
+  /** Write text without stripping or collapsing whitespace. */
   public void write(String s) {
     flushBlockSeparator();
     append(s);
   }
 
+  /** Write a single raw character. */
   public void write(char c) {
     flushBlockSeparator();
     append(c);
@@ -119,7 +155,7 @@ public class TextContentWriter {
     write(prefix);
   }
 
-  /** Remove the last prefix from the stack. */
+  /** Remove the most recently pushed prefix. */
   public void popPrefix() {
     prefixes.removeLast();
   }
@@ -134,17 +170,24 @@ public class TextContentWriter {
     this.tight.removeLast();
   }
 
+  /** @return whether the current nested block context is tight */
   private boolean isTight() {
     return !tight.isEmpty() && tight.getLast();
   }
 
+  /** Write every currently active prefix to the output. */
   private void writePrefixes() {
     for (String prefix : prefixes) {
       append(prefix);
     }
   }
 
-  /** If a block separator has been queued but not written yet, write it now. */
+  /**
+   * If a block separator has been queued but not written yet, write it now.
+   *
+   * <p>Line-based separators are emitted character by character so active prefixes can be inserted
+   * after each newline.
+   */
   private void flushBlockSeparator() {
     if (blockSeparator == null) {
       return;
@@ -161,10 +204,20 @@ public class TextContentWriter {
     blockSeparator = null;
   }
 
+  /**
+   * Append a Unicode code point by converting it to the corresponding UTF-16 sequence.
+   *
+   * @param codePoint Unicode code point to append
+   */
   private void appendCodePoint(int codePoint) {
     append(new String(Character.toChars(codePoint)));
   }
 
+  /**
+   * Append a string to the underlying buffer.
+   *
+   * @param s text to append verbatim
+   */
   private void append(String s) {
     try {
       buffer.append(s);
@@ -177,6 +230,11 @@ public class TextContentWriter {
     }
   }
 
+  /**
+   * Append a single character to the underlying buffer.
+   *
+   * @param c character to append verbatim
+   */
   private void append(char c) {
     try {
       buffer.append(c);

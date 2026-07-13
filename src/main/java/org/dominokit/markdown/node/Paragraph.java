@@ -15,9 +15,14 @@
  */
 package org.dominokit.markdown.node;
 
-/** A paragraph block. */
+/**
+ * A paragraph block.
+ *
+ * <p>Paragraphs are the primary block container for inline content.
+ */
 public class Paragraph extends Block {
 
+  /** Dispatch this paragraph to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

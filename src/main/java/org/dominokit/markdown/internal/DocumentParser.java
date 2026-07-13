@@ -28,6 +28,14 @@ import org.dominokit.markdown.parser.block.*;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 import org.dominokit.markdown.text.Characters;
 
+/**
+ * Stateful block parser that turns source lines into a document tree.
+ *
+ * <p>This class walks the input line by line, keeps track of the currently open block parsers, and
+ * decides when lines continue an existing block, start a new block, or become plain text. Once the
+ * block tree has been built, it performs inline parsing across the collected block contents and
+ * returns the final {@link Document}.
+ */
 public class DocumentParser implements ParserState {
 
   private static final Set<Class<? extends Block>> CORE_FACTORY_TYPES =
@@ -88,6 +96,18 @@ public class DocumentParser implements ParserState {
   private final List<OpenBlockParser> openBlockParsers = new ArrayList<>();
   private final List<BlockParser> allBlockParsers = new ArrayList<>();
 
+  /**
+   * Create a parser configured with the supplied block, inline, delimiter, and link handlers.
+   *
+   * @param blockParserFactories block parser factories to use
+   * @param inlineParserFactory inline parser factory to use
+   * @param inlineContentParserFactories inline-content parser factories to use
+   * @param delimiterProcessors delimiter processors to use
+   * @param linkProcessors link processors to use
+   * @param linkMarkers custom link marker characters
+   * @param includeSourceSpans source-span collection mode
+   * @param maxOpenBlockParsers maximum number of open non-document block parsers
+   */
   public DocumentParser(
       List<BlockParserFactory> blockParserFactories,
       InlineParserFactory inlineParserFactory,
@@ -110,10 +130,22 @@ public class DocumentParser implements ParserState {
     activateBlockParser(new OpenBlockParser(documentBlockParser, 0));
   }
 
+  /**
+   * Return the set of block node types that the built-in parser knows how to create.
+   *
+   * <p>The parser uses this to validate configuration and to materialize the built-in factories in
+   * a stable order.
+   */
   public static Set<Class<? extends Block>> getDefaultBlockParserTypes() {
     return CORE_FACTORY_TYPES;
   }
 
+  /**
+   * Combine custom block parser factories with the built-in factories for the enabled block types.
+   *
+   * <p>Custom factories are inserted first so they can override the behavior of core syntax when
+   * they match the same input.
+   */
   public static List<BlockParserFactory> calculateBlockParserFactories(
       List<BlockParserFactory> customBlockParserFactories,
       Set<Class<? extends Block>> enabledBlockTypes) {
@@ -126,6 +158,12 @@ public class DocumentParser implements ParserState {
     return list;
   }
 
+  /**
+   * Validate that the enabled block types are all recognized by the built-in parser.
+   *
+   * <p>Unknown types are rejected early with a descriptive exception so misconfiguration fails at
+   * builder time instead of halfway through parsing.
+   */
   public static void checkEnabledBlockTypes(Set<Class<? extends Block>> enabledBlockTypes) {
     for (Class<? extends Block> enabledBlockType : enabledBlockTypes) {
       if (!NODES_TO_CORE_FACTORIES.containsKey(enabledBlockType)) {
@@ -138,7 +176,12 @@ public class DocumentParser implements ParserState {
     }
   }
 
-  /** The main parsing function. Returns a parsed document AST. */
+  /**
+   * Parse the full input string into a document tree.
+   *
+   * <p>The method advances one source line at a time, then finalizes any remaining open blocks and
+   * runs inline parsing on the completed block tree.
+   */
   public Document parse(String input) {
     int lineStart = 0;
     int lineBreak;
@@ -161,44 +204,54 @@ public class DocumentParser implements ParserState {
     return finalizeAndProcess();
   }
 
+  /** @return the current logical source line */
   @Override
   public SourceLine getLine() {
     return line;
   }
 
+  /** @return the current character index within the source line */
   @Override
   public int getIndex() {
     return index;
   }
 
+  /** @return the index of the next non-space character on the line */
   @Override
   public int getNextNonSpaceIndex() {
     return nextNonSpace;
   }
 
+  /** @return the current visual column */
   @Override
   public int getColumn() {
     return column;
   }
 
+  /** @return the indentation measured from the current line start */
   @Override
   public int getIndent() {
     return indent;
   }
 
+  /** @return whether the current line is blank */
   @Override
   public boolean isBlank() {
     return blank;
   }
 
+  /** @return the block parser that is currently active */
   @Override
   public BlockParser getActiveBlockParser() {
     return openBlockParsers.get(openBlockParsers.size() - 1).blockParser;
   }
 
   /**
-   * Analyze a line of text and update the document appropriately. We parse markdown text by calling
-   * this on each line of input, then finalizing the document.
+   * Analyze one logical input line and update the parser state.
+   *
+   * <p>The implementation first tries to continue the currently open container blocks. If that is
+   * not possible, it searches for new block starts. Any remaining content on the line is then
+   * either appended to the active block or used to create a paragraph.
    */
   private void parseLine(String ln, int inputIndex) {
     setLine(ln, inputIndex);
@@ -338,6 +391,12 @@ public class DocumentParser implements ParserState {
     }
   }
 
+  /**
+   * Prepare the parser state for a new line.
+   *
+   * <p>NUL characters are normalized to the Unicode replacement character so downstream parsing
+   * sees a stable, spec-compliant input.
+   */
   private void setLine(String ln, int inputIndex) {
     lineIndex++;
     index = 0;
@@ -352,6 +411,12 @@ public class DocumentParser implements ParserState {
     this.line = SourceLine.of(lineContent, sourceSpan);
   }
 
+  /**
+   * Scan forward from the current index to the first non-space, non-tab character.
+   *
+   * <p>The method also computes the current indentation and whether the line is blank so later
+   * block-start checks can reuse the result without rescanning.
+   */
   private void findNextNonSpace() {
     int i = index;
     int cols = column;
@@ -379,6 +444,12 @@ public class DocumentParser implements ParserState {
     indent = nextNonSpaceColumn - column;
   }
 
+  /**
+   * Advance the current position to the requested character index.
+   *
+   * <p>Tab handling is preserved by advancing character by character when necessary so the current
+   * column stays accurate.
+   */
   private void setNewIndex(int newIndex) {
     if (newIndex >= nextNonSpace) {
       // We can start from here, no need to calculate tab stops again
@@ -393,6 +464,12 @@ public class DocumentParser implements ParserState {
     columnIsInTab = false;
   }
 
+  /**
+   * Advance the current position to the requested visual column.
+   *
+   * <p>This is used by block parsers that reason in columns instead of raw character offsets, for
+   * example when indentation spans a tab stop.
+   */
   private void setNewColumn(int newColumn) {
     if (newColumn >= nextNonSpaceColumn) {
       // We can start from here, no need to calculate tab stops again
@@ -413,6 +490,7 @@ public class DocumentParser implements ParserState {
     }
   }
 
+  /** Advance by one source character and update the current visual column accordingly. */
   private void advance() {
     char c = line.getContent().charAt(index);
     index++;
@@ -424,8 +502,10 @@ public class DocumentParser implements ParserState {
   }
 
   /**
-   * Add line content to the active block parser. We assume it can accept lines -- that check should
-   * be done before calling this.
+   * Add the current line content to the active block parser.
+   *
+   * <p>If the parser is positioned in the middle of a tab, the remaining tab width is expanded to
+   * spaces so block parsers receive a stable textual view of the line.
    */
   private void addLine() {
     CharSequence content;
@@ -457,6 +537,12 @@ public class DocumentParser implements ParserState {
     addSourceSpans();
   }
 
+  /**
+   * Propagate the current line's source spans to every still-open block parser.
+   *
+   * <p>Each open block parser tracks the earliest source position at which the current line could
+   * belong to it. This method records spans for the open blocks that still cover the current line.
+   */
   private void addSourceSpans() {
     if (includeSourceSpans != IncludeSourceSpans.NONE) {
       // Don't add source spans for Document itself (it would get the whole source text), so start
@@ -475,6 +561,11 @@ public class DocumentParser implements ParserState {
     }
   }
 
+  /**
+   * Ask the registered block parser factories whether any of them can start a block here.
+   *
+   * <p>The search stops once a factory claims the line and returns a concrete start result.
+   */
   private BlockStartImpl findBlockStart(BlockParser blockParser) {
     if (openBlockParsers.size() > maxOpenBlockParsers) {
       return null;
@@ -490,8 +581,10 @@ public class DocumentParser implements ParserState {
   }
 
   /**
-   * Walk through a block & children recursively, parsing string content into inline content where
-   * appropriate.
+   * Run inline parsing over every block that collected raw text.
+   *
+   * <p>The block tree is already closed at this point, so the inline parser can safely consume the
+   * stored block contents and attach inline children without affecting block structure.
    */
   private void processInlines() {
     var context =
@@ -509,8 +602,10 @@ public class DocumentParser implements ParserState {
   }
 
   /**
-   * Add block of type tag as a child of the tip. If the tip can't accept children, close and
-   * finalize it and try its parent, and so on until we find a block that can accept children.
+   * Attach a newly started block to the nearest ancestor that can contain it.
+   *
+   * <p>If the current active block cannot contain the new block type, the parser closes blocks one
+   * by one until it finds a valid parent.
    */
   private void addChild(OpenBlockParser openBlockParser) {
     while (!getActiveBlockParser().canContain(openBlockParser.blockParser.getBlock())) {
@@ -521,14 +616,22 @@ public class DocumentParser implements ParserState {
     activateBlockParser(openBlockParser);
   }
 
+  /** Push a block parser onto the stack of open parsers. */
   private void activateBlockParser(OpenBlockParser openBlockParser) {
     openBlockParsers.add(openBlockParser);
   }
 
+  /** Pop the most recently opened block parser. */
   private OpenBlockParser deactivateBlockParser() {
     return openBlockParsers.remove(openBlockParsers.size() - 1);
   }
 
+  /**
+   * Replace paragraph lines with the contents of a new block that is taking over those lines.
+   *
+   * <p>This is used for constructs such as reference definitions that consume paragraph text as
+   * part of a different block type.
+   */
   private List<SourceSpan> replaceParagraphLines(int lines, ParagraphParser paragraphParser) {
     // Remove lines from paragraph as the new block is using them.
     // If all lines are used, this also unlinks the Paragraph block.
@@ -538,6 +641,12 @@ public class DocumentParser implements ParserState {
     return sourceSpans;
   }
 
+  /**
+   * Prepare an active block parser to be replaced by a new block.
+   *
+   * <p>The block is finalized for source-span collection, then unlinked so the replacement block can
+   * take its place in the tree.
+   */
   private List<SourceSpan> prepareActiveBlockParserForReplacement(BlockParser blockParser) {
     // Note that we don't want to parse inlines here, as it's getting replaced.
     deactivateBlockParser();
@@ -549,12 +658,22 @@ public class DocumentParser implements ParserState {
     return blockParser.getBlock().getSourceSpans();
   }
 
+  /**
+   * Finalize the document by closing all remaining open block parsers and then running inline
+   * parsing.
+   */
   private Document finalizeAndProcess() {
     closeBlockParsers(openBlockParsers.size());
     processInlines();
     return documentBlockParser.getBlock();
   }
 
+  /**
+   * Close and finalize a number of open block parsers from the top of the stack downward.
+   *
+   * <p>Closed parsers are preserved in {@link #allBlockParsers} so they can later participate in
+   * inline parsing.
+   */
   private void closeBlockParsers(int count) {
     for (int i = 0; i < count; i++) {
       BlockParser blockParser = deactivateBlockParser().blockParser;
@@ -569,21 +688,31 @@ public class DocumentParser implements ParserState {
   }
 
   /**
-   * Finalize a block. Close it and do any necessary postprocessing, e.g. setting the content of
-   * blocks and collecting link reference definitions from paragraphs.
+   * Finalize a block parser.
+   *
+   * <p>Finalization includes collecting any link-reference definitions it exposes before its block
+   * is closed.
    */
   private void finalize(BlockParser blockParser) {
     addDefinitionsFrom(blockParser);
     blockParser.closeBlock();
   }
 
+  /**
+   * Copy the definitions exposed by a block parser into the parser-wide definition registry.
+   */
   private void addDefinitionsFrom(BlockParser blockParser) {
     for (var definitionMap : blockParser.getDefinitions()) {
       definitions.addDefinitions(definitionMap);
     }
   }
 
-  /** Prepares the input line replacing {@code \0} */
+  /**
+   * Normalize the raw input line before parsing.
+   *
+   * <p>Null characters are replaced with the Unicode replacement character, matching the Markdown
+   * parser's treatment of invalid code points.
+   */
   private static String prepareLine(String line) {
     if (line.indexOf('\0') == -1) {
       return line;
@@ -592,6 +721,7 @@ public class DocumentParser implements ParserState {
     }
   }
 
+  /** Adapter that exposes a matched block parser to block-start factories. */
   private static class MatchedBlockParserImpl implements MatchedBlockParser {
 
     private final BlockParser matchedBlockParser;
@@ -600,11 +730,16 @@ public class DocumentParser implements ParserState {
       this.matchedBlockParser = matchedBlockParser;
     }
 
+    /** @return the parser that already matched the current line */
     @Override
     public BlockParser getMatchedBlockParser() {
       return matchedBlockParser;
     }
 
+    /**
+     * @return the paragraph lines if the matched parser is a paragraph, otherwise an empty
+     *     collection
+     */
     @Override
     public SourceLines getParagraphLines() {
       if (matchedBlockParser instanceof ParagraphParser) {
@@ -615,6 +750,7 @@ public class DocumentParser implements ParserState {
     }
   }
 
+  /** Track an open block parser together with the source index where it started. */
   private static class OpenBlockParser {
     private final BlockParser blockParser;
     private int sourceIndex;

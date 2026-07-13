@@ -15,8 +15,17 @@
  */
 package org.dominokit.markdown.parser.block;
 
-/** Parser factory for determining when a block starts. */
+/**
+ * Factory that decides whether the current line starts a block parser.
+ */
 public interface BlockParserFactory {
 
+  /**
+   * Try to start a block at the current parser state.
+   *
+   * @param state the current parser state
+   * @param matchedBlockParser the block parser that already matched the current line
+   * @return a block-start result, or {@code null}
+   */
   BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser);
 }

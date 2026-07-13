@@ -15,7 +15,9 @@
  */
 package org.dominokit.markdown.renderer.elemental2;
 
-/** Controls how {@link org.dominokit.markdown.node.SoftLineBreak} nodes are rendered. */
+/**
+ * Controls how soft line breaks are rendered in the Elemental2 renderer.
+ */
 public enum SoftBreakRendering {
   NEWLINE_TEXT,
   SPACE_TEXT,

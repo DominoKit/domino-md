@@ -30,6 +30,10 @@ import org.dominokit.markdown.parser.beta.Scanner;
 /**
  * Parser for link reference definitions at the beginning of a paragraph.
  *
+ * <p>The parser behaves like a small state machine. It accumulates paragraph lines, attempts to
+ * interpret the leading lines as one or more link reference definitions, and falls back to
+ * paragraph text as soon as the syntax no longer matches.
+ *
  * @see <a href="https://spec.commonmark.org/0.31.2/#link-reference-definitions">Link reference
  *     definitions</a>
  */
@@ -47,6 +51,11 @@ public class LinkReferenceDefinitionParser {
   private StringBuilder title;
   private boolean referenceValid = false;
 
+  /**
+   * Parse one source line as either a definition fragment or paragraph content.
+   *
+   * @param line source line to consume
+   */
   public void parse(SourceLine line) {
     paragraphLines.add(line);
     if (state == State.PARAGRAPH) {
@@ -102,28 +111,52 @@ public class LinkReferenceDefinitionParser {
     }
   }
 
+  /**
+   * Record a source span for the current paragraph/definition fragment.
+   *
+   * @param sourceSpan source span to add
+   */
   public void addSourceSpan(SourceSpan sourceSpan) {
     sourceSpans.add(sourceSpan);
   }
 
-  /** @return the lines that are normal paragraph content, without newlines */
+  /**
+   * @return the lines that are normal paragraph content, without newlines
+   */
   SourceLines getParagraphLines() {
     return SourceLines.of(paragraphLines);
   }
 
+  /**
+   * @return source spans collected for the paragraph portion
+   */
   List<SourceSpan> getParagraphSourceSpans() {
     return sourceSpans;
   }
 
+  /**
+   * Finalize and return all collected reference definitions.
+   *
+   * @return collected link reference definitions
+   */
   List<LinkReferenceDefinition> getDefinitions() {
     finishReference();
     return definitions;
   }
 
+  /**
+   * @return the current parser state
+   */
   State getState() {
     return state;
   }
 
+  /**
+   * Remove a number of lines from the end of the buffered paragraph/definition content.
+   *
+   * @param lines number of trailing lines to remove
+   * @return immutable view of the removed source spans
+   */
   List<SourceSpan> removeLines(int lines) {
     var removedSpans =
         Collections.unmodifiableList(
@@ -134,6 +167,12 @@ public class LinkReferenceDefinitionParser {
     return removedSpans;
   }
 
+  /**
+   * Attempt to start a new link reference definition.
+   *
+   * @param scanner scanner positioned at the current line
+   * @return {@code true} when the line is still a definition candidate
+   */
   private boolean startDefinition(Scanner scanner) {
     // Finish any outstanding references now. We don't do this earlier because we need addSourceSpan
     // to have been
@@ -154,6 +193,12 @@ public class LinkReferenceDefinitionParser {
     return true;
   }
 
+  /**
+   * Parse the label portion of a reference definition.
+   *
+   * @param scanner scanner positioned inside the label
+   * @return {@code true} when the label remains valid
+   */
   private boolean label(Scanner scanner) {
     Position start = scanner.position();
     if (!LinkScanner.scanLinkLabelContent(scanner)) {
@@ -191,6 +236,12 @@ public class LinkReferenceDefinitionParser {
     }
   }
 
+  /**
+   * Parse the destination portion of a reference definition.
+   *
+   * @param scanner scanner positioned at the destination
+   * @return {@code true} when the destination remains valid
+   */
   private boolean destination(Scanner scanner) {
     scanner.whitespace();
     Position start = scanner.position();
@@ -219,6 +270,12 @@ public class LinkReferenceDefinitionParser {
     return true;
   }
 
+  /**
+   * Decide whether the current input introduces a title for the reference definition.
+   *
+   * @param scanner scanner positioned after the destination
+   * @return {@code true} when parsing may continue
+   */
   private boolean startTitle(Scanner scanner) {
     scanner.whitespace();
     if (!scanner.hasNext()) {
@@ -252,6 +309,12 @@ public class LinkReferenceDefinitionParser {
     return true;
   }
 
+  /**
+   * Parse the title portion of a reference definition.
+   *
+   * @param scanner scanner positioned inside the title body
+   * @return {@code true} when the title remains valid
+   */
   private boolean title(Scanner scanner) {
     Position start = scanner.position();
     if (!LinkScanner.scanLinkTitleContent(scanner, titleDelimiter)) {
@@ -285,6 +348,9 @@ public class LinkReferenceDefinitionParser {
     return true;
   }
 
+  /**
+   * Finish the currently buffered reference definition, if it is valid.
+   */
   private void finishReference() {
     if (!referenceValid) {
       return;
@@ -303,6 +369,13 @@ public class LinkReferenceDefinitionParser {
     title = null;
   }
 
+  /**
+   * Remove the last {@code n} items from a list.
+   *
+   * @param n number of items to remove
+   * @param list list to trim from the end
+   * @param <T> element type
+   */
   private static <T> void removeLast(int n, List<T> list) {
     if (n >= list.size()) {
       list.clear();
@@ -313,6 +386,7 @@ public class LinkReferenceDefinitionParser {
     }
   }
 
+  /** Parser states for the link-reference-definition state machine. */
   enum State {
     // Looking for the start of a definition, i.e. `[`
     START_DEFINITION,

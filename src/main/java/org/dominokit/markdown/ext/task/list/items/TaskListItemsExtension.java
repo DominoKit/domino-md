@@ -31,7 +31,12 @@ import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererFactory;
 import org.dominokit.markdown.renderer.markdown.MarkdownRenderer;
 import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
-/** Extension for GitHub-style task list items. */
+/**
+ * Extension for GitHub-style task list items.
+ *
+ * <p>The extension adds a post-processor that rewrites list items into task markers and registers
+ * the corresponding renderers so the checkbox syntax can round-trip across output formats.
+ */
 public final class TaskListItemsExtension
     implements Parser.ParserExtension,
         HtmlRenderer.HtmlRendererExtension,
@@ -39,33 +44,68 @@ public final class TaskListItemsExtension
         TextContentRenderer.TextContentRendererExtension,
         MarkdownRenderer.MarkdownRendererExtension {
 
-  /** Creates the default task list items extension configuration. */
+  /**
+   * Create the default task list items extension configuration.
+   *
+   * <p>The default configuration has no tunable options and exists primarily for discovery and
+   * simple instantiation.
+   */
   public TaskListItemsExtension() {}
 
+  /**
+   * Create the default task list items extension instance.
+   *
+   * @return a ready-to-install extension
+   */
   public static Extension create() {
     return new TaskListItemsExtension();
   }
 
+  /**
+   * Register the task-list post processor.
+   *
+   * @param parserBuilder parser builder to extend
+   */
   @Override
   public void extend(Parser.Builder parserBuilder) {
     parserBuilder.postProcessor(new TaskListItemPostProcessor());
   }
 
+  /**
+   * Register the HTML node renderer for task list items.
+   *
+   * @param rendererBuilder HTML renderer builder to extend
+   */
   @Override
   public void extend(HtmlRenderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(TaskListItemHtmlNodeRenderer::new);
   }
 
+  /**
+   * Register the Elemental2 node renderer for task list items.
+   *
+   * @param rendererBuilder DOM renderer builder to extend
+   */
   @Override
   public void extend(Elemental2Renderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(TaskListItemElementNodeRenderer::new);
   }
 
+  /**
+   * Register the plain-text node renderer for task list items.
+   *
+   * @param rendererBuilder text-content renderer builder to extend
+   */
   @Override
   public void extend(TextContentRenderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(TaskListItemTextContentNodeRenderer::new);
   }
 
+  /**
+   * Register the Markdown node renderer for task list items.
+   *
+   * @param rendererBuilder Markdown renderer builder to extend
+   */
   @Override
   public void extend(MarkdownRenderer.Builder rendererBuilder) {
     rendererBuilder.nodeRendererFactory(

@@ -18,20 +18,32 @@ package org.dominokit.markdown.ext.gfm.strikethrough;
 import org.dominokit.markdown.node.CustomNode;
 import org.dominokit.markdown.node.Delimited;
 
-/** A strikethrough node containing text and other inline nodes as children. */
+/**
+ * Strikethrough custom node.
+ *
+ * <p>The node stores the delimiter sequence used to open and close the wrapper so Markdown
+ * renderers can reproduce the original syntax when possible.
+ */
 public class Strikethrough extends CustomNode implements Delimited {
 
   private final String delimiter;
 
+  /**
+   * Create a strikethrough node with the supplied delimiter.
+   *
+   * @param delimiter delimiter text used for both the opening and closing wrapper
+   */
   public Strikethrough(String delimiter) {
     this.delimiter = delimiter;
   }
 
+  /** @return the opening delimiter sequence */
   @Override
   public String getOpeningDelimiter() {
     return delimiter;
   }
 
+  /** @return the closing delimiter sequence */
   @Override
   public String getClosingDelimiter() {
     return delimiter;

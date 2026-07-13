@@ -17,25 +17,62 @@ package org.dominokit.markdown.parser.block;
 
 import org.dominokit.markdown.internal.BlockStartImpl;
 
-/** Result object for starting parsing of a block. */
+/**
+ * Result object returned by a block parser factory when a new block should start.
+ *
+ * <p>The object records which block parsers to push and how the current scanner position should be
+ * adjusted before parsing continues.
+ */
 public abstract class BlockStart {
 
   protected BlockStart() {}
 
+  /** @return no block start */
   public static BlockStart none() {
     return null;
   }
 
+  /**
+   * Create a start result that opens the supplied block parsers in order.
+   *
+   * @param blockParsers the parsers to activate
+   * @return the start result
+   */
   public static BlockStart of(BlockParser... blockParsers) {
     return new BlockStartImpl(blockParsers);
   }
 
+  /**
+   * Move the scanner to the supplied character index before continuing.
+   *
+   * @param newIndex character index to resume from
+   * @return the configured start result
+   */
   public abstract BlockStart atIndex(int newIndex);
 
+  /**
+   * Move the scanner to the supplied visual column before continuing.
+   *
+   * @param newColumn visual column to resume from
+   * @return the configured start result
+   */
   public abstract BlockStart atColumn(int newColumn);
 
+  /**
+   * Replace the currently active block parser instead of adding a new child.
+   *
+   * @return the configured start result
+   * @deprecated prefer {@link #replaceParagraphLines(int)} or a more specific block replacement
+   *     strategy
+   */
   @Deprecated
   public abstract BlockStart replaceActiveBlockParser();
 
+  /**
+   * Replace a number of paragraph lines with the new block.
+   *
+   * @param lines how many paragraph lines should be replaced
+   * @return the configured start result
+   */
   public abstract BlockStart replaceParagraphLines(int lines);
 }

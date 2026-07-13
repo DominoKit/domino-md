@@ -24,17 +24,26 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.text.TextContentNodeRendererContext;
 import org.dominokit.markdown.renderer.text.TextContentWriter;
 
+/**
+ * Renders tables as readable plain text.
+ */
 public class TableTextContentNodeRenderer extends TableNodeRenderer {
 
   private final TextContentNodeRendererContext context;
   private final TextContentWriter textContent;
 
+  /**
+   * Create a renderer bound to the active text-content rendering context.
+   *
+   * @param context rendering context used for text emission and child traversal
+   */
   public TableTextContentNodeRenderer(TextContentNodeRendererContext context) {
     this.context = context;
     this.textContent = context.getWriter();
   }
 
   @Override
+  /** Render the table block in text mode. */
   protected void renderBlock(TableBlock node) {
     textContent.pushTight(true);
     renderChildren(node);
@@ -43,22 +52,26 @@ public class TableTextContentNodeRenderer extends TableNodeRenderer {
   }
 
   @Override
+  /** Render the header section. */
   protected void renderHead(TableHead node) {
     renderChildren(node);
   }
 
   @Override
+  /** Render the body section. */
   protected void renderBody(TableBody node) {
     renderChildren(node);
   }
 
   @Override
+  /** Render one text table row. */
   protected void renderRow(TableRow node) {
     renderChildren(node);
     textContent.block();
   }
 
   @Override
+  /** Render one text table cell. */
   protected void renderCell(TableCell node) {
     if (node.getPrevious() != null) {
       textContent.write(" | ");

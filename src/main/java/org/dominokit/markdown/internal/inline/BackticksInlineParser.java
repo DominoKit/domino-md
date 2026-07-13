@@ -25,9 +25,19 @@ import org.dominokit.markdown.text.Characters;
 /**
  * Attempt to parse backticks, returning either a backtick code span or a literal sequence of
  * backticks.
+ *
+ * <p>The parser follows CommonMark's code-span rules: the opening and closing fence must use the
+ * same number of backticks, line breaks inside the span collapse to spaces, and surrounding
+ * whitespace is trimmed according to the spec's code-span normalization rule.
  */
 public class BackticksInlineParser implements InlineContentParser {
 
+  /**
+   * Try to parse a code span or literal backtick run.
+   *
+   * @param inlineParserState the current inline parser state
+   * @return a parsed code node or literal text
+   */
   @Override
   public ParsedInline tryParse(InlineParserState inlineParserState) {
     Scanner scanner = inlineParserState.scanner();
@@ -67,11 +77,13 @@ public class BackticksInlineParser implements InlineContentParser {
   }
 
   public static class Factory implements InlineContentParserFactory {
+    /** @return the trigger character set for code-span parsing */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('`');
     }
 
+    /** @return a new backtick parser */
     @Override
     public InlineContentParser create() {
       return new BackticksInlineParser();

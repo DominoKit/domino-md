@@ -17,5 +17,7 @@ package org.dominokit.markdown.ext.gfm.tables;
 
 import org.dominokit.markdown.node.CustomBlock;
 
-/** Table block containing a head and optionally a body. */
+/**
+ * Table block containing a header row and optional body rows.
+ */
 public class TableBlock extends CustomBlock {}

@@ -17,12 +17,23 @@ package org.dominokit.markdown.internal.util;
 
 import org.dominokit.markdown.parser.beta.Scanner;
 
+/**
+ * Scanner routines for Markdown link destinations, titles, and labels.
+ *
+ * <p>These methods advance a shared scanner only as far as a syntactically valid construct allows,
+ * which makes them useful as building blocks for the inline parser's link-resolution logic.
+ */
 public class LinkScanner {
 
   /**
-   * Attempt to scan the contents of a link label (inside the brackets), stopping after the content
-   * or returning false. The stopped position can bei either the closing {@code ]}, or the end of
-   * the line if the label continues on the next line.
+   * Attempt to scan the contents of a link label.
+   *
+   * <p>The scanner stops at the closing {@code ]} or at the end of the line if the label is
+   * unterminated. Escaped bracket characters are allowed; unescaped nested opening brackets are
+   * rejected.
+   *
+   * @param scanner shared inline scanner
+   * @return {@code true} if the scanner reached a possible label terminator, otherwise {@code false}
    */
   public static boolean scanLinkLabelContent(Scanner scanner) {
     while (scanner.hasNext()) {
@@ -47,7 +58,15 @@ public class LinkScanner {
     return true;
   }
 
-  /** Attempt to scan a link destination, stopping after the destination or returning false. */
+  /**
+   * Attempt to scan a link destination.
+   *
+   * <p>Angle-bracket destinations and bare destinations with balanced parentheses are both
+   * supported.
+   *
+   * @param scanner shared inline scanner
+   * @return {@code true} when a syntactically valid destination was consumed
+   */
   public static boolean scanLinkDestination(Scanner scanner) {
     if (!scanner.hasNext()) {
       return false;
@@ -78,6 +97,14 @@ public class LinkScanner {
     }
   }
 
+  /**
+   * Attempt to scan a link title, including the surrounding delimiters.
+   *
+   * <p>The scanner accepts single-quoted, double-quoted, or parenthesized titles.
+   *
+   * @param scanner shared inline scanner
+   * @return {@code true} when a syntactically valid title was consumed
+   */
   public static boolean scanLinkTitle(Scanner scanner) {
     if (!scanner.hasNext()) {
       return false;
@@ -109,6 +136,15 @@ public class LinkScanner {
     return true;
   }
 
+  /**
+   * Attempt to scan the body of a link title until the closing delimiter is reached.
+   *
+   * <p>Parenthesized titles are stricter because unescaped nested parentheses are not allowed.
+   *
+   * @param scanner shared inline scanner
+   * @param endDelimiter closing delimiter to stop at
+   * @return {@code true} when the title body is syntactically valid
+   */
   public static boolean scanLinkTitleContent(Scanner scanner, char endDelimiter) {
     while (scanner.hasNext()) {
       char c = scanner.peek();
@@ -134,6 +170,16 @@ public class LinkScanner {
   // characters, and includes parentheses only if (a) they are backslash-escaped or (b) they are
   // part of a balanced
   // pair of unescaped parentheses
+  /**
+   * Scan a bare link destination while tracking balanced parentheses.
+   *
+   * <p>The CommonMark specification allows bare destinations to contain parentheses only when they
+   * are balanced or escaped. This method enforces that rule and also rejects pathological nesting
+   * depth.
+   *
+   * @param scanner shared inline scanner
+   * @return {@code true} when a valid bare destination was consumed
+   */
   private static boolean scanLinkDestinationWithBalancedParens(Scanner scanner) {
     int parens = 0;
     boolean empty = true;
@@ -177,6 +223,12 @@ public class LinkScanner {
     return true;
   }
 
+  /**
+   * Determine whether a character can be escaped in Markdown link syntax.
+   *
+   * @param c character to test
+   * @return {@code true} if the character can be backslash-escaped
+   */
   private static boolean isEscapable(char c) {
     switch (c) {
       case '!':
@@ -216,6 +268,12 @@ public class LinkScanner {
     return false;
   }
 
+  /**
+   * Determine whether the character is an ASCII control character.
+   *
+   * @param c character to test
+   * @return {@code true} when the character is in the ASCII control range
+   */
   private static boolean isAsciiControl(char c) {
     return (c >= 0 && c <= 0x1F) || c == 0x7F;
   }

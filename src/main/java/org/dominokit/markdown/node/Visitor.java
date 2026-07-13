@@ -16,7 +16,7 @@
 package org.dominokit.markdown.node;
 
 /**
- * Node visitor.
+ * Visitor for Markdown AST nodes.
  *
  * <p>Implementations should subclass {@link AbstractVisitor} instead of implementing this directly.
  */

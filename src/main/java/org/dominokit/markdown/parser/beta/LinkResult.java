@@ -18,9 +18,14 @@ package org.dominokit.markdown.parser.beta;
 import org.dominokit.markdown.internal.inline.LinkResultImpl;
 import org.dominokit.markdown.node.Node;
 
-/** What to do with a link/image processed by {@link LinkProcessor}. */
+/**
+ * Decision returned by a {@link LinkProcessor}.
+ *
+ * <p>Processors can either decline a link, wrap the parsed text in a node, or replace the entire
+ * construct with a different node.
+ */
 public interface LinkResult {
-  /** Link not handled by processor. */
+  /** @return a result indicating that the processor did not handle the link */
   static LinkResult none() {
     return null;
   }
@@ -37,6 +42,7 @@ public interface LinkResult {
    *
    * @param node the node to which the link text nodes will be added as child nodes
    * @param position the position to continue parsing from
+   * @return a wrapping result
    */
   static LinkResult wrapTextIn(Node node, Position position) {
     return new LinkResultImpl(LinkResultImpl.Type.WRAP, node, position);
@@ -54,14 +60,16 @@ public interface LinkResult {
    *
    * @param node the node to replace the link with
    * @param position the position to continue parsing from
+   * @return a replacing result
    */
   static LinkResult replaceWith(Node node, Position position) {
     return new LinkResultImpl(LinkResultImpl.Type.REPLACE, node, position);
   }
 
   /**
-   * If a {@link LinkInfo#marker()} is present, include it in processing (i.e. treat it the same way
-   * as the brackets).
+   * Include the marker, if present, in the processing decision.
+   *
+   * @return this result configured to include the marker
    */
   LinkResult includeMarker();
 }

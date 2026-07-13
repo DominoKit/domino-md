@@ -27,6 +27,9 @@ import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererContext;
 import org.dominokit.markdown.renderer.markdown.MarkdownWriter;
 import org.dominokit.markdown.text.AsciiMatcher;
 
+/**
+ * Renders tables back to pipe-table Markdown.
+ */
 public class TableMarkdownNodeRenderer extends TableNodeRenderer {
 
   private final MarkdownWriter writer;
@@ -34,12 +37,18 @@ public class TableMarkdownNodeRenderer extends TableNodeRenderer {
   private final AsciiMatcher pipe = AsciiMatcher.builder().c('|').build();
   private final List<TableCell.Alignment> columns = new ArrayList<>();
 
+  /**
+   * Create a renderer bound to the active Markdown rendering context.
+   *
+   * @param context rendering context used for markdown emission and child traversal
+   */
   public TableMarkdownNodeRenderer(MarkdownNodeRendererContext context) {
     this.writer = context.getWriter();
     this.context = context;
   }
 
   @Override
+  /** Start a table block and render its descendants. */
   protected void renderBlock(TableBlock node) {
     columns.clear();
     writer.pushTight(true);
@@ -49,6 +58,7 @@ public class TableMarkdownNodeRenderer extends TableNodeRenderer {
   }
 
   @Override
+  /** Render the header row and the separator line. */
   protected void renderHead(TableHead node) {
     renderChildren(node);
     for (TableCell.Alignment columnAlignment : columns) {
@@ -68,11 +78,13 @@ public class TableMarkdownNodeRenderer extends TableNodeRenderer {
   }
 
   @Override
+  /** Render the table body rows. */
   protected void renderBody(TableBody node) {
     renderChildren(node);
   }
 
   @Override
+  /** Render one Markdown table row. */
   protected void renderRow(TableRow node) {
     renderChildren(node);
     writer.raw("|");
@@ -80,6 +92,7 @@ public class TableMarkdownNodeRenderer extends TableNodeRenderer {
   }
 
   @Override
+  /** Render one Markdown table cell. */
   protected void renderCell(TableCell node) {
     if (node.getParent() != null && node.getParent().getParent() instanceof TableHead) {
       columns.add(node.getAlignment());

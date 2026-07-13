@@ -22,7 +22,12 @@ import org.dominokit.markdown.parser.beta.InlineContentParserFactory;
 import org.dominokit.markdown.parser.beta.LinkProcessor;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 
-/** Context for inline parsing. */
+/**
+ * Context exposed to inline parsing extensions.
+ *
+ * <p>The context provides access to custom parser registrations as well as the parsed
+ * link-reference definitions collected during block parsing.
+ */
 public interface InlineParserContext {
 
   /**
@@ -39,12 +44,12 @@ public interface InlineParserContext {
 
   /**
    * @return custom link processors that have been configured with {@link
-   *     Parser.Builder#linkProcessor}.
+   *     Parser.Builder#linkProcessor}
    */
   List<LinkProcessor> getCustomLinkProcessors();
 
   /**
-   * @return custom link markers that have been configured with {@link Parser.Builder#linkMarker}.
+   * @return custom link markers that have been configured with {@link Parser.Builder#linkMarker}
    */
   Set<Character> getCustomLinkMarkers();
 

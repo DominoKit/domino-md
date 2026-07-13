@@ -31,33 +31,67 @@ import org.dominokit.markdown.parser.block.MatchedBlockParser;
 import org.dominokit.markdown.parser.block.ParserState;
 import org.dominokit.markdown.text.Characters;
 
+/**
+ * Parses ATX and Setext headings.
+ *
+ * <p>ATX headings are created directly from a line starting with {@code #} markers. Setext
+ * headings are recognized when a paragraph is followed by a line of {@code =} or {@code -}
+ * markers, at which point the paragraph text is reclassified as the heading body.
+ */
 public class HeadingParser extends AbstractBlockParser {
 
   private final Heading block = new Heading();
   private final SourceLines content;
 
+  /**
+   * Create a heading parser with the already collected content lines.
+   *
+   * @param level heading level from 1 to 6
+   * @param content heading body content
+   */
   public HeadingParser(int level, SourceLines content) {
     block.setLevel(level);
     this.content = content;
   }
 
+  /** @return the heading node being built */
   @Override
   public Block getBlock() {
     return block;
   }
 
+  /**
+   * Headings do not continue onto later lines.
+   *
+   * @param parserState current parser state
+   * @return always none
+   */
   @Override
   public BlockContinue tryContinue(ParserState parserState) {
     return BlockContinue.none();
   }
 
+  /**
+   * Parse the collected heading body using the inline parser.
+   *
+   * @param inlineParser inline parser to use for the heading body
+   */
   @Override
   public void parseInlines(InlineParser inlineParser) {
     inlineParser.parse(content, block);
   }
 
+  /** Recognizes heading openings and setext underlines. */
   public static class Factory extends AbstractBlockParserFactory {
 
+    /**
+     * Try to start a heading at the current line.
+     *
+     * @param state current parser state
+     * @param matchedBlockParser most recent matched block parser
+     * @return a heading parser start when the line matches an ATX or Setext heading, otherwise
+     *     none
+     */
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
       if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT) {
@@ -88,6 +122,15 @@ public class HeadingParser extends AbstractBlockParser {
     }
   }
 
+  /**
+   * Parse an ATX heading from the supplied line fragment.
+   *
+   * <p>The parser validates the marker run, requires a separating space when content is present,
+   * and trims trailing closing {@code #} markers according to the CommonMark rules.
+   *
+   * @param line line fragment starting at the first {@code #}
+   * @return heading parser for the parsed level, or {@code null} when the fragment is not valid
+   */
   private static HeadingParser getAtxHeading(SourceLine line) {
     Scanner scanner = Scanner.of(SourceLines.of(line));
     int level = scanner.matchMultiple('#');
@@ -145,6 +188,13 @@ public class HeadingParser extends AbstractBlockParser {
     return new HeadingParser(level, source);
   }
 
+  /**
+   * Determine whether the current line is a Setext underline.
+   *
+   * @param line line content
+   * @param index first non-space character
+   * @return heading level for the underline, or {@code 0} when the line is not a Setext marker
+   */
   private static int getSetextHeadingLevel(CharSequence line, int index) {
     char marker = line.charAt(index);
     if (marker == '=' && isSetextHeadingRest(line, index + 1, '=')) {
@@ -156,6 +206,14 @@ public class HeadingParser extends AbstractBlockParser {
     return 0;
   }
 
+  /**
+   * Check whether the rest of the line contains only marker characters and trailing whitespace.
+   *
+   * @param line line content
+   * @param index first character after the leading marker run
+   * @param marker expected underline marker
+   * @return {@code true} when the rest of the line is a valid Setext underline tail
+   */
   private static boolean isSetextHeadingRest(CharSequence line, int index, char marker) {
     int afterMarker = Characters.skip(marker, line, index, line.length());
     int afterSpace = Characters.skipSpaceTab(line, afterMarker, line.length());

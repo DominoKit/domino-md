@@ -23,16 +23,25 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRendererContext;
 
+/**
+ * Renders task-list marker nodes as DOM checkbox inputs.
+ */
 public class TaskListItemElementNodeRenderer extends TaskListItemNodeRenderer
     implements ElementNodeRenderer {
 
   private final ElementNodeRendererContext context;
 
+  /**
+   * Create a renderer bound to the active Elemental2 rendering context.
+   *
+   * @param context rendering context used for element creation
+   */
   public TaskListItemElementNodeRenderer(ElementNodeRendererContext context) {
     this.context = context;
   }
 
   @Override
+  /** Render the checkbox input and trailing text node. */
   public void render(Node node) {
     TaskListItemMarker marker = (TaskListItemMarker) node;
     Map<String, String> attributes = new LinkedHashMap<>();

@@ -15,29 +15,46 @@
  */
 package org.dominokit.markdown.node;
 
-/** A bullet list. */
+/**
+ * An unordered list.
+ *
+ * <p>The marker stores the exact bullet token used in the source, such as {@code -}, {@code *},
+ * or {@code +}.
+ */
 public class BulletList extends ListBlock {
 
   private String marker;
 
+  /** Dispatch this bullet list to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the bullet marker token, or {@code null} */
   public String getMarker() {
     return marker;
   }
 
+  /** Set the bullet marker token. */
   public void setMarker(String marker) {
     this.marker = marker;
   }
 
+  /**
+   * @return the bullet marker as a single character, or {@code '\0'} if not available
+   * @deprecated use {@link #getMarker()} instead
+   */
   @Deprecated
   public char getBulletMarker() {
     return marker != null && !marker.isEmpty() ? marker.charAt(0) : '\0';
   }
 
+  /**
+   * Set the bullet marker from a single character.
+   *
+   * @deprecated use {@link #setMarker(String)} instead
+   */
   @Deprecated
   public void setBulletMarker(char bulletMarker) {
     this.marker = bulletMarker != '\0' ? String.valueOf(bulletMarker) : null;

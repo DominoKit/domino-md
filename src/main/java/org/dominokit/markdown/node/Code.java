@@ -15,26 +15,40 @@
  */
 package org.dominokit.markdown.node;
 
-/** Inline code span. */
+/**
+ * An inline code span.
+ *
+ * <p>Code spans store the literal text content after backtick delimiter processing but before any
+ * HTML escaping by renderers.
+ */
 public class Code extends Node {
 
   private String literal;
 
+  /** Create an empty code span that can be populated later. */
   public Code() {}
 
+  /**
+   * Create a code span with the supplied literal text.
+   *
+   * @param literal literal code content
+   */
   public Code(String literal) {
     this.literal = literal;
   }
 
+  /** Dispatch this code span to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the literal code content */
   public String getLiteral() {
     return literal;
   }
 
+  /** Set the literal code content. */
   public void setLiteral(String literal) {
     this.literal = literal;
   }

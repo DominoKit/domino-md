@@ -22,7 +22,10 @@ import java.util.Set;
 import org.dominokit.markdown.internal.util.Escaping;
 
 /**
- * A map that can be used to store and look up reference definitions by a label.
+ * A label-indexed map for reference definitions.
+ *
+ * <p>Labels are normalized before storage and lookup, which gives the parser CommonMark-compatible
+ * case folding and whitespace collapsing semantics.
  *
  * @param <D> definition value type
  */
@@ -31,34 +34,61 @@ public class DefinitionMap<D> {
   private final Class<D> type;
   private final Map<String, D> definitions = new LinkedHashMap<>();
 
+  /**
+   * Create a definition map for the supplied value type.
+   *
+   * @param type the definition value type stored by this map
+   */
   public DefinitionMap(Class<D> type) {
     this.type = type;
   }
 
+  /** @return the definition type stored by this map */
   public Class<D> getType() {
     return type;
   }
 
+  /**
+   * Merge definitions from another map without overwriting existing labels.
+   *
+   * <p>This preserves the first definition seen for a given normalized label, matching the
+   * parser's preference for earlier definitions.
+   */
   public void addAll(DefinitionMap<D> other) {
     for (Map.Entry<String, D> entry : other.definitions.entrySet()) {
       definitions.putIfAbsent(entry.getKey(), entry.getValue());
     }
   }
 
+  /**
+   * Store a definition only if the normalized label has not already been seen.
+   *
+   * @param label the label to normalize and use as the key
+   * @param definition the definition to store
+   * @return the previous definition associated with the label, or {@code null}
+   */
   public D putIfAbsent(String label, D definition) {
     String normalizedLabel = Escaping.normalizeLabelContent(label);
     return definitions.putIfAbsent(normalizedLabel, definition);
   }
 
+  /**
+   * Look up a definition by label.
+   *
+   * @param label the label to normalize before lookup
+   * @return the matching definition, or {@code null}
+   */
   public D get(String label) {
     String normalizedLabel = Escaping.normalizeLabelContent(label);
     return definitions.get(normalizedLabel);
   }
 
+  /** @return the normalized labels currently stored in this map */
   public Set<String> keySet() {
     return definitions.keySet();
   }
 
+  /** @return the definitions currently stored in this map */
   public Collection<D> values() {
     return definitions.values();
   }

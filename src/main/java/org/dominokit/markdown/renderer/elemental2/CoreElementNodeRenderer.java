@@ -43,17 +43,37 @@ import org.dominokit.markdown.node.StrongEmphasis;
 import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.node.ThematicBreak;
 
-/** The node renderer that renders all core markdown nodes to Elemental2 DOM nodes. */
+/**
+ * Core renderer that maps the built-in markdown node types to Elemental2 DOM nodes.
+ *
+ * <p>This renderer is intentionally opinionated: it knows how to translate the stock node set into
+ * native DOM elements, handles the renderer configuration flags exposed by
+ * {@link Elemental2Renderer}, and delegates all child traversal back through the active rendering
+ * context so nested nodes inherit the same attribute, raw HTML, and soft-break behavior.
+ */
 public class CoreElementNodeRenderer extends AbstractVisitor implements ElementNodeRenderer {
 
   private final ElementNodeRendererContext context;
   private final Document document;
 
+  /**
+   * Create a renderer bound to the active Elemental2 rendering context.
+   *
+   * @param context the render-pass context used for DOM creation, attribute extension, and child
+   *     traversal
+   */
   public CoreElementNodeRenderer(ElementNodeRendererContext context) {
     this.context = context;
     this.document = context.getDocument();
   }
 
+  /**
+   * Return the node types handled by this renderer.
+   *
+   * <p>The set mirrors the built-in node hierarchy so the renderer can participate as the default
+   * fallback for common markdown structures while still allowing extensions to contribute their
+   * own specialized renderers.
+   */
   @Override
   public Set<Class<? extends Node>> getNodeTypes() {
     return Set.of(
@@ -79,21 +99,34 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
         HardLineBreak.class);
   }
 
+  /**
+   * Dispatch the supplied node to the matching visit method.
+   *
+   * @param node the node to render
+   */
   @Override
   public void render(Node node) {
     node.accept(this);
   }
 
+  /** Render the document by delegating traversal to the child nodes. */
   @Override
   public void visit(org.dominokit.markdown.node.Document document) {
     visitChildren(document);
   }
 
+  /** Render a heading as an {@code h1}..{@code h6} element based on its markdown level. */
   @Override
   public void visit(Heading heading) {
     appendContainer("h" + heading.getLevel(), heading);
   }
 
+  /**
+   * Render a paragraph unless the current configuration says it should be flattened.
+   *
+   * <p>Paragraphs are omitted inside tight lists and, optionally, when the root document contains
+   * exactly one paragraph.
+   */
   @Override
   public void visit(Paragraph paragraph) {
     if (shouldOmitParagraph(paragraph)) {
@@ -104,16 +137,25 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     appendContainer("p", paragraph);
   }
 
+  /** Render a block quote using a {@code blockquote} wrapper element. */
   @Override
   public void visit(BlockQuote blockQuote) {
     appendContainer("blockquote", blockQuote);
   }
 
+  /** Render an unordered list using a {@code ul} element. */
   @Override
   public void visit(BulletList bulletList) {
     appendContainer("ul", bulletList);
   }
 
+  /**
+   * Render a fenced code block as a {@code pre > code} structure.
+   *
+   * <p>If the fence info string contains a language hint, the hint is converted into a
+   * {@code language-*} class on the inner {@code code} element so downstream syntax highlighters
+   * can detect it.
+   */
   @Override
   public void visit(FencedCodeBlock fencedCodeBlock) {
     Map<String, String> attributes = new LinkedHashMap<>();
@@ -126,6 +168,12 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     appendCodeBlock(fencedCodeBlock, fencedCodeBlock.getLiteral(), attributes);
   }
 
+  /**
+   * Render raw HTML blocks using the configured raw HTML handler when available.
+   *
+   * <p>When no handler accepts the literal, the renderer falls back to a plain paragraph that
+   * contains the literal text verbatim, preserving the content without interpreting it as DOM.
+   */
   @Override
   public void visit(HtmlBlock htmlBlock) {
     elemental2.dom.Node rawNode = tryRawHtmlBlock(htmlBlock.getLiteral());
@@ -139,16 +187,25 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.append(paragraph);
   }
 
+  /** Render a thematic break as an {@code hr} element. */
   @Override
   public void visit(ThematicBreak thematicBreak) {
     context.append(createElement("hr", thematicBreak, Map.of()));
   }
 
+  /** Render an indented code block using the same {@code pre > code} structure as fenced code. */
   @Override
   public void visit(IndentedCodeBlock indentedCodeBlock) {
     appendCodeBlock(indentedCodeBlock, indentedCodeBlock.getLiteral(), Map.of());
   }
 
+  /**
+   * Render a link as an anchor element.
+   *
+   * <p>The destination may be sanitized and percent-encoded depending on the renderer
+   * configuration. Any configured attribute providers can further adjust the resulting
+   * attributes before the children are rendered into the anchor.
+   */
   @Override
   public void visit(Link link) {
     String url = link.getDestination();
@@ -167,11 +224,18 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.renderChildren(link, anchor);
   }
 
+  /** Render a list item as an {@code li} element. */
   @Override
   public void visit(ListItem listItem) {
     appendContainer("li", listItem);
   }
 
+  /**
+   * Render an ordered list as an {@code ol} element.
+   *
+   * <p>If the list starts at a number other than 1, the HTML {@code start} attribute is emitted so
+   * the rendered list preserves the markdown numbering semantics.
+   */
   @Override
   public void visit(OrderedList orderedList) {
     int start = orderedList.getMarkerStartNumber() != null ? orderedList.getMarkerStartNumber() : 1;
@@ -185,6 +249,13 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.renderChildren(orderedList, list);
   }
 
+  /**
+   * Render an image as a self-contained {@code img} element.
+   *
+   * <p>The renderer derives the alt text by walking the image's inline children, normalizing line
+   * breaks to newline characters so the resulting attribute matches markdown accessibility
+   * expectations.
+   */
   @Override
   public void visit(Image image) {
     String url = image.getDestination();
@@ -205,21 +276,25 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.append(createElement("img", image, attributes));
   }
 
+  /** Render emphasis using an {@code em} element. */
   @Override
   public void visit(Emphasis emphasis) {
     appendContainer("em", emphasis);
   }
 
+  /** Render strong emphasis using a {@code strong} element. */
   @Override
   public void visit(StrongEmphasis strongEmphasis) {
     appendContainer("strong", strongEmphasis);
   }
 
+  /** Render a text node as a DOM text node without additional escaping. */
   @Override
   public void visit(Text text) {
     context.append(document.createTextNode(text.getLiteral()));
   }
 
+  /** Render inline code as a {@code code} element containing the literal text. */
   @Override
   public void visit(Code code) {
     Element codeElement = createElement("code", code, Map.of());
@@ -227,6 +302,12 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.append(codeElement);
   }
 
+  /**
+   * Render inline raw HTML using the configured handler when possible.
+   *
+   * <p>If the handler declines the literal, the renderer preserves the source by emitting it as a
+   * text node rather than attempting to interpret it as HTML.
+   */
   @Override
   public void visit(HtmlInline htmlInline) {
     elemental2.dom.Node rawNode = tryRawHtmlInline(htmlInline.getLiteral());
@@ -238,6 +319,12 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.append(document.createTextNode(htmlInline.getLiteral()));
   }
 
+  /**
+   * Render a soft line break according to the configured break policy.
+   *
+   * <p>The renderer can emit a {@code br} element, a space text node, or a literal newline text
+   * node so consumers can choose between HTML fidelity and whitespace normalization.
+   */
   @Override
   public void visit(SoftLineBreak softLineBreak) {
     if (context.softBreakRendering() == SoftBreakRendering.BR_ELEMENT) {
@@ -249,16 +336,25 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.append(document.createTextNode(literal));
   }
 
+  /** Render a hard line break as a {@code br} element. */
   @Override
   public void visit(HardLineBreak hardLineBreak) {
     context.append(createElement("br", hardLineBreak, Map.of()));
   }
 
+  /** Delegate child traversal to the current rendering context. */
   @Override
   protected void visitChildren(Node parent) {
     context.renderChildren(parent);
   }
 
+  /**
+   * Append a {@code pre > code} block for literal code content.
+   *
+   * @param node the source markdown node used for attribute extension
+   * @param literal the code content to insert without interpretation
+   * @param codeAttributes attributes to apply to the inner {@code code} element
+   */
   private void appendCodeBlock(Node node, String literal, Map<String, String> codeAttributes) {
     Element pre = createElement("pre", node, Map.of());
     Element code = createElement("code", node, codeAttributes);
@@ -267,12 +363,30 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     context.append(pre);
   }
 
+  /**
+   * Append a container element and render the node's children inside it.
+   *
+   * @param tagName the HTML tag to create
+   * @param node the source markdown node used for extension hooks
+   */
   private void appendContainer(String tagName, Node node) {
     Element element = createElement(tagName, node, Map.of());
     context.append(element);
     context.renderChildren(node, element);
   }
 
+  /**
+   * Create an element with the renderer's extended attributes applied.
+   *
+   * <p>Default attributes are first merged with any registered attribute providers and then copied
+   * into the newly created DOM element, skipping only {@code null} values so providers can remove
+   * attributes by omission.
+   *
+   * @param tagName the tag name to create
+   * @param node the markdown node being rendered
+   * @param defaultAttributes base attributes supplied by the renderer
+   * @return a freshly created DOM element with the final attribute set applied
+   */
   private Element createElement(String tagName, Node node, Map<String, String> defaultAttributes) {
     Element element = document.createElement(tagName);
     Map<String, String> attributes = context.extendAttributes(node, tagName, defaultAttributes);
@@ -284,6 +398,12 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     return element;
   }
 
+  /**
+   * Determine whether a paragraph should be omitted in the current rendering mode.
+   *
+   * <p>Paragraphs are omitted when they appear inside tight lists or when the renderer is
+   * configured to drop the wrapper for a single top-level paragraph.
+   */
   private boolean shouldOmitParagraph(Paragraph paragraph) {
     return isInTightList(paragraph)
         || (context.shouldOmitSingleParagraphP()
@@ -292,6 +412,12 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
             && paragraph.getNext() == null);
   }
 
+  /**
+   * Check whether the paragraph is nested inside a tight list.
+   *
+   * <p>The check only needs to inspect the immediate grandparent because markdown list items own
+   * the paragraph directly and the tightness flag lives on the enclosing list block.
+   */
   private boolean isInTightList(Paragraph paragraph) {
     Node parent = paragraph.getParent();
     if (parent != null) {
@@ -303,40 +429,64 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
     return false;
   }
 
+  /**
+   * Try to render raw block HTML via the configured handler.
+   *
+   * @param literal the raw HTML text captured from the markdown source
+   * @return a DOM node when the handler accepts the literal, otherwise {@code null}
+   */
   private elemental2.dom.Node tryRawHtmlBlock(String literal) {
     RawHtmlHandler rawHtmlHandler = context.rawHtmlHandler();
     return rawHtmlHandler != null ? rawHtmlHandler.renderBlock(literal) : null;
   }
 
+  /**
+   * Try to render raw inline HTML via the configured handler.
+   *
+   * @param literal the raw inline HTML captured from the markdown source
+   * @return a DOM node when the handler accepts the literal, otherwise {@code null}
+   */
   private elemental2.dom.Node tryRawHtmlInline(String literal) {
     RawHtmlHandler rawHtmlHandler = context.rawHtmlHandler();
     return rawHtmlHandler != null ? rawHtmlHandler.renderInline(literal) : null;
   }
 
+  /**
+   * Visitor used to extract image alt text from nested inline content.
+   *
+   * <p>The visitor collapses the image's descendant text into a single string and normalizes both
+   * soft and hard line breaks to newline characters so the final {@code alt} attribute remains
+   * readable and deterministic.
+   */
   private static final class AltTextVisitor extends AbstractVisitor {
 
     private final StringBuilder builder = new StringBuilder();
 
+    /** Append literal text to the accumulated image alt text. */
     @Override
     public void visit(Text text) {
       builder.append(text.getLiteral());
     }
 
+    /** Append inline code text to the accumulated image alt text. */
     @Override
     public void visit(Code code) {
       builder.append(code.getLiteral());
     }
 
+    /** Normalize a soft line break to a newline in the accumulated alt text. */
     @Override
     public void visit(SoftLineBreak softLineBreak) {
       builder.append('\n');
     }
 
+    /** Normalize a hard line break to a newline in the accumulated alt text. */
     @Override
     public void visit(HardLineBreak hardLineBreak) {
       builder.append('\n');
     }
 
+    /** @return the accumulated alt text built from the image's inline children */
     private String getAltText() {
       return builder.toString();
     }

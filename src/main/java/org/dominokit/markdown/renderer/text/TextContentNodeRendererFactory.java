@@ -17,7 +17,12 @@ package org.dominokit.markdown.renderer.text;
 
 import org.dominokit.markdown.renderer.NodeRenderer;
 
-/** Factory for instantiating new node renderers when rendering is done. */
+/**
+ * Factory for text-content node renderers.
+ *
+ * <p>Factories are created per render pass so renderers can observe the current writer and
+ * line-break configuration.
+ */
 public interface TextContentNodeRendererFactory {
 
   /**

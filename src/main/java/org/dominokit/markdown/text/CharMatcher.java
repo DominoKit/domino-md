@@ -24,5 +24,6 @@ package org.dominokit.markdown.text;
  */
 public interface CharMatcher {
 
+  /** @return whether the character matches the configured predicate */
   boolean matches(char c);
 }

@@ -15,9 +15,15 @@
  */
 package org.dominokit.markdown.node;
 
-/** A soft line break. */
+/**
+ * A soft line break.
+ *
+ * <p>Soft line breaks preserve the source's line boundary without forcing a visible break unless a
+ * renderer chooses to do so.
+ */
 public class SoftLineBreak extends Node {
 
+  /** Dispatch this soft line break to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

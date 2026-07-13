@@ -15,20 +15,25 @@
  */
 package org.dominokit.markdown.node;
 
-/** HTML block. */
+/**
+ * A block-level HTML fragment.
+ */
 public class HtmlBlock extends Block {
 
   private String literal;
 
+  /** Dispatch this HTML block to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the raw HTML literal */
   public String getLiteral() {
     return literal;
   }
 
+  /** Set the raw HTML literal. */
   public void setLiteral(String literal) {
     this.literal = literal;
   }

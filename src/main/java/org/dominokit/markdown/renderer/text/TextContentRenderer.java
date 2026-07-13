@@ -23,12 +23,22 @@ import org.dominokit.markdown.internal.renderer.NodeRendererMap;
 import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.Renderer;
 
-/** Renders nodes to plain text content with minimal markup-like additions. */
+/**
+ * Renders markdown nodes to plain text content with minimal markup-like additions.
+ *
+ * <p>The renderer is intentionally lossy: it preserves enough structure for readability but
+ * discards syntax details that do not matter in plain text.
+ */
 public class TextContentRenderer implements Renderer {
 
   private final LineBreakRendering lineBreakRendering;
   private final List<TextContentNodeRendererFactory> nodeRendererFactories;
 
+  /**
+   * Create a renderer from the supplied builder configuration.
+   *
+   * @param builder renderer configuration state
+   */
   private TextContentRenderer(Builder builder) {
     this.lineBreakRendering = builder.lineBreakRendering;
     this.nodeRendererFactories = new ArrayList<>(builder.nodeRendererFactories.size() + 1);
@@ -36,15 +46,17 @@ public class TextContentRenderer implements Renderer {
     this.nodeRendererFactories.add(CoreTextContentNodeRenderer::new);
   }
 
-  /**
-   * Create a new builder for configuring a {@link TextContentRenderer}.
-   *
-   * @return a builder
-   */
+  /** Create a new builder for configuring a {@link TextContentRenderer}. */
   public static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Render a node tree into the supplied appendable.
+   *
+   * @param node the markdown node tree to render
+   * @param output destination for the generated text
+   */
   @Override
   public void render(Node node, Appendable output) {
     Objects.requireNonNull(node, "node must not be null");
@@ -56,6 +68,12 @@ public class TextContentRenderer implements Renderer {
     context.afterRoot(node);
   }
 
+  /**
+   * Render a node tree to a string.
+   *
+   * @param node the markdown node tree to render
+   * @return the rendered plain text
+   */
   @Override
   public String render(Node node) {
     Objects.requireNonNull(node, "node must not be null");
@@ -64,13 +82,18 @@ public class TextContentRenderer implements Renderer {
     return sb.toString();
   }
 
-  /** Builder for configuring a {@link TextContentRenderer}. */
+  /**
+   * Builder for configuring a {@link TextContentRenderer}.
+   *
+   * <p>The builder collects line-break behavior, custom renderers, and extensions before creating
+   * an immutable renderer instance.
+   */
   public static class Builder {
 
     private final List<TextContentNodeRendererFactory> nodeRendererFactories = new ArrayList<>();
     private LineBreakRendering lineBreakRendering = LineBreakRendering.COMPACT;
 
-    /** @return the configured {@link TextContentRenderer} */
+    /** Build the configured {@link TextContentRenderer}. */
     public TextContentRenderer build() {
       return new TextContentRenderer(this);
     }
@@ -79,7 +102,7 @@ public class TextContentRenderer implements Renderer {
      * Configure how line breaks are rendered.
      *
      * @param lineBreakRendering the mode to use
-     * @return {@code this}
+     * @return this builder for chaining
      */
     public Builder lineBreakRendering(LineBreakRendering lineBreakRendering) {
       this.lineBreakRendering =
@@ -89,7 +112,7 @@ public class TextContentRenderer implements Renderer {
 
     /**
      * @param stripNewlines true to flatten text, false to keep compact block separation
-     * @return {@code this}
+     * @return this builder for chaining
      * @deprecated Use {@link #lineBreakRendering(LineBreakRendering)} instead.
      */
     @Deprecated
@@ -103,7 +126,7 @@ public class TextContentRenderer implements Renderer {
      * Add a factory for creating a node renderer.
      *
      * @param nodeRendererFactory the renderer factory to add
-     * @return {@code this}
+     * @return this builder for chaining
      */
     public Builder nodeRendererFactory(TextContentNodeRendererFactory nodeRendererFactory) {
       this.nodeRendererFactories.add(
@@ -112,8 +135,10 @@ public class TextContentRenderer implements Renderer {
     }
 
     /**
-     * @param extensions extensions to use on this text renderer
-     * @return {@code this}
+     * Apply text-renderer-specific extensions.
+     *
+     * @param extensions extensions to inspect for {@link TextContentRendererExtension} hooks
+     * @return this builder for chaining
      */
     public Builder extensions(Iterable<? extends Extension> extensions) {
       Objects.requireNonNull(extensions, "extensions must not be null");
@@ -128,6 +153,7 @@ public class TextContentRenderer implements Renderer {
 
   /** Extension contract for {@link TextContentRenderer}. */
   public interface TextContentRendererExtension extends Extension {
+    /** Contribute renderer configuration to the supplied builder. */
     void extend(Builder rendererBuilder);
   }
 
@@ -135,6 +161,11 @@ public class TextContentRenderer implements Renderer {
     private final TextContentWriter textContentWriter;
     private final NodeRendererMap nodeRendererMap = new NodeRendererMap();
 
+    /**
+     * Create a render-pass context backed by the supplied writer.
+     *
+     * @param textContentWriter destination for generated text
+     */
     private RendererContext(TextContentWriter textContentWriter) {
       this.textContentWriter = textContentWriter;
       for (TextContentNodeRendererFactory factory : nodeRendererFactories) {
@@ -143,30 +174,36 @@ public class TextContentRenderer implements Renderer {
     }
 
     @Override
+    /** @return the configured line-break mode */
     public LineBreakRendering lineBreakRendering() {
       return lineBreakRendering;
     }
 
     @Override
     @Deprecated
+    /** @return whether line breaks are stripped */
     public boolean stripNewlines() {
       return lineBreakRendering == LineBreakRendering.STRIP;
     }
 
     @Override
+    /** @return the writer used to emit text content */
     public TextContentWriter getWriter() {
       return textContentWriter;
     }
 
     @Override
+    /** Render a node using the renderer map associated with this context. */
     public void render(Node node) {
       nodeRendererMap.render(node);
     }
 
+    /** Notify registered renderers that root rendering is about to start. */
     private void beforeRoot(Node node) {
       nodeRendererMap.beforeRoot(node);
     }
 
+    /** Notify registered renderers that root rendering has completed. */
     private void afterRoot(Node node) {
       nodeRendererMap.afterRoot(node);
     }

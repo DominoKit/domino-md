@@ -30,16 +30,34 @@ import org.dominokit.markdown.parser.block.MatchedBlockParser;
 import org.dominokit.markdown.parser.block.ParserState;
 import org.dominokit.markdown.text.Characters;
 
+/**
+ * Parses an indented code block using CommonMark's four-space indentation rule.
+ *
+ * <p>The parser collects raw source lines without inline processing, trims trailing blank lines
+ * when the block closes, and then joins the remaining lines with newline separators so the code
+ * block literal matches the source structure the renderer expects.
+ */
 public class IndentedCodeBlockParser extends AbstractBlockParser {
 
   private final IndentedCodeBlock block = new IndentedCodeBlock();
   private final List<CharSequence> lines = new ArrayList<>();
 
+  /** @return the code block node being constructed */
   @Override
   public Block getBlock() {
     return block;
   }
 
+  /**
+   * Decide whether the current line belongs to the code block.
+   *
+   * <p>Indented code blocks continue while the indentation is at least four spaces. Blank lines
+   * are also allowed to continue so that internal spacing is preserved, but the continuation
+   * column is anchored to the next non-space character.
+   *
+   * @param state current block parser state
+   * @return the continuation result, or none when the block should end
+   */
   @Override
   public BlockContinue tryContinue(ParserState state) {
     if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT) {
@@ -51,11 +69,19 @@ public class IndentedCodeBlockParser extends AbstractBlockParser {
     return BlockContinue.none();
   }
 
+  /**
+   * Append the raw source content for the current line.
+   *
+   * @param line source line to record
+   */
   @Override
   public void addLine(SourceLine line) {
     lines.add(line.getContent());
   }
 
+  /**
+   * Finalize the block literal by dropping trailing blank lines and joining the remaining lines.
+   */
   @Override
   public void closeBlock() {
     int lastNonBlank = lines.size() - 1;
@@ -70,8 +96,22 @@ public class IndentedCodeBlockParser extends AbstractBlockParser {
     block.setLiteral(sb.toString());
   }
 
+  /**
+   * Recognizes the start of an indented code block.
+   *
+   * <p>A candidate line must be indented by at least four spaces, must not be blank, and must not
+   * continue a paragraph block. That last condition preserves CommonMark's rule that paragraph
+   * content suppresses indented code block interpretation.
+   */
   public static class Factory extends AbstractBlockParserFactory {
 
+    /**
+     * Test the current line for the start of an indented code block.
+     *
+     * @param state current parser state
+     * @param matchedBlockParser most recent successfully matched block parser
+     * @return a new parser start when the line begins a code block, otherwise none
+     */
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
       if (state.getIndent() >= Parsing.CODE_BLOCK_INDENT

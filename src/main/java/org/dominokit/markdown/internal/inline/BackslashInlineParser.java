@@ -22,12 +22,20 @@ import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.beta.*;
 
 /**
- * Parse a backslash-escaped special character, adding either the escaped character, a hard line
- * break (if the backslash is followed by a newline), or a literal backslash to the block's
- * children.
+ * Inline parser for backslash escapes and hard line breaks.
+ *
+ * <p>The parser turns a backslash followed by a newline into a hard line break. If the next
+ * character is escapable, it emits the escaped character as literal text. Otherwise it preserves
+ * the backslash itself.
  */
 public class BackslashInlineParser implements InlineContentParser {
 
+  /**
+   * Parse a backslash escape or hard break at the current scanner position.
+   *
+   * @param inlineParserState state for the current inline parse pass
+   * @return the parsed node and next scanner position
+   */
   @Override
   public ParsedInline tryParse(InlineParserState inlineParserState) {
     Scanner scanner = inlineParserState.scanner();
@@ -47,11 +55,17 @@ public class BackslashInlineParser implements InlineContentParser {
   }
 
   public static class Factory implements InlineContentParserFactory {
+    /** @return the trigger character set for backslash escape parsing */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('\\');
     }
 
+    /**
+     * Create a new backslash parser.
+     *
+     * @return a new parser instance
+     */
     @Override
     public InlineContentParser create() {
       return new BackslashInlineParser();

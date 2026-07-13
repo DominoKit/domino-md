@@ -17,8 +17,14 @@ package org.dominokit.markdown.parser;
 
 import org.dominokit.markdown.node.Node;
 
-/** Parser for inline content such as text, emphasis, and links. */
+/**
+ * Parser for inline content such as text, emphasis, and links.
+ */
 public interface InlineParser {
 
+  /**
+   * Parse inline content from the supplied source lines and append the resulting nodes to the
+   * target block.
+   */
   void parse(SourceLines lines, Node node);
 }

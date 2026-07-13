@@ -15,20 +15,27 @@
  */
 package org.dominokit.markdown.node;
 
-/** A thematic break. */
+/**
+ * A thematic break.
+ *
+ * <p>The literal field stores the exact marker text that was recognized in the source.
+ */
 public class ThematicBreak extends Block {
 
   private String literal;
 
+  /** Dispatch this thematic break to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the literal marker text */
   public String getLiteral() {
     return literal;
   }
 
+  /** Set the literal marker text. */
   public void setLiteral(String literal) {
     this.literal = literal;
   }

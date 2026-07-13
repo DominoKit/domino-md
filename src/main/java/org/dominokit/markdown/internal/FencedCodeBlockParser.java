@@ -29,6 +29,13 @@ import org.dominokit.markdown.parser.block.MatchedBlockParser;
 import org.dominokit.markdown.parser.block.ParserState;
 import org.dominokit.markdown.text.Characters;
 
+/**
+ * Parses fenced code blocks delimited by backticks or tildes.
+ *
+ * <p>The parser stores the opening fence metadata, preserves the first info string line separately
+ * from the remaining literal content, and stops when a valid closing fence appears at or beyond
+ * the opening fence length.
+ */
 public class FencedCodeBlockParser extends AbstractBlockParser {
 
   private final FencedCodeBlock block = new FencedCodeBlock();
@@ -37,6 +44,13 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
   private String firstLine;
   private final StringBuilder otherLines = new StringBuilder();
 
+  /**
+   * Create a fenced code block parser for a specific fence character and opening fence length.
+   *
+   * @param fenceChar the fence delimiter character
+   * @param fenceLength number of fence characters in the opening fence
+   * @param fenceIndent indentation before the opening fence
+   */
   public FencedCodeBlockParser(char fenceChar, int fenceLength, int fenceIndent) {
     this.fenceChar = fenceChar;
     this.openingFenceLength = fenceLength;
@@ -45,11 +59,18 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
     block.setFenceIndent(fenceIndent);
   }
 
+  /** @return the fenced code block being constructed */
   @Override
   public Block getBlock() {
     return block;
   }
 
+  /**
+   * Continue until a closing fence with enough delimiter characters appears.
+   *
+   * @param state current parser state
+   * @return the continuation result, or finished when a valid closing fence is found
+   */
   @Override
   public BlockContinue tryContinue(ParserState state) {
     int nextNonSpace = state.getNextNonSpaceIndex();
@@ -69,6 +90,12 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
     return BlockContinue.atIndex(newIndex);
   }
 
+  /**
+   * Preserve the first body line separately so it can be used as the info string when the block
+   * closes.
+   *
+   * @param line source line to append
+   */
   @Override
   public void addLine(SourceLine line) {
     if (firstLine == null) {
@@ -78,14 +105,26 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
     }
   }
 
+  /**
+   * Finalize the code block by normalizing the info string and concatenating the remaining body
+   * lines.
+   */
   @Override
   public void closeBlock() {
     block.setInfo(unescapeString(firstLine.trim()));
     block.setLiteral(otherLines.toString());
   }
 
+  /** Recognizes fenced code block openings. */
   public static class Factory extends AbstractBlockParserFactory {
 
+    /**
+     * Try to start a fenced code block at the current line.
+     *
+     * @param state current parser state
+     * @param matchedBlockParser most recent matched block parser
+     * @return a parser start when the line opens a fenced code block, otherwise none
+     */
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
       int indent = state.getIndent();
@@ -103,6 +142,14 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
     }
   }
 
+  /**
+   * Inspect the line for a valid opening fence and build a parser when one is present.
+   *
+   * @param line line content
+   * @param index first non-space character
+   * @param indent indentation before the fence
+   * @return a parser when a valid opening fence is found, otherwise {@code null}
+   */
   private static FencedCodeBlockParser checkOpener(CharSequence line, int index, int indent) {
     int backticks = 0;
     int tildes = 0;
@@ -129,6 +176,16 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
     return null;
   }
 
+  /**
+   * Determine whether the current line closes the fence.
+   *
+   * <p>The closer must use the same fence character, must be at least as long as the opener, and
+   * may only be followed by optional spaces or tabs.
+   *
+   * @param line line content
+   * @param index first non-space character
+   * @return {@code true} when the line closes the fenced code block
+   */
   private boolean tryClosing(CharSequence line, int index) {
     int fences = Characters.skip(fenceChar, line, index, line.length()) - index;
     if (fences < openingFenceLength) {

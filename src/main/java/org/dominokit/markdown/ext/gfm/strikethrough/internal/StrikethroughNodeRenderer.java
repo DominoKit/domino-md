@@ -20,8 +20,15 @@ import org.dominokit.markdown.ext.gfm.strikethrough.Strikethrough;
 import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.NodeRenderer;
 
+/**
+ * Shared node-renderer base for the GFM strikethrough extension.
+ *
+ * <p>All concrete renderers in this package handle the same node type and only differ in how they
+ * emit the opening and closing markup or text. This base class centralizes the handled node set.
+ */
 abstract class StrikethroughNodeRenderer implements NodeRenderer {
 
+  /** @return the strikethrough node type handled by this renderer family */
   @Override
   public Set<Class<? extends Node>> getNodeTypes() {
     return Set.of(Strikethrough.class);

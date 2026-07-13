@@ -19,42 +19,66 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.parser.beta.LinkResult;
 import org.dominokit.markdown.parser.beta.Position;
 
+/**
+ * Concrete link-processing result.
+ *
+ * <p>The result stores whether the processor wants to wrap or replace the parsed link text, the
+ * node to apply, the scanner position to resume from, and whether an image/link marker should be
+ * included in the final decision.
+ */
 public class LinkResultImpl implements LinkResult {
   @Override
+  /** Include the marker in the processing decision. */
   public LinkResult includeMarker() {
     includeMarker = true;
     return this;
   }
 
+  /** Link-processing result types. */
   public enum Type {
     WRAP,
     REPLACE
   }
 
+  /** Requested link-processing action. */
   private final Type type;
+  /** Node produced by the processor. */
   private final Node node;
+  /** Scanner position to resume from. */
   private final Position position;
 
+  /** Whether the marker should be included in the processing decision. */
   private boolean includeMarker = false;
 
+  /**
+   * Create a link-processing result.
+   *
+   * @param type requested action
+   * @param node node produced by the processor
+   * @param position scanner position to resume from
+   */
   public LinkResultImpl(Type type, Node node, Position position) {
     this.type = type;
     this.node = node;
     this.position = position;
   }
 
+  /** @return the requested action */
   public Type getType() {
     return type;
   }
 
+  /** @return the node produced by the processor */
   public Node getNode() {
     return node;
   }
 
+  /** @return the scanner position to resume from */
   public Position getPosition() {
     return position;
   }
 
+  /** @return whether the marker should be included in the processing decision */
   public boolean isIncludeMarker() {
     return includeMarker;
   }

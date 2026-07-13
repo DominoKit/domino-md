@@ -15,7 +15,11 @@
  */
 package org.dominokit.markdown.renderer.elemental2;
 
-/** Strategy for rendering raw HTML nodes into DOM nodes. */
+/**
+ * Strategy for rendering raw HTML nodes into DOM nodes.
+ *
+ * <p>Handlers may return {@code null} to fall back to the renderer's safe text fallback.
+ */
 public interface RawHtmlHandler {
 
   /**

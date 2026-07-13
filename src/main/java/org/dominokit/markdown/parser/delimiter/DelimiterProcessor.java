@@ -20,29 +20,18 @@ import org.dominokit.markdown.node.Text;
 /**
  * Custom delimiter processor for additional delimiters besides {@code _} and {@code *}.
  *
- * <p>Note that implementations of this need to be thread-safe, the same instance may be used by
- * multiple parsers.
- *
- * @see org.dominokit.markdown.parser.beta.InlineContentParserFactory
+ * <p>Implementations are expected to be thread-safe because the same instance may be shared across
+ * parsers.
  */
 public interface DelimiterProcessor {
 
-  /**
-   * @return the character that marks the beginning of a delimited node, must not clash with any
-   *     built-in special characters
-   */
+  /** @return the character that marks the beginning of a delimited node */
   char getOpeningCharacter();
 
-  /**
-   * @return the character that marks the the ending of a delimited node, must not clash with any
-   *     built-in special characters. Note that for a symmetric delimiter such as "*", this is the
-   *     same as the opening.
-   */
+  /** @return the character that marks the ending of a delimited node */
   char getClosingCharacter();
 
-  /**
-   * Minimum number of delimiter characters that are needed to activate this. Must be at least 1.
-   */
+  /** @return the minimum number of delimiter characters required to activate this processor */
   int getMinLength();
 
   /**

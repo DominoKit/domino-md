@@ -35,6 +35,12 @@ import org.dominokit.markdown.parser.block.MatchedBlockParser;
 import org.dominokit.markdown.parser.block.ParserState;
 import org.dominokit.markdown.text.Characters;
 
+/**
+ * Block parser for GitHub-style pipe tables.
+ *
+ * <p>The parser first records the header row, then validates the separator line and uses the
+ * separator metadata to parse the remaining body rows into table cells.
+ */
 public class TableBlockParser extends AbstractBlockParser {
 
   private final TableBlock block = new TableBlock();
@@ -42,22 +48,28 @@ public class TableBlockParser extends AbstractBlockParser {
   private final List<TableCellInfo> columns;
   private boolean canHaveLazyContinuationLines = true;
 
+  /** Create a table parser for the parsed separator metadata and header line. */
   private TableBlockParser(List<TableCellInfo> columns, SourceLine headerLine) {
     this.columns = columns;
     this.rowLines.add(headerLine);
   }
 
   @Override
+  /** @return whether the current table can accept lazy continuation lines */
   public boolean canHaveLazyContinuationLines() {
     return canHaveLazyContinuationLines;
   }
 
   @Override
+  /** @return the table block being built */
   public Block getBlock() {
     return block;
   }
 
   @Override
+  /**
+   * Continue the table only when the current line still looks like a table row.
+   */
   public BlockContinue tryContinue(ParserState state) {
     CharSequence content = state.getLine().getContent();
     int pipe = Characters.find('|', content, state.getNextNonSpaceIndex());
@@ -73,11 +85,15 @@ public class TableBlockParser extends AbstractBlockParser {
   }
 
   @Override
+  /** Record another table row line. */
   public void addLine(SourceLine line) {
     rowLines.add(line);
   }
 
   @Override
+  /**
+   * Convert the collected table lines into table head/body/cell nodes and parse inline content.
+   */
   public void parseInlines(InlineParser inlineParser) {
     List<SourceSpan> sourceSpans = block.getSourceSpans();
 
@@ -125,6 +141,9 @@ public class TableBlockParser extends AbstractBlockParser {
     }
   }
 
+  /**
+   * Parse one table cell, trimming outer whitespace and applying column metadata.
+   */
   private TableCell parseCell(SourceLine cell, int column, InlineParser inlineParser) {
     TableCell tableCell = new TableCell();
     SourceSpan sourceSpan = cell.getSourceSpan();
@@ -145,6 +164,9 @@ public class TableBlockParser extends AbstractBlockParser {
     return tableCell;
   }
 
+  /**
+   * Split a table row into cells while preserving cell source spans.
+   */
   private static List<SourceLine> split(SourceLine line) {
     CharSequence row = line.getContent();
     int nonSpace = Characters.skipSpaceTab(row, 0, row.length());
@@ -188,6 +210,9 @@ public class TableBlockParser extends AbstractBlockParser {
     return cells;
   }
 
+  /**
+   * Parse the table separator row into column metadata.
+   */
   private static List<TableCellInfo> parseSeparator(CharSequence value) {
     List<TableCellInfo> columns = new ArrayList<>();
     int pipes = 0;
@@ -252,6 +277,7 @@ public class TableBlockParser extends AbstractBlockParser {
     return valid ? columns : null;
   }
 
+  /** Map separator markers to a column alignment. */
   private static TableCell.Alignment getAlignment(boolean left, boolean right) {
     if (left && right) {
       return TableCell.Alignment.CENTER;
@@ -265,9 +291,13 @@ public class TableBlockParser extends AbstractBlockParser {
     return null;
   }
 
+  /** Factory for {@link TableBlockParser}. */
   public static class Factory extends AbstractBlockParserFactory {
 
     @Override
+    /**
+     * Detect a table header followed by a valid separator line.
+     */
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
       List<SourceLine> paragraphLines = matchedBlockParser.getParagraphLines().getLines();
       if (paragraphLines.isEmpty()) {
@@ -301,6 +331,12 @@ public class TableBlockParser extends AbstractBlockParser {
     private final TableCell.Alignment alignment;
     private final int width;
 
+    /**
+     * Store the alignment and width metadata for one parsed table column.
+     *
+     * @param alignment column alignment derived from the separator row
+     * @param width separator width used when reconstructing table column metadata
+     */
     private TableCellInfo(TableCell.Alignment alignment, int width) {
       this.alignment = alignment;
       this.width = width;

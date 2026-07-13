@@ -46,10 +46,11 @@ import org.dominokit.markdown.text.CharMatcher;
 import org.dominokit.markdown.text.Characters;
 
 /**
- * The core node renderer that renders the built-in node types to canonical Markdown text.
+ * Core Markdown node renderer for the built-in AST.
  *
- * <p>This renderer intentionally favors semantically equivalent Markdown over exact source
- * preservation.
+ * <p>The renderer favors canonical, semantically equivalent Markdown over exact source
+ * preservation. It reconstructs markdown syntax from the parsed tree, taking care to escape text
+ * only where needed so the output remains valid and reasonably stable.
  */
 public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRenderer {
 
@@ -66,6 +67,11 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
   private final MarkdownWriter writer;
   private ListHolder listHolder;
 
+  /**
+   * Create a renderer bound to the active Markdown rendering context.
+   *
+   * @param context render-time context used for output and escape rules
+   */
   public CoreMarkdownNodeRenderer(MarkdownNodeRendererContext context) {
     this.context = context;
     this.writer = context.getWriter();
@@ -74,6 +80,12 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     this.textEscapeInHeading = AsciiMatcher.builder(textEscape).anyOf("#").build();
   }
 
+  /**
+   * Return the node types handled by this renderer.
+   *
+   * <p>The set mirrors the built-in markdown hierarchy so the renderer can act as the default
+   * fallback for CommonMark output.
+   */
   @Override
   public Set<Class<? extends Node>> getNodeTypes() {
     return Set.of(
@@ -99,17 +111,25 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
         ThematicBreak.class);
   }
 
+  /** Render the supplied node by dispatching to the matching visit method. */
   @Override
   public void render(Node node) {
     node.accept(this);
   }
 
+  /** Render the root document and finish with a trailing line break. */
   @Override
   public void visit(Document document) {
     visitChildren(document);
     writer.line();
   }
 
+  /**
+   * Render a thematic break.
+   *
+   * <p>If the node does not carry a literal, the renderer falls back to the canonical
+   * {@code ___} representation.
+   */
   @Override
   public void visit(ThematicBreak thematicBreak) {
     String literal = thematicBreak.getLiteral();
@@ -120,6 +140,10 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /**
+   * Render headings using ATX syntax, falling back to Setext syntax for level 1 and 2 headings
+   * that contain line breaks.
+   */
   @Override
   public void visit(Heading heading) {
     if (heading.getLevel() <= 2) {
@@ -142,6 +166,11 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /**
+   * Render an indented code block using four-space indentation per line.
+   *
+   * @param indentedCodeBlock the code block to render
+   */
   @Override
   public void visit(IndentedCodeBlock indentedCodeBlock) {
     writer.writePrefix("    ");
@@ -157,6 +186,10 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /**
+   * Render a fenced code block, preserving fence style, fence length, indentation, and info
+   * string when available.
+   */
   @Override
   public void visit(FencedCodeBlock codeBlock) {
     String literal = codeBlock.getLiteral();
@@ -202,6 +235,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /** Render an HTML block by writing its literal content verbatim. */
   @Override
   public void visit(HtmlBlock htmlBlock) {
     List<String> lines = getLines(htmlBlock.getLiteral());
@@ -214,12 +248,14 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /** Render a paragraph by emitting its children followed by a block separator. */
   @Override
   public void visit(Paragraph paragraph) {
     visitChildren(paragraph);
     writer.block();
   }
 
+  /** Render a block quote with a leading {@code > } prefix on each line. */
   @Override
   public void visit(BlockQuote blockQuote) {
     writer.writePrefix("> ");
@@ -229,6 +265,9 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /**
+   * Render an unordered list, keeping track of list tightness and the active bullet marker.
+   */
   @Override
   public void visit(BulletList bulletList) {
     writer.pushTight(bulletList.isTight());
@@ -239,6 +278,9 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /**
+   * Render an ordered list, keeping track of tightness and list numbering across nested items.
+   */
   @Override
   public void visit(OrderedList orderedList) {
     writer.pushTight(orderedList.isTight());
@@ -249,6 +291,12 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
+  /**
+   * Render a list item using the current list context.
+   *
+   * <p>The renderer reconstructs indentation from the list marker width and the item's recorded
+   * content indentation so nested paragraphs stay aligned.
+   */
   @Override
   public void visit(ListItem listItem) {
     int markerIndent = listItem.getMarkerIndent() != null ? listItem.getMarkerIndent() : 0;
@@ -279,6 +327,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.popPrefix();
   }
 
+  /** Render inline code using backticks and the shortest safe fence length. */
   @Override
   public void visit(Code code) {
     String literal = code.getLiteral();
@@ -306,6 +355,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     }
   }
 
+  /** Render emphasis using the original or inferred delimiter pair. */
   @Override
   public void visit(Emphasis emphasis) {
     String delimiter = emphasis.getOpeningDelimiter();
@@ -317,6 +367,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.raw(emphasis.getClosingDelimiter() != null ? emphasis.getClosingDelimiter() : delimiter);
   }
 
+  /** Render strong emphasis using the original or canonical {@code **} delimiters. */
   @Override
   public void visit(StrongEmphasis strongEmphasis) {
     String delimiter = strongEmphasis.getOpeningDelimiter();
@@ -331,32 +382,38 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
             : delimiter);
   }
 
+  /** Render links using markdown link syntax. */
   @Override
   public void visit(Link link) {
     writeLinkLike(link.getTitle(), link.getDestination(), link, "[");
   }
 
+  /** Render images using markdown image syntax. */
   @Override
   public void visit(Image image) {
     writeLinkLike(image.getTitle(), image.getDestination(), image, "![");
   }
 
+  /** Render inline HTML verbatim. */
   @Override
   public void visit(HtmlInline htmlInline) {
     writer.raw(htmlInline.getLiteral());
   }
 
+  /** Render a hard line break using the canonical two-space form. */
   @Override
   public void visit(HardLineBreak hardLineBreak) {
     writer.raw("  ");
     writer.line();
   }
 
+  /** Render a soft line break as a literal line break. */
   @Override
   public void visit(SoftLineBreak softLineBreak) {
     writer.line();
   }
 
+  /** Render plain text, escaping syntax-sensitive characters as needed. */
   @Override
   public void visit(Text text) {
     String literal = text.getLiteral();
@@ -416,6 +473,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     }
   }
 
+  /** Delegate child traversal to the active Markdown rendering context. */
   @Override
   protected void visitChildren(Node parent) {
     Node node = parent.getFirstChild();
@@ -426,6 +484,13 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     }
   }
 
+  /**
+   * Find the longest repeated run of a substring within a string.
+   *
+   * @param needle substring to search for
+   * @param s the string to inspect
+   * @return the longest repeated run length, or zero when the substring does not occur
+   */
   private static int findMaxRunLength(String needle, String s) {
     int maxRunLength = 0;
     int pos = 0;
@@ -444,6 +509,13 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     return maxRunLength;
   }
 
+  /**
+   * Determine whether any character in a string matches a matcher.
+   *
+   * @param s the string to inspect
+   * @param charMatcher matcher to apply
+   * @return {@code true} if any character matches
+   */
   private static boolean contains(String s, CharMatcher charMatcher) {
     for (int i = 0; i < s.length(); i++) {
       if (charMatcher.matches(s.charAt(i))) {
@@ -453,6 +525,13 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     return false;
   }
 
+  /**
+   * Repeat the given string a fixed number of times.
+   *
+   * @param s the string to repeat
+   * @param count number of repetitions
+   * @return the repeated string
+   */
   private static String repeat(String s, int count) {
     StringBuilder sb = new StringBuilder(s.length() * count);
     for (int i = 0; i < count; i++) {
@@ -461,6 +540,12 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     return sb.toString();
   }
 
+  /**
+   * Split a literal string on newline boundaries without preserving the terminators.
+   *
+   * @param literal text to split
+   * @return the individual lines, excluding line terminators
+   */
   private static List<String> getLines(String literal) {
     List<String> lines = new ArrayList<>();
     if (literal.isEmpty()) {
@@ -483,6 +568,12 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     return lines;
   }
 
+  /**
+   * Render a link-like node, including its child text and destination/title payload.
+   *
+   * <p>This helper is shared by links and images so the escaping and destination formatting rules
+   * stay consistent.
+   */
   private void writeLinkLike(String title, String destination, Node node, String opener) {
     String safeDestination = destination != null ? destination : "";
     writer.raw(opener);
@@ -505,6 +596,12 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.raw(')');
   }
 
+  /**
+   * Parse an ordered-list marker from the beginning of a text literal.
+   *
+   * @param literal the literal text at the start of a list item
+   * @return the parsed marker, or {@code null} when the literal is not an ordered-list marker
+   */
   private static OrderedListMarker parseOrderedListMarker(String literal) {
     int length = literal.length();
     int index = 0;
@@ -524,31 +621,65 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     return new OrderedListMarker(literal.substring(0, index), delimiter, index + 1);
   }
 
+  /**
+   * Determine whether a character is an ASCII digit.
+   *
+   * @param c character to inspect
+   * @return {@code true} when the character is in {@code 0..9}
+   */
   private static boolean isAsciiDigit(char c) {
     return c >= '0' && c <= '9';
   }
 
+  /**
+   * Stack frame used while rendering nested lists.
+   *
+   * <p>The holder chain tracks the active list nesting so list item rendering can derive the
+   * correct marker and indentation for each nested level.
+   */
   private static class ListHolder {
     final ListHolder parent;
 
+    /**
+     * Create a new list-holder frame.
+     *
+     * <p>Each holder tracks the active list nesting so nested list items can inherit the
+     * appropriate indentation and marker style.
+     *
+     * @param parent enclosing list-holder frame, or {@code null} at the root
+     */
     private ListHolder(ListHolder parent) {
       this.parent = parent;
     }
   }
 
+  /** Stack frame for bullet lists. */
   private static class BulletListHolder extends ListHolder {
     final String marker;
 
+    /**
+     * Create a holder for a bullet list.
+     *
+     * @param parent enclosing list-holder frame
+     * @param bulletList the active bullet list node
+     */
     private BulletListHolder(ListHolder parent, BulletList bulletList) {
       super(parent);
       this.marker = bulletList.getMarker() != null ? bulletList.getMarker() : "-";
     }
   }
 
+  /** Stack frame for ordered lists. */
   private static class OrderedListHolder extends ListHolder {
     final String delimiter;
     private int number;
 
+    /**
+     * Create a holder for an ordered list.
+     *
+     * @param parent enclosing list-holder frame
+     * @param orderedList the active ordered list node
+     */
     private OrderedListHolder(ListHolder parent, OrderedList orderedList) {
       super(parent);
       this.delimiter =
@@ -558,11 +689,19 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     }
   }
 
+  /** Parsed ordered-list marker prefix. */
   private static final class OrderedListMarker {
     private final String number;
     private final char delimiter;
     private final int endIndex;
 
+    /**
+     * Store the parsed ordered-list marker payload.
+     *
+     * @param number the numeric marker text
+     * @param delimiter the marker delimiter character
+     * @param endIndex the index just after the marker
+     */
     private OrderedListMarker(String number, char delimiter, int endIndex) {
       this.number = number;
       this.delimiter = delimiter;
@@ -570,20 +709,28 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     }
   }
 
-  /** Visits nodes to check whether a heading contains soft or hard line breaks. */
+  /**
+   * Helper visitor that detects line breaks inside headings.
+   *
+   * <p>Setext-style headings are only valid when the heading content does not itself contain line
+   * breaks, so this visitor is used to detect when the renderer must fall back to ATX syntax.
+   */
   private static class LineBreakVisitor extends AbstractVisitor {
     private boolean lineBreak;
 
+    /** @return whether a line break has been encountered in the current subtree */
     private boolean hasLineBreak() {
       return lineBreak;
     }
 
+    /** Mark the subtree as containing a soft line break. */
     @Override
     public void visit(SoftLineBreak softLineBreak) {
       super.visit(softLineBreak);
       lineBreak = true;
     }
 
+    /** Mark the subtree as containing a hard line break. */
     @Override
     public void visit(HardLineBreak hardLineBreak) {
       super.visit(hardLineBreak);

@@ -17,9 +17,17 @@ package org.dominokit.markdown.parser.block;
 
 import org.dominokit.markdown.parser.SourceLines;
 
+/**
+ * View of the block parser that already matched the current line.
+ *
+ * <p>Block-start factories use this to inspect the currently matched parser and, when relevant,
+ * the paragraph text it has accumulated so far.
+ */
 public interface MatchedBlockParser {
 
+  /** @return the block parser that already matched the current line */
   BlockParser getMatchedBlockParser();
 
+  /** @return paragraph lines collected by the matched parser, or an empty collection */
   SourceLines getParagraphLines();
 }

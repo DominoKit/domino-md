@@ -26,35 +26,48 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRendererContext;
 
+/**
+ * Renders tables as DOM elements.
+ */
 public class TableElementNodeRenderer extends TableNodeRenderer implements ElementNodeRenderer {
 
   private final ElementNodeRendererContext context;
 
+  /**
+   * Create a renderer bound to the active Elemental2 rendering context.
+   *
+   * @param context rendering context used for element creation and child traversal
+   */
   public TableElementNodeRenderer(ElementNodeRendererContext context) {
     this.context = context;
   }
 
   @Override
+  /** Render the table container element. */
   protected void renderBlock(TableBlock node) {
     appendContainer(node, "table", Map.of());
   }
 
   @Override
+  /** Render the header section element. */
   protected void renderHead(TableHead node) {
     appendContainer(node, "thead", Map.of());
   }
 
   @Override
+  /** Render the body section element. */
   protected void renderBody(TableBody node) {
     appendContainer(node, "tbody", Map.of());
   }
 
   @Override
+  /** Render one table row element. */
   protected void renderRow(TableRow node) {
     appendContainer(node, "tr", Map.of());
   }
 
   @Override
+  /** Render one table cell element. */
   protected void renderCell(TableCell node) {
     String tagName = node.isHeader() ? "th" : "td";
     Map<String, String> defaults =
@@ -73,6 +86,12 @@ public class TableElementNodeRenderer extends TableNodeRenderer implements Eleme
     context.renderChildren(node, element);
   }
 
+  /**
+   * Convert the table alignment enum to the corresponding HTML {@code align} value.
+   *
+   * @param alignment parsed column alignment
+   * @return HTML alignment keyword
+   */
   private String alignment(TableCell.Alignment alignment) {
     switch (alignment) {
       case LEFT:

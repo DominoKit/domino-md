@@ -18,31 +18,36 @@ package org.dominokit.markdown.internal;
 import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.beta.Position;
 
-/** Opening bracket for links ({@code [}), images ({@code ![}), or links with other markers. */
+/**
+ * Opening bracket state used while resolving links and images.
+ *
+ * <p>The parser keeps a linked stack of these objects so it can match closing brackets against
+ * earlier openers and decide whether a bracket sequence forms a link, image, or literal text.
+ */
 public class Bracket {
 
-  /** The node of a marker such as {@code !} if present, null otherwise. */
+  /** The node of a marker such as {@code !} if present, {@code null} otherwise. */
   public final Text markerNode;
 
-  /** The position of the marker if present, null otherwise. */
+  /** The position of the marker if present, {@code null} otherwise. */
   public final Position markerPosition;
 
-  /** The node of {@code [}. */
+  /** The node for the opening {@code [}. */
   public final Text bracketNode;
 
-  /** The position of {@code [}. */
+  /** The position of the opening {@code [}. */
   public final Position bracketPosition;
 
-  /** The position of the content (after the opening bracket) */
+  /** The position of the content, immediately after the opening bracket. */
   public final Position contentPosition;
 
-  /** Previous bracket. */
+  /** Previous bracket in the opener stack. */
   public final Bracket previous;
 
-  /** Previous delimiter (emphasis, etc) before this bracket. */
+  /** Previous delimiter (emphasis, etc.) that was active before this bracket. */
   public final Delimiter previousDelimiter;
 
-  /** Whether this bracket is allowed to form a link/image (also known as "active"). */
+  /** Whether this bracket is allowed to form a link or image. */
   public boolean allowed = true;
 
   /**

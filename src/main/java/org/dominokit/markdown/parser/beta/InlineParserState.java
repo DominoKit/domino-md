@@ -15,14 +15,16 @@
  */
 package org.dominokit.markdown.parser.beta;
 
+/**
+ * Mutable inline-parser state exposed to custom inline parsers.
+ */
 public interface InlineParserState {
 
   /**
-   * Return a scanner for the input for the current position (on the trigger character that the
-   * inline parser was added for).
+   * Return the scanner positioned at the current trigger character.
    *
-   * <p>Note that this always returns the same instance, if you want to backtrack you need to use
-   * {@link Scanner#position()} and {@link Scanner#setPosition(Position)}.
+   * <p>The same scanner instance is reused for the lifetime of the parse, so callers should use
+   * {@link Scanner#position()} and {@link Scanner#setPosition(Position)} for backtracking.
    */
   Scanner scanner();
 }

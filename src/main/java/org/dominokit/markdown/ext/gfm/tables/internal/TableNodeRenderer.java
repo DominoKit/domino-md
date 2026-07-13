@@ -24,6 +24,12 @@ import org.dominokit.markdown.ext.gfm.tables.TableRow;
 import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.NodeRenderer;
 
+/**
+ * Base renderer for table-related custom nodes.
+ *
+ * <p>Dispatch is centralized here so concrete renderers only need to implement the output format
+ * specific to HTML, Markdown, or text content.
+ */
 abstract class TableNodeRenderer implements NodeRenderer {
 
   @Override
@@ -33,6 +39,7 @@ abstract class TableNodeRenderer implements NodeRenderer {
   }
 
   @Override
+  /** Dispatch the node to the appropriate table-specific render method. */
   public void render(Node node) {
     if (node instanceof TableBlock) {
       renderBlock((TableBlock) node);
@@ -47,13 +54,18 @@ abstract class TableNodeRenderer implements NodeRenderer {
     }
   }
 
+  /** Render the table container node. */
   protected abstract void renderBlock(TableBlock node);
 
+  /** Render the table header node. */
   protected abstract void renderHead(TableHead node);
 
+  /** Render the table body node. */
   protected abstract void renderBody(TableBody node);
 
+  /** Render a table row node. */
   protected abstract void renderRow(TableRow node);
 
+  /** Render a table cell node. */
   protected abstract void renderCell(TableCell node);
 }

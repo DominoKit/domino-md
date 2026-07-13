@@ -16,9 +16,10 @@
 package org.dominokit.markdown.parser.beta;
 
 /**
- * Parser for a type of inline content. Registered via a {@link InlineContentParserFactory} and
- * created by its {@link InlineContentParserFactory#create() create} method. The lifetime of this is
- * tied to each inline content snippet that is parsed, as a new instance is created for each.
+ * Parser for a type of inline content.
+ *
+ * <p>Each parser instance is created by an {@link InlineContentParserFactory} and is scoped to a
+ * single inline parsing pass, which allows implementations to keep per-pass state if needed.
  */
 public interface InlineContentParser {
 
@@ -31,7 +32,7 @@ public interface InlineContentParser {
    * times: each time a trigger character is encountered.
    *
    * @param inlineParserState the current state of the inline parser
-   * @return the result of parsing; can indicate that this parser is not interested, or that parsing
+   * @return the result of parsing; can indicate that this parser is not interested or that parsing
    *     was successful
    */
   ParsedInline tryParse(InlineParserState inlineParserState);

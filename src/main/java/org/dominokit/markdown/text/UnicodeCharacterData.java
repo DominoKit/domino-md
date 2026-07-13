@@ -268,6 +268,7 @@ final class UnicodeCharacterData {
     0x3000
   };
 
+  /** Utility class; do not instantiate. */
   private UnicodeCharacterData() {}
 
   static boolean isLetter(int codePoint) {
@@ -282,6 +283,13 @@ final class UnicodeCharacterData {
     return inRanges(SPACE_SEPARATOR_RANGES, codePoint);
   }
 
+  /**
+   * Determine whether a code point falls within any of the supplied inclusive ranges.
+   *
+   * @param ranges alternating start/end pairs sorted in ascending order
+   * @param codePoint character code point to test
+   * @return {@code true} when the code point is within one of the ranges
+   */
   private static boolean inRanges(int[] ranges, int codePoint) {
     int low = 0;
     int high = (ranges.length / 2) - 1;

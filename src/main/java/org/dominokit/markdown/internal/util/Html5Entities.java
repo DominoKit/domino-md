@@ -18,6 +18,13 @@ package org.dominokit.markdown.internal.util;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Lookup table and decoder for HTML5 named and numeric character references.
+ *
+ * <p>The class preloads the HTML5 entity set into a map so parser components can convert both
+ * named references such as {@code &amp;} and numeric references such as {@code &#x1F600;} into
+ * their Unicode string values.
+ */
 public final class Html5Entities {
 
   private static final String[][] NAMED_CHARACTER_REFERENCES_DATA = {
@@ -2151,8 +2158,19 @@ public final class Html5Entities {
 
   private static final Map<String, String> NAMED_CHARACTER_REFERENCES = createEntities();
 
+  /** Prevent instantiation. */
   private Html5Entities() {}
 
+  /**
+   * Decode a character reference or return the input unchanged when it is not a reference.
+   *
+   * <p>Numeric references support decimal and hexadecimal forms. Invalid references resolve to the
+   * replacement character, while unknown named entities are preserved verbatim so the caller can
+   * decide how to handle them.
+   *
+   * @param input raw text that may contain a character reference
+   * @return decoded text, a replacement character, or the original input when no decoding applies
+   */
   public static String entityToString(String input) {
     if (!input.startsWith("&") || !input.endsWith(";")) {
       return input;
@@ -2182,6 +2200,11 @@ public final class Html5Entities {
     return resolved != null ? resolved : input;
   }
 
+  /**
+   * Materialize the named entity map from the static reference table.
+   *
+   * @return map from HTML5 entity names to their decoded string values
+   */
   private static Map<String, String> createEntities() {
     Map<String, String> entities = new HashMap<>();
     for (String[] entry : NAMED_CHARACTER_REFERENCES_DATA) {

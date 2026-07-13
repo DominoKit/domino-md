@@ -15,9 +15,14 @@
  */
 package org.dominokit.markdown.node;
 
-/** The root block of a document, containing the top-level blocks. */
+/**
+ * The root block of a parsed document.
+ *
+ * <p>The document node contains the top-level block structure produced by the parser.
+ */
 public class Document extends Block {
 
+  /** Dispatch this document to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

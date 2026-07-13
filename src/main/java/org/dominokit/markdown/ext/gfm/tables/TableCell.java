@@ -17,33 +17,43 @@ package org.dominokit.markdown.ext.gfm.tables;
 
 import org.dominokit.markdown.node.CustomNode;
 
-/** Table cell containing inline nodes. */
+/**
+ * A table cell containing inline nodes.
+ *
+ * <p>Cells may carry header state, alignment, and width metadata parsed from the separator line.
+ */
 public class TableCell extends CustomNode {
 
   private boolean header;
   private Alignment alignment;
   private int width;
 
+  /** @return whether this cell belongs to the header row */
   public boolean isHeader() {
     return header;
   }
 
+  /** Set whether this cell belongs to the header row. */
   public void setHeader(boolean header) {
     this.header = header;
   }
 
+  /** @return the parsed alignment, or {@code null} */
   public Alignment getAlignment() {
     return alignment;
   }
 
+  /** Set the parsed alignment. */
   public void setAlignment(Alignment alignment) {
     this.alignment = alignment;
   }
 
+  /** @return the separator width parsed for this column */
   public int getWidth() {
     return width;
   }
 
+  /** Set the separator width parsed for this column. */
   public void setWidth(int width) {
     this.width = width;
   }

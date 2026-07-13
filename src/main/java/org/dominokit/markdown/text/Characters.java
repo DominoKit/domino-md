@@ -15,9 +15,22 @@
  */
 package org.dominokit.markdown.text;
 
-/** Functions for finding characters in strings or checking characters. */
+/**
+ * Utility functions for searching text and classifying characters.
+ *
+ * <p>The methods here are intentionally small and allocation-free because they are used in hot
+ * parsing paths.
+ */
 public class Characters {
 
+  /**
+   * Find the first occurrence of a character at or after {@code startIndex}.
+   *
+   * @param c character to find
+   * @param s sequence to search
+   * @param startIndex inclusive start index
+   * @return the first matching index, or {@code -1}
+   */
   public static int find(char c, CharSequence s, int startIndex) {
     int length = s.length();
     for (int i = startIndex; i < length; i++) {
@@ -28,6 +41,13 @@ public class Characters {
     return -1;
   }
 
+  /**
+   * Find the first line-break character at or after {@code startIndex}.
+   *
+   * @param s sequence to search
+   * @param startIndex inclusive start index
+   * @return the first line-break index, or {@code -1}
+   */
   public static int findLineBreak(CharSequence s, int startIndex) {
     int length = s.length();
     for (int i = startIndex; i < length; i++) {
@@ -40,22 +60,42 @@ public class Characters {
     return -1;
   }
 
-  /** @see <a href="https://spec.commonmark.org/0.31.2/#blank-line">blank line</a> */
+  /** @see <a href="https://spec.commonmark.org/0.31.2/#blank-line">CommonMark blank line</a> */
   public static boolean isBlank(CharSequence s) {
     return skipSpaceTab(s, 0, s.length()) == s.length();
   }
 
+  /**
+   * Determine whether the sequence contains at least one non-space character.
+   *
+   * @param s sequence to inspect
+   * @return {@code true} if the sequence contains a non-space character
+   */
   public static boolean hasNonSpace(CharSequence s) {
     int length = s.length();
     int skipped = skip(' ', s, 0, length);
     return skipped != length;
   }
 
+  /**
+   * Determine whether the character at {@code index} is a Unicode letter.
+   *
+   * @param s sequence to inspect
+   * @param index character index
+   * @return {@code true} when the code point is a letter
+   */
   public static boolean isLetter(CharSequence s, int index) {
     int codePoint = Character.codePointAt(s, index);
     return UnicodeCharacterData.isLetter(codePoint);
   }
 
+  /**
+   * Determine whether the character at {@code index} is a space or tab.
+   *
+   * @param s sequence to inspect
+   * @param index character index
+   * @return {@code true} when the character is a space or tab
+   */
   public static boolean isSpaceOrTab(CharSequence s, int index) {
     if (index < s.length()) {
       switch (s.charAt(index)) {
@@ -68,7 +108,7 @@ public class Characters {
   }
 
   /**
-   * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-punctuation-character">Unicode
+   * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-punctuation-character">CommonMark
    *     punctuation character</a>
    */
   public static boolean isPunctuationCodePoint(int codePoint) {
@@ -93,9 +133,10 @@ public class Characters {
   }
 
   /**
-   * Check whether the provided code point is a Unicode whitespace character as defined in the spec.
+   * Check whether the provided code point is a Unicode whitespace character as defined in the
+   * CommonMark spec.
    *
-   * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-whitespace-character">Unicode
+   * @see <a href="https://spec.commonmark.org/0.31.2/#unicode-whitespace-character">CommonMark
    *     whitespace character</a>
    */
   public static boolean isWhitespaceCodePoint(int codePoint) {
@@ -111,6 +152,15 @@ public class Characters {
     }
   }
 
+  /**
+   * Skip characters equal to {@code skip} starting at {@code startIndex}.
+   *
+   * @param skip character to skip
+   * @param s sequence to inspect
+   * @param startIndex inclusive start index
+   * @param endIndex exclusive end index
+   * @return index of the first non-matching character, or {@code endIndex}
+   */
   public static int skip(char skip, CharSequence s, int startIndex, int endIndex) {
     for (int i = startIndex; i < endIndex; i++) {
       if (s.charAt(i) != skip) {
@@ -120,6 +170,15 @@ public class Characters {
     return endIndex;
   }
 
+  /**
+   * Scan backwards while characters equal {@code skip}.
+   *
+   * @param skip character to skip
+   * @param s sequence to inspect
+   * @param startIndex inclusive start index
+   * @param lastIndex inclusive lower bound
+   * @return index of the last non-matching character, or {@code lastIndex - 1}
+   */
   public static int skipBackwards(char skip, CharSequence s, int startIndex, int lastIndex) {
     for (int i = startIndex; i >= lastIndex; i--) {
       if (s.charAt(i) != skip) {
@@ -129,6 +188,14 @@ public class Characters {
     return lastIndex - 1;
   }
 
+  /**
+   * Skip spaces and tabs starting at {@code startIndex}.
+   *
+   * @param s sequence to inspect
+   * @param startIndex inclusive start index
+   * @param endIndex exclusive end index
+   * @return index of the first non-space/tab character, or {@code endIndex}
+   */
   public static int skipSpaceTab(CharSequence s, int startIndex, int endIndex) {
     for (int i = startIndex; i < endIndex; i++) {
       switch (s.charAt(i)) {
@@ -142,6 +209,14 @@ public class Characters {
     return endIndex;
   }
 
+  /**
+   * Scan backwards while characters are spaces or tabs.
+   *
+   * @param s sequence to inspect
+   * @param startIndex inclusive start index
+   * @param lastIndex inclusive lower bound
+   * @return index of the last non-space/tab character, or {@code lastIndex - 1}
+   */
   public static int skipSpaceTabBackwards(CharSequence s, int startIndex, int lastIndex) {
     for (int i = startIndex; i >= lastIndex; i--) {
       switch (s.charAt(i)) {

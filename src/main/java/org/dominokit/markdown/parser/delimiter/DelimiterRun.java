@@ -17,7 +17,12 @@ package org.dominokit.markdown.parser.delimiter;
 
 import org.dominokit.markdown.node.Text;
 
-/** A delimiter run is one or more of the same delimiter character, e.g. {@code ***}. */
+/**
+ * A run of one or more identical delimiter characters, such as {@code ***}.
+ *
+ * <p>Delimiter runs expose both their remaining length and their original length so the parser can
+ * match delimiters incrementally.
+ */
 public interface DelimiterRun {
 
   /** @return whether this can open a delimiter */
@@ -26,12 +31,12 @@ public interface DelimiterRun {
   /** @return whether this can close a delimiter */
   boolean canClose();
 
-  /** @return the number of characters in this delimiter run (that are left for processing) */
+  /** @return the number of characters in this delimiter run that are left for processing */
   int length();
 
   /**
    * @return the number of characters originally in this delimiter run; at the start of processing,
-   *     this is the same as {{@link #length()}}
+   *     this is the same as {@link #length()}
    */
   int originalLength();
 
@@ -47,6 +52,9 @@ public interface DelimiterRun {
    *
    * <p>For example, for a delimiter run {@code ***}, calling this with 1 would return the last
    * {@code *}. Calling it with 2 would return the second last {@code *} and the last {@code *}.
+   *
+   * @param length requested run length
+   * @return the opening delimiter nodes for the requested length
    */
   Iterable<Text> getOpeners(int length);
 
@@ -56,6 +64,9 @@ public interface DelimiterRun {
    *
    * <p>For example, for a delimiter run {@code ***}, calling this with 1 would return the first
    * {@code *}. Calling it with 2 would return the first {@code *} and the second {@code *}.
+   *
+   * @param length requested run length
+   * @return the closing delimiter nodes for the requested length
    */
   Iterable<Text> getClosers(int length);
 }

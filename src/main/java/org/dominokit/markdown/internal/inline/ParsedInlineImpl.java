@@ -19,19 +19,33 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.parser.beta.ParsedInline;
 import org.dominokit.markdown.parser.beta.Position;
 
+/**
+ * Concrete successful inline-parse result.
+ *
+ * <p>The parser uses this immutable wrapper to return both the parsed node and the scanner
+ * position to resume from after the node has been consumed.
+ */
 public class ParsedInlineImpl implements ParsedInline {
   private final Node node;
   private final Position position;
 
+  /**
+   * Create a successful inline parse result.
+   *
+   * @param node parsed node
+   * @param position scanner position after the parsed node
+   */
   public ParsedInlineImpl(Node node, Position position) {
     this.node = node;
     this.position = position;
   }
 
+  /** @return the parsed node */
   public Node getNode() {
     return node;
   }
 
+  /** @return the scanner position after the parsed node */
   public Position getPosition() {
     return position;
   }

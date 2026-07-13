@@ -20,16 +20,32 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererContext;
 import org.dominokit.markdown.renderer.markdown.MarkdownWriter;
 
+/**
+ * Markdown renderer for GFM strikethrough nodes.
+ *
+ * <p>The renderer re-emits the original opening and closing delimiters around the rendered child
+ * content so the markdown output preserves the extension syntax.
+ */
 public class StrikethroughMarkdownNodeRenderer extends StrikethroughNodeRenderer {
 
   private final MarkdownNodeRendererContext context;
   private final MarkdownWriter writer;
 
+  /**
+   * Create a renderer bound to the active Markdown rendering context.
+   *
+   * @param context rendering context used for markdown emission and child traversal
+   */
   public StrikethroughMarkdownNodeRenderer(MarkdownNodeRendererContext context) {
     this.context = context;
     this.writer = context.getWriter();
   }
 
+  /**
+   * Render the strikethrough node by replaying its delimiters around the child content.
+   *
+   * @param node strikethrough node to render
+   */
   @Override
   public void render(Node node) {
     Strikethrough strikethrough = (Strikethrough) node;
@@ -38,6 +54,11 @@ public class StrikethroughMarkdownNodeRenderer extends StrikethroughNodeRenderer
     writer.raw(strikethrough.getClosingDelimiter());
   }
 
+  /**
+   * Render the children of the strikethrough node in document order.
+   *
+   * @param parent parent node whose children should be rendered
+   */
   private void renderChildren(Node parent) {
     Node node = parent.getFirstChild();
     while (node != null) {

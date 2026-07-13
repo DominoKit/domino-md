@@ -23,23 +23,43 @@ import org.dominokit.markdown.parser.block.AbstractBlockParser;
 import org.dominokit.markdown.parser.block.BlockContinue;
 import org.dominokit.markdown.parser.block.ParserState;
 
+/**
+ * Parses list item blocks and keeps track of the indentation that belongs to the item body.
+ *
+ * <p>The parser also tracks whether a blank line appeared inside the item so that the parent list
+ * can be downgraded from tight to loose formatting when needed.
+ */
 public class ListItemParser extends AbstractBlockParser {
 
   private final ListItem block = new ListItem();
   private final int contentIndent;
   private boolean hadBlankLine;
 
+  /**
+   * Create a list item parser for the supplied marker and content indentation.
+   *
+   * @param markerIndent indentation of the list marker itself
+   * @param contentIndent indentation required for item content
+   */
   public ListItemParser(int markerIndent, int contentIndent) {
     this.contentIndent = contentIndent;
     block.setMarkerIndent(markerIndent);
     block.setContentIndent(contentIndent);
   }
 
+  /** @return {@code true} because a list item is a container block */
   @Override
   public boolean isContainer() {
     return true;
   }
 
+  /**
+   * List items always accept child blocks, but a blank line inside the item forces the parent list
+   * to become loose.
+   *
+   * @param childBlock child block being attached
+   * @return always {@code true}
+   */
   @Override
   public boolean canContain(Block childBlock) {
     if (hadBlankLine) {
@@ -51,11 +71,18 @@ public class ListItemParser extends AbstractBlockParser {
     return true;
   }
 
+  /** @return the list item node being constructed */
   @Override
   public Block getBlock() {
     return block;
   }
 
+  /**
+   * Continue while the line is blank or sufficiently indented to belong to the item body.
+   *
+   * @param state current parser state
+   * @return continuation at the next content column or none when the item ends
+   */
   @Override
   public BlockContinue tryContinue(ParserState state) {
     if (state.isBlank()) {

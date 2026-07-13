@@ -15,11 +15,22 @@
  */
 package org.dominokit.markdown.internal;
 
+/**
+ * Accumulates block-level text content with newline separation.
+ *
+ * <p>Block parsers use this helper when they need to collect raw lines before the inline parser
+ * later consumes the joined text.
+ */
 final class BlockContent {
 
   private final StringBuilder sb = new StringBuilder();
   private int lineCount;
 
+  /**
+   * Append a line to the accumulated block content.
+   *
+   * <p>Newlines are inserted between lines, not after the final line.
+   */
   public void add(CharSequence line) {
     if (lineCount != 0) {
       sb.append('\n');
@@ -28,6 +39,7 @@ final class BlockContent {
     lineCount++;
   }
 
+  /** @return the concatenated block content */
   public String getString() {
     return sb.toString();
   }

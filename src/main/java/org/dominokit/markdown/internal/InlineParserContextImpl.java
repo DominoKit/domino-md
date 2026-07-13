@@ -23,6 +23,13 @@ import org.dominokit.markdown.parser.beta.InlineContentParserFactory;
 import org.dominokit.markdown.parser.beta.LinkProcessor;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 
+/**
+ * Default inline-parser context backed by the parser's shared definition store.
+ *
+ * <p>The inline parser reads custom parser registrations from this context and uses the shared
+ * {@link Definitions} instance to resolve link reference definitions while processing brackets and
+ * custom link processors.
+ */
 public class InlineParserContextImpl implements InlineParserContext {
 
   private final List<InlineContentParserFactory> inlineContentParserFactories;
@@ -31,6 +38,15 @@ public class InlineParserContextImpl implements InlineParserContext {
   private final Set<Character> linkMarkers;
   private final Definitions definitions;
 
+  /**
+   * Create an inline-parser context backed by the parser's shared state.
+   *
+   * @param inlineContentParserFactories custom inline-content parser factories
+   * @param delimiterProcessors custom delimiter processors
+   * @param linkProcessors custom link processors
+   * @param linkMarkers custom link marker characters
+   * @param definitions shared definition registry
+   */
   public InlineParserContextImpl(
       List<InlineContentParserFactory> inlineContentParserFactories,
       List<DelimiterProcessor> delimiterProcessors,
@@ -44,31 +60,37 @@ public class InlineParserContextImpl implements InlineParserContext {
     this.definitions = definitions;
   }
 
+  /** @return custom inline-content parser factories registered on the parser */
   @Override
   public List<InlineContentParserFactory> getCustomInlineContentParserFactories() {
     return inlineContentParserFactories;
   }
 
+  /** @return custom delimiter processors registered on the parser */
   @Override
   public List<DelimiterProcessor> getCustomDelimiterProcessors() {
     return delimiterProcessors;
   }
 
+  /** @return custom link processors registered on the parser */
   @Override
   public List<LinkProcessor> getCustomLinkProcessors() {
     return linkProcessors;
   }
 
+  /** @return custom link-marker characters registered on the parser */
   @Override
   public Set<Character> getCustomLinkMarkers() {
     return linkMarkers;
   }
 
+  /** @return the link reference definition for the given label, or {@code null} */
   @Override
   public LinkReferenceDefinition getLinkReferenceDefinition(String label) {
     return definitions.getDefinition(LinkReferenceDefinition.class, label);
   }
 
+  /** @return the definition of the requested type for the given label, or {@code null} */
   @Override
   public <D> D getDefinition(Class<D> type, String label) {
     return definitions.getDefinition(type, label);

@@ -18,21 +18,38 @@ package org.dominokit.markdown.renderer.html;
 import java.util.*;
 
 /**
- * Allows http, https, mailto, and data protocols for url. Also allows protocol relative urls, and
- * relative urls. Implementation based on
- * https://github.com/OWASP/java-html-sanitizer/blob/f07e44b034a45d94d6fd010279073c38b6933072/src/main/java/org/owasp/html/FilterUrlByProtocolAttributePolicy.java
+ * Default URL sanitizer for HTML rendering.
+ *
+ * <p>By default this sanitizer allows {@code http}, {@code https}, {@code mailto}, and
+ * {@code data} URLs, as well as relative and protocol-relative URLs. The implementation is based
+ * on the URL filtering rules used by OWASP's HTML sanitizer.
  */
 public class DefaultUrlSanitizer implements UrlSanitizer {
   private Set<String> protocols;
 
+  /** Create a sanitizer with the default protocol allowlist. */
   public DefaultUrlSanitizer() {
     this(List.of("http", "https", "mailto", "data"));
   }
 
+  /**
+   * Create a sanitizer with a custom protocol allowlist.
+   *
+   * @param protocols allowed URL protocols, compared case-insensitively
+   */
   public DefaultUrlSanitizer(Collection<String> protocols) {
     this.protocols = new HashSet<>(protocols);
   }
 
+  /**
+   * Sanitize a link destination.
+   *
+   * <p>The method trims HTML whitespace, then scans for a protocol delimiter. If a protocol is
+   * present and not allowlisted, the URL is rejected by returning an empty string.
+   *
+   * @param url the raw link destination
+   * @return the sanitized URL, or an empty string when the protocol is not allowed
+   */
   @Override
   public String sanitizeLinkUrl(String url) {
     url = stripHtmlSpaces(url);
@@ -54,11 +71,20 @@ public class DefaultUrlSanitizer implements UrlSanitizer {
     return url;
   }
 
+  /**
+   * Sanitize an image destination.
+   *
+   * <p>Image and link destinations share the same URL policy.
+   *
+   * @param url the raw image destination
+   * @return the sanitized URL, or an empty string when the protocol is not allowed
+   */
   @Override
   public String sanitizeImageUrl(String url) {
     return sanitizeLinkUrl(url);
   }
 
+  /** Trim leading and trailing HTML whitespace from the supplied string. */
   private String stripHtmlSpaces(String s) {
     int i = 0, n = s.length();
     for (; n > i; --n) {
@@ -77,6 +103,12 @@ public class DefaultUrlSanitizer implements UrlSanitizer {
     return s.substring(i, n);
   }
 
+  /**
+   * Check whether a code point counts as HTML whitespace.
+   *
+   * @param ch the character to test
+   * @return {@code true} when the character is considered HTML whitespace
+   */
   private boolean isHtmlSpace(int ch) {
     switch (ch) {
       case ' ':

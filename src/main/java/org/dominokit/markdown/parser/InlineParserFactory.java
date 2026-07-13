@@ -15,8 +15,19 @@
  */
 package org.dominokit.markdown.parser;
 
-/** Factory for custom inline parsers. */
+/**
+ * Factory for custom inline parsers.
+ *
+ * <p>Factories are consulted when inline parsing encounters one of their registered trigger
+ * characters.
+ */
 public interface InlineParserFactory {
 
+  /**
+   * Create a new inline parser for the supplied context.
+   *
+   * @param inlineParserContext parser context for the current parse pass
+   * @return a parser instance
+   */
   InlineParser create(InlineParserContext inlineParserContext);
 }

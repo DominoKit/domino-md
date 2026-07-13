@@ -22,17 +22,26 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.html.HtmlNodeRendererContext;
 import org.dominokit.markdown.renderer.html.HtmlWriter;
 
+/**
+ * Renders task-list marker nodes as disabled checkbox inputs.
+ */
 public class TaskListItemHtmlNodeRenderer extends TaskListItemNodeRenderer {
 
   private final HtmlNodeRendererContext context;
   private final HtmlWriter html;
 
+  /**
+   * Create a renderer bound to the active HTML rendering context.
+   *
+   * @param context rendering context used for HTML emission
+   */
   public TaskListItemHtmlNodeRenderer(HtmlNodeRendererContext context) {
     this.context = context;
     this.html = context.getWriter();
   }
 
   @Override
+  /** Render the checkbox input and trailing space. */
   public void render(Node node) {
     TaskListItemMarker marker = (TaskListItemMarker) node;
     Map<String, String> attributes = new LinkedHashMap<>();

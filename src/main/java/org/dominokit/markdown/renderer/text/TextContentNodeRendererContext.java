@@ -17,10 +17,16 @@ package org.dominokit.markdown.renderer.text;
 
 import org.dominokit.markdown.node.Node;
 
+/**
+ * Rendering context exposed to text-content node renderers.
+ *
+ * <p>The context is scoped to a single render pass and provides access to the output writer and
+ * the line-break policy used by the plain-text renderer.
+ */
 public interface TextContentNodeRendererContext {
 
   /**
-   * Controls how line breaks should be rendered, see {@link LineBreakRendering}.
+   * Controls how line breaks should be rendered.
    *
    * @return the configured line-break mode
    */
@@ -38,6 +44,9 @@ public interface TextContentNodeRendererContext {
 
   /**
    * Render the specified node and its children using the configured renderers.
+   *
+   * <p>This is primarily intended for child traversal. Passing the current node would recurse
+   * forever.
    *
    * @param node the node to render
    */

@@ -19,29 +19,57 @@ import org.dominokit.markdown.node.*;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 import org.dominokit.markdown.parser.delimiter.DelimiterRun;
 
+/**
+ * Shared implementation for emphasis and strong emphasis delimiters.
+ *
+ * <p>The processor applies the CommonMark multiple-of-three rule, chooses between emphasis and
+ * strong emphasis based on the number of available delimiters, and then moves all nodes between
+ * the opener and closer inside the new wrapper node while preserving source spans.
+ */
 public abstract class EmphasisDelimiterProcessor implements DelimiterProcessor {
 
   private final char delimiterChar;
 
+  /**
+   * Create a processor for the requested delimiter character.
+   *
+   * @param delimiterChar delimiter character handled by this processor
+   */
   protected EmphasisDelimiterProcessor(char delimiterChar) {
     this.delimiterChar = delimiterChar;
   }
 
+  /** @return the delimiter character that can open this run */
   @Override
   public char getOpeningCharacter() {
     return delimiterChar;
   }
 
+  /** @return the delimiter character that can close this run */
   @Override
   public char getClosingCharacter() {
     return delimiterChar;
   }
 
+  /** @return the minimum number of delimiters required to activate the processor */
   @Override
   public int getMinLength() {
     return 1;
   }
 
+  /**
+   * Combine matching delimiter runs into emphasis or strong emphasis nodes.
+   *
+   * <p>The implementation first applies the multiple-of-three restriction used by CommonMark to
+   * avoid ambiguous matches. It then prefers strong emphasis whenever both the opening and closing
+   * runs still contain at least two delimiters, otherwise it falls back to a single emphasis node.
+   * All nodes between the opener and closer are moved inside the new wrapper, and the source spans
+   * from the consumed delimiters are copied onto the wrapper node.
+   *
+   * @param openingRun opening delimiter run
+   * @param closingRun closing delimiter run
+   * @return the number of delimiters consumed from the closer
+   */
   @Override
   public int process(DelimiterRun openingRun, DelimiterRun closingRun) {
     // "multiple of 3" rule for internal delimiter runs

@@ -20,22 +20,33 @@ import org.dominokit.markdown.node.Image;
 import org.dominokit.markdown.node.Link;
 import org.dominokit.markdown.node.Node;
 
+/**
+ * Rendering context exposed to HTML node renderers.
+ *
+ * <p>Renderers use this context to write HTML, delegate rendering of child nodes, and inspect the
+ * active renderer configuration. The context is render-pass scoped, so implementations should
+ * treat it as ephemeral and not retain it after rendering completes.
+ */
 public interface HtmlNodeRendererContext {
 
   /**
-   * @param url to be encoded
-   * @return an encoded URL (depending on the configuration)
+   * Encode a URL according to the renderer configuration.
+   *
+   * @param url the raw URL value
+   * @return the encoded URL when percent-encoding is enabled, otherwise the original value
    */
   String encodeUrl(String url);
 
   /**
    * Let extensions modify the HTML tag attributes.
    *
+   * <p>Implementations should treat the provided map as mutable and return the final merged
+   * attribute set after all registered providers have had a chance to contribute.
+   *
    * @param node the node for which the attributes are applied
-   * @param tagName the HTML tag name that these attributes are for (e.g. {@code h1}, {@code pre},
-   *     {@code code}).
+   * @param tagName the HTML tag name that these attributes are for
    * @param attributes the attributes that were calculated by the renderer
-   * @return the extended attributes with added/updated/removed entries
+   * @return the extended attributes with added, updated, or removed entries
    */
   Map<String, String> extendAttributes(Node node, String tagName, Map<String, String> attributes);
 
@@ -46,9 +57,10 @@ public interface HtmlNodeRendererContext {
   String getSoftbreak();
 
   /**
-   * Render the specified node and its children using the configured renderers. This should be used
-   * to render child nodes; be careful not to pass the node that is being rendered, that would
-   * result in an endless loop.
+   * Render the specified node and its children using the configured renderers.
+   *
+   * <p>This should be used to render child nodes. Passing the node that is currently being
+   * rendered would recurse forever.
    *
    * @param node the node to render
    */
@@ -64,14 +76,14 @@ public interface HtmlNodeRendererContext {
   boolean shouldOmitSingleParagraphP();
 
   /**
-   * @return true if the {@link UrlSanitizer} should be used.
+   * @return true if the {@link UrlSanitizer} should be used
    * @since 0.14.0
    */
   boolean shouldSanitizeUrls();
 
   /**
-   * @return Sanitizer to use for securing {@link Link} href and {@link Image} src if {@link
-   *     #shouldSanitizeUrls()} is true.
+   * @return sanitizer to use for securing {@link Link} href and {@link Image} src if {@link
+   *     #shouldSanitizeUrls()} is true
    * @since 0.14.0
    */
   UrlSanitizer urlSanitizer();

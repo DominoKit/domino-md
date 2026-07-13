@@ -23,17 +23,23 @@ import org.dominokit.markdown.node.Paragraph;
 import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.PostProcessor;
 
+/**
+ * Converts leading task-list markers into explicit task marker nodes.
+ */
 public class TaskListItemPostProcessor implements PostProcessor {
 
   @Override
+  /** Rewrite matching list items in-place and return the same document. */
   public Node process(Node node) {
     node.accept(new TaskListItemVisitor());
     return node;
   }
 
+  /** Visitor that finds list items with task markers. */
   private static final class TaskListItemVisitor extends AbstractVisitor {
 
     @Override
+    /** Detect and split a task marker from the first paragraph text. */
     public void visit(ListItem listItem) {
       Node child = listItem.getFirstChild();
       if (child instanceof Paragraph) {
@@ -52,6 +58,7 @@ public class TaskListItemPostProcessor implements PostProcessor {
     }
   }
 
+  /** Parse a task marker prefix from the beginning of a paragraph's first text node. */
   private static TaskMarker parseTaskMarker(String literal) {
     if (literal == null || literal.length() < 5 || literal.charAt(0) != '[') {
       return null;
@@ -80,6 +87,12 @@ public class TaskListItemPostProcessor implements PostProcessor {
     private final boolean checked;
     private final String remainingText;
 
+    /**
+     * Create a parsed task marker.
+     *
+     * @param checked whether the checkbox is checked
+     * @param remainingText paragraph text after the marker prefix
+     */
     private TaskMarker(boolean checked, String remainingText) {
       this.checked = checked;
       this.remainingText = remainingText;

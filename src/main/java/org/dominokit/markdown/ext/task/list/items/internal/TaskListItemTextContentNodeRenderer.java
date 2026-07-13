@@ -20,15 +20,24 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.text.TextContentNodeRendererContext;
 import org.dominokit.markdown.renderer.text.TextContentWriter;
 
+/**
+ * Renders task-list marker nodes as plain text checkboxes.
+ */
 public class TaskListItemTextContentNodeRenderer extends TaskListItemNodeRenderer {
 
   private final TextContentWriter textContent;
 
+  /**
+   * Create a renderer bound to the active text-content rendering context.
+   *
+   * @param context rendering context used for text emission
+   */
   public TaskListItemTextContentNodeRenderer(TextContentNodeRendererContext context) {
     this.textContent = context.getWriter();
   }
 
   @Override
+  /** Render the checkbox marker as plain text. */
   public void render(Node node) {
     TaskListItemMarker marker = (TaskListItemMarker) node;
     textContent.write(marker.isChecked() ? "[x] " : "[ ] ");

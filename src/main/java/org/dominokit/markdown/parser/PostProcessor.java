@@ -17,8 +17,19 @@ package org.dominokit.markdown.parser;
 
 import org.dominokit.markdown.node.Node;
 
-/** Post-processes a parsed document. */
+/**
+ * Post-processes a parsed document.
+ *
+ * <p>Post-processors run after block and inline parsing have completed, which makes them suitable
+ * for structural rewrites that are awkward to express during parsing itself.
+ */
 public interface PostProcessor {
 
+  /**
+   * Transform the parsed document and return the result.
+   *
+   * @param document parsed document tree
+   * @return the transformed document tree
+   */
   Node process(Node document);
 }

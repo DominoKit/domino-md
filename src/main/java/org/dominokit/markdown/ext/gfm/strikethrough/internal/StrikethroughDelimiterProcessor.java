@@ -23,30 +23,38 @@ import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 import org.dominokit.markdown.parser.delimiter.DelimiterRun;
 
+/**
+ * Delimiter processor for {@code ~} strikethrough runs.
+ */
 public class StrikethroughDelimiterProcessor implements DelimiterProcessor {
 
   private final boolean requireTwoTildes;
 
+  /** Create a processor with the requested minimum delimiter length. */
   public StrikethroughDelimiterProcessor(boolean requireTwoTildes) {
     this.requireTwoTildes = requireTwoTildes;
   }
 
   @Override
+  /** @return the opening delimiter character */
   public char getOpeningCharacter() {
     return '~';
   }
 
   @Override
+  /** @return the closing delimiter character */
   public char getClosingCharacter() {
     return '~';
   }
 
   @Override
+  /** @return the minimum delimiter length */
   public int getMinLength() {
     return requireTwoTildes ? 2 : 1;
   }
 
   @Override
+  /** Build a strikethrough node when the opening and closing runs are compatible. */
   public int process(DelimiterRun openingRun, DelimiterRun closingRun) {
     if (openingRun.length() == closingRun.length() && openingRun.length() <= 2) {
       Text opener = openingRun.getOpener();

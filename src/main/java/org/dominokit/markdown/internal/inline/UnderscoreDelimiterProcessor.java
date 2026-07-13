@@ -15,8 +15,14 @@
  */
 package org.dominokit.markdown.internal.inline;
 
+/**
+ * Emphasis delimiter processor for underscore-delimited runs.
+ *
+ * <p>This is the CommonMark emphasis implementation specialized to the {@code _} delimiter.
+ */
 public class UnderscoreDelimiterProcessor extends EmphasisDelimiterProcessor {
 
+  /** Create a processor for {@code _}-delimited emphasis and strong emphasis. */
   public UnderscoreDelimiterProcessor() {
     super('_');
   }

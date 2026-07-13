@@ -21,7 +21,11 @@ import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.beta.*;
 import org.dominokit.markdown.text.AsciiMatcher;
 
-/** Attempts to parse an HTML entity or numeric character reference. */
+/**
+ * Attempts to parse an HTML entity or numeric character reference.
+ *
+ * <p>The parser recognizes decimal entities, hexadecimal entities, and named HTML5 entities.
+ */
 public class EntityInlineParser implements InlineContentParser {
 
   private static final AsciiMatcher hex =
@@ -32,6 +36,12 @@ public class EntityInlineParser implements InlineContentParser {
   private static final AsciiMatcher entityContinue =
       entityStart.newBuilder().range('0', '9').build();
 
+  /**
+   * Parse an entity reference at the current position.
+   *
+   * @param inlineParserState the current inline parser state
+   * @return a parsed text node containing the decoded entity, or none when no entity is present
+   */
   @Override
   public ParsedInline tryParse(InlineParserState inlineParserState) {
     Scanner scanner = inlineParserState.scanner();
@@ -64,6 +74,13 @@ public class EntityInlineParser implements InlineContentParser {
     return ParsedInline.none();
   }
 
+  /**
+   * Convert the consumed entity text into a decoded text node.
+   *
+   * @param scanner scanner positioned after the entity
+   * @param start position where the entity started
+   * @return parsed text node containing the decoded entity
+   */
   private ParsedInline entity(Scanner scanner, Position start) {
     String text = scanner.getSource(start, scanner.position()).getContent();
     return ParsedInline.of(new Text(Html5Entities.entityToString(text)), scanner.position());
@@ -71,11 +88,13 @@ public class EntityInlineParser implements InlineContentParser {
 
   public static class Factory implements InlineContentParserFactory {
 
+    /** @return the trigger character set for entity parsing */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('&');
     }
 
+    /** @return a new entity parser */
     @Override
     public InlineContentParser create() {
       return new EntityInlineParser();

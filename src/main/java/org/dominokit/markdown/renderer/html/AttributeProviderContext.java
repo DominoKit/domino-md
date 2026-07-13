@@ -16,10 +16,9 @@
 package org.dominokit.markdown.renderer.html;
 
 /**
- * The context for attribute providers.
+ * Context for HTML attribute providers.
  *
- * <p>Note: There are currently no methods here, this is for future extensibility.
- *
- * <p><em>This interface is not intended to be implemented by clients.</em>
+ * <p>This type is intentionally empty today so the renderer can add more render-pass metadata in
+ * the future without breaking the public API. Clients should not implement it directly.
  */
 public interface AttributeProviderContext {}

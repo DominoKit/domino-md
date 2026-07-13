@@ -17,15 +17,19 @@ package org.dominokit.markdown.ext.task.list.items;
 
 import org.dominokit.markdown.node.CustomNode;
 
-/** Marker node indicating that a list item contains a task checkbox. */
+/**
+ * Marker node indicating that a list item represents a task checkbox.
+ */
 public class TaskListItemMarker extends CustomNode {
 
   private final boolean checked;
 
+  /** Create a marker with the given checked state. */
   public TaskListItemMarker(boolean checked) {
     this.checked = checked;
   }
 
+  /** @return whether the task checkbox is checked */
   public boolean isChecked() {
     return checked;
   }

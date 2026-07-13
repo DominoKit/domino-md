@@ -16,14 +16,22 @@
 package org.dominokit.markdown.parser.beta;
 
 /**
- * Position within a {@link Scanner}. This is intentionally kept opaque so as not to expose the
- * internal structure of the Scanner.
+ * Opaque cursor position within a {@link Scanner}.
+ *
+ * <p>The position is intentionally lightweight so callers can save and restore scanner locations
+ * without depending on the scanner's internal representation.
  */
 public class Position {
 
   final int lineIndex;
   final int index;
 
+  /**
+   * Create a scanner position.
+   *
+   * @param lineIndex line index within the scanned source
+   * @param index character index within the line
+   */
   Position(int lineIndex, int index) {
     this.lineIndex = lineIndex;
     this.index = index;

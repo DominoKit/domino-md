@@ -17,10 +17,16 @@ package org.dominokit.markdown.renderer;
 
 import org.dominokit.markdown.node.Node;
 
+/**
+ * Common abstraction for renderers that turn an AST into an output format.
+ *
+ * <p>Implementations typically provide both a streaming variant that writes to an {@link
+ * Appendable} and a convenience overload that returns the rendered result as a string.
+ */
 public interface Renderer {
 
   /**
-   * Render the tree of nodes to output.
+   * Render the tree of nodes to the supplied output.
    *
    * @param node the root node
    * @param output output for rendering
@@ -28,7 +34,7 @@ public interface Renderer {
   void render(Node node, Appendable output);
 
   /**
-   * Render the tree of nodes to string.
+   * Render the tree of nodes to a string.
    *
    * @param node the root node
    * @return the rendered string

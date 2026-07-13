@@ -17,5 +17,7 @@ package org.dominokit.markdown.ext.gfm.tables;
 
 import org.dominokit.markdown.node.CustomNode;
 
-/** Head part of a {@link TableBlock}. */
+/**
+ * Header section of a table.
+ */
 public class TableHead extends CustomNode {}

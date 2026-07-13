@@ -15,9 +15,15 @@
  */
 package org.dominokit.markdown.node;
 
-/** A hard line break. */
+/**
+ * A hard line break.
+ *
+ * <p>Hard line breaks are rendered as explicit line breaks because the source line ended with the
+ * required Markdown hard-break spacing.
+ */
 public class HardLineBreak extends Node {
 
+  /** Dispatch this hard line break to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

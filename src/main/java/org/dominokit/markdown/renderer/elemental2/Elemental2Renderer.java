@@ -32,7 +32,14 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.html.DefaultUrlSanitizer;
 import org.dominokit.markdown.renderer.html.UrlSanitizer;
 
-/** Renders a markdown node tree into Elemental2 DOM nodes. */
+/**
+ * Renders a markdown node tree into Elemental2 DOM nodes.
+ *
+ * <p>The renderer composes a render pass from a document, a stack of active DOM containers, one or
+ * more node renderers, and optional attribute providers. The result is always a detached
+ * {@link DocumentFragment}, which keeps rendering side-effect free until the caller inserts the
+ * fragment into the live DOM.
+ */
 public final class Elemental2Renderer {
 
   private final SoftBreakRendering softBreakRendering;
@@ -44,6 +51,15 @@ public final class Elemental2Renderer {
   private final List<ElementAttributeProviderFactory> attributeProviderFactories;
   private final List<ElementNodeRendererFactory> nodeRendererFactories;
 
+  /**
+   * Capture the builder state into an immutable renderer instance.
+   *
+   * <p>The constructor copies the builder collections so subsequent builder mutations do not affect
+   * this renderer. The built-in core renderer is appended last so custom renderers can override
+   * core node handling when they are registered earlier.
+   *
+   * @param builder renderer configuration source
+   */
   private Elemental2Renderer(Builder builder) {
     this.softBreakRendering = builder.softBreakRendering;
     this.sanitizeUrls = builder.sanitizeUrls;
@@ -66,6 +82,10 @@ public final class Elemental2Renderer {
   /**
    * Render a node tree to a detached {@link DocumentFragment}.
    *
+   * <p>The renderer creates a fresh document-backed render context for each call so concurrent
+   * invocations do not share mutable state. All node renderers and attribute providers are
+   * instantiated from the builder configuration at the start of the pass.
+   *
    * @param node the markdown node tree to render
    * @return detached fragment containing the rendered DOM subtree
    */
@@ -78,7 +98,12 @@ public final class Elemental2Renderer {
     return context.root;
   }
 
-  /** Builder for configuring an {@link Elemental2Renderer}. */
+  /**
+   * Builder for configuring an {@link Elemental2Renderer}.
+   *
+   * <p>The builder accumulates renderer options, extension hooks, and factory registrations. The
+   * produced renderer is immutable after construction.
+   */
   public static final class Builder {
 
     private SoftBreakRendering softBreakRendering = SoftBreakRendering.NEWLINE_TEXT;
@@ -91,42 +116,87 @@ public final class Elemental2Renderer {
         new ArrayList<>();
     private final List<ElementNodeRendererFactory> nodeRendererFactories = new ArrayList<>();
 
-    /** @return the configured renderer */
+    /** Create the configured renderer instance. */
     public Elemental2Renderer build() {
       return new Elemental2Renderer(this);
     }
 
+    /**
+     * Configure how soft line breaks should be rendered.
+     *
+     * @param softBreakRendering strategy to use for soft line breaks
+     * @return this builder for chaining
+     */
     public Builder softBreakRendering(SoftBreakRendering softBreakRendering) {
       this.softBreakRendering =
           Objects.requireNonNull(softBreakRendering, "softBreakRendering must not be null");
       return this;
     }
 
+    /**
+     * Enable or disable URL sanitization for links and images.
+     *
+     * @param sanitizeUrls {@code true} to sanitize link and image destinations before assignment
+     * @return this builder for chaining
+     */
     public Builder sanitizeUrls(boolean sanitizeUrls) {
       this.sanitizeUrls = sanitizeUrls;
       return this;
     }
 
+    /**
+     * Set the sanitizer used when URL sanitization is enabled.
+     *
+     * @param urlSanitizer sanitizer implementation to use
+     * @return this builder for chaining
+     */
     public Builder urlSanitizer(UrlSanitizer urlSanitizer) {
       this.urlSanitizer = Objects.requireNonNull(urlSanitizer, "urlSanitizer must not be null");
       return this;
     }
 
+    /**
+     * Enable or disable percent-encoding of link and image URLs.
+     *
+     * @param percentEncodeUrls {@code true} to percent-encode URLs before assignment
+     * @return this builder for chaining
+     */
     public Builder percentEncodeUrls(boolean percentEncodeUrls) {
       this.percentEncodeUrls = percentEncodeUrls;
       return this;
     }
 
+    /**
+     * Omit the wrapping paragraph tag when the document only contains one paragraph.
+     *
+     * @param omitSingleParagraphP {@code true} to drop a single top-level paragraph wrapper
+     * @return this builder for chaining
+     */
     public Builder omitSingleParagraphP(boolean omitSingleParagraphP) {
       this.omitSingleParagraphP = omitSingleParagraphP;
       return this;
     }
 
+    /**
+     * Set a custom raw-HTML handler.
+     *
+     * <p>When no handler is configured, raw HTML content falls back to plain text behavior rather
+     * than being interpreted as DOM.
+     *
+     * @param rawHtmlHandler handler used to materialize raw HTML into DOM nodes, or {@code null}
+     * @return this builder for chaining
+     */
     public Builder rawHtmlHandler(RawHtmlHandler rawHtmlHandler) {
       this.rawHtmlHandler = rawHtmlHandler;
       return this;
     }
 
+    /**
+     * Register an attribute provider factory.
+     *
+     * @param attributeProviderFactory factory that creates per-render-pass attribute providers
+     * @return this builder for chaining
+     */
     public Builder attributeProviderFactory(
         ElementAttributeProviderFactory attributeProviderFactory) {
       this.attributeProviderFactories.add(
@@ -135,12 +205,27 @@ public final class Elemental2Renderer {
       return this;
     }
 
+    /**
+     * Register a node renderer factory.
+     *
+     * @param nodeRendererFactory factory that creates per-render-pass node renderers
+     * @return this builder for chaining
+     */
     public Builder nodeRendererFactory(ElementNodeRendererFactory nodeRendererFactory) {
       this.nodeRendererFactories.add(
           Objects.requireNonNull(nodeRendererFactory, "nodeRendererFactory must not be null"));
       return this;
     }
 
+    /**
+     * Apply all matching Elemental2 renderer extensions.
+     *
+     * <p>Only extensions implementing {@link Elemental2RendererExtension} participate in this
+     * builder. Other extension types are ignored because they target different renderer families.
+     *
+     * @param extensions extensions to inspect for Elemental2-specific hooks
+     * @return this builder for chaining
+     */
     public Builder extensions(Iterable<? extends Extension> extensions) {
       Objects.requireNonNull(extensions, "extensions must not be null");
       for (Extension extension : extensions) {
@@ -154,6 +239,7 @@ public final class Elemental2Renderer {
 
   /** Extension contract for {@link Elemental2Renderer}. */
   public interface Elemental2RendererExtension extends Extension {
+    /** Contribute renderer configuration to the supplied builder. */
     void extend(Builder rendererBuilder);
   }
 
@@ -166,6 +252,12 @@ public final class Elemental2Renderer {
     private final List<ElementAttributeProvider> attributeProviders;
     private final NodeRendererMap nodeRendererMap = new NodeRendererMap();
 
+    /**
+     * Create a render-pass context backed by the provided document.
+     *
+     * <p>The context owns the fragment that accumulates rendered nodes, the container stack used
+     * by nested renderers, and the per-pass renderer/attribute-provider instances.
+     */
     private RendererContext(Document document) {
       this.document = document;
       this.root = document.createDocumentFragment();
@@ -181,16 +273,29 @@ public final class Elemental2Renderer {
       }
     }
 
+    /** @return the document used to create elements */
     @Override
     public Document getDocument() {
       return document;
     }
 
+    /**
+     * Encode a URL if percent-encoding is enabled.
+     *
+     * @param url the raw URL value
+     * @return the encoded URL when configured, otherwise the original value
+     */
     @Override
     public String encodeUrl(String url) {
       return percentEncodeUrls ? Escaping.percentEncodeUrl(url) : url;
     }
 
+    /**
+     * Merge default attributes with all registered Elemental2 attribute providers.
+     *
+     * <p>Providers are applied in registration order and may mutate the shared attribute map to add,
+     * replace, or remove entries before the renderer creates the final DOM element.
+     */
     @Override
     public Map<String, String> extendAttributes(
         Node node, String tagName, Map<String, String> attributes) {
@@ -201,11 +306,18 @@ public final class Elemental2Renderer {
       return result;
     }
 
+    /** Render a single node into the current container. */
     @Override
     public void render(Node node) {
       nodeRendererMap.render(node);
     }
 
+    /**
+     * Render the children of the given markdown node into the current container.
+     *
+     * <p>The method walks the child list eagerly while caching {@code next} before each render so
+     * renderers are free to mutate the tree without breaking traversal.
+     */
     @Override
     public void renderChildren(Node parent) {
       Node node = parent.getFirstChild();
@@ -216,6 +328,12 @@ public final class Elemental2Renderer {
       }
     }
 
+    /**
+     * Render the children of the given node into a specific DOM container.
+     *
+     * <p>The container is pushed on the active stack for the duration of the call so nested
+     * renderers append into the correct DOM branch.
+     */
     @Override
     public void renderChildren(Node parent, elemental2.dom.Node container) {
       containers.push(container);
@@ -226,40 +344,50 @@ public final class Elemental2Renderer {
       }
     }
 
+    /** Append a DOM node to the active container. */
     @Override
     public void append(elemental2.dom.Node node) {
       containers.peek().appendChild(node);
     }
 
+    /** @return the configured soft-break behavior */
     @Override
     public SoftBreakRendering softBreakRendering() {
       return softBreakRendering;
     }
 
+    /**
+     * @return whether a single paragraph should omit the wrapping {@code <p>} element
+     */
     @Override
     public boolean shouldOmitSingleParagraphP() {
       return omitSingleParagraphP;
     }
 
+    /** @return whether URLs should be sanitized */
     @Override
     public boolean shouldSanitizeUrls() {
       return sanitizeUrls;
     }
 
+    /** @return the configured URL sanitizer */
     @Override
     public UrlSanitizer urlSanitizer() {
       return urlSanitizer;
     }
 
+    /** @return the configured raw HTML handler, or {@code null} */
     @Override
     public RawHtmlHandler rawHtmlHandler() {
       return rawHtmlHandler;
     }
 
+    /** Notify node renderers that a root render pass is about to begin. */
     private void beforeRoot(Node node) {
       nodeRendererMap.beforeRoot(node);
     }
 
+    /** Notify node renderers that a root render pass has completed. */
     private void afterRoot(Node node) {
       nodeRendererMap.afterRoot(node);
     }

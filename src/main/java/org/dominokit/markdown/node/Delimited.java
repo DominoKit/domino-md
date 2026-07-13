@@ -15,10 +15,14 @@
  */
 package org.dominokit.markdown.node;
 
-/** A node that uses delimiters in the source form. */
+/**
+ * Contract for nodes that have a source delimiter string.
+ */
 public interface Delimited {
 
+  /** @return the opening delimiter sequence */
   String getOpeningDelimiter();
 
+  /** @return the closing delimiter sequence */
   String getClosingDelimiter();
 }

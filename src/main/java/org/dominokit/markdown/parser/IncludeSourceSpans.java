@@ -15,7 +15,12 @@
  */
 package org.dominokit.markdown.parser;
 
-/** Whether to include source spans while parsing. */
+/**
+ * Controls how much source-span information the parser should collect.
+ *
+ * <p>Source-span collection adds bookkeeping overhead, so callers can opt into only block spans,
+ * block and inline spans, or no source-span tracking at all.
+ */
 public enum IncludeSourceSpans {
   NONE,
   BLOCKS,

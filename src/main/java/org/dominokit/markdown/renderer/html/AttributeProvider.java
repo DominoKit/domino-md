@@ -18,24 +18,24 @@ package org.dominokit.markdown.renderer.html;
 import java.util.Map;
 import org.dominokit.markdown.node.Node;
 
-/** Extension point for adding/changing attributes on HTML tags for a node. */
+/**
+ * Extension point for adding or changing attributes on HTML tags for a node.
+ *
+ * <p>Implementations may add, replace, or remove attributes before the final tag is emitted.
+ * Attribute values are escaped by the renderer, so providers should supply raw text rather than
+ * pre-escaped HTML entities.
+ */
 public interface AttributeProvider {
 
   /**
-   * Set the attributes for a HTML tag of the specified node by modifying the provided map.
+   * Mutate the attribute map for the tag currently being rendered.
    *
-   * <p>This allows to change or even remove default attributes. With great power comes great
-   * responsibility.
-   *
-   * <p>The attribute key and values will be escaped (preserving character entities), so don't
-   * escape them here, otherwise they will be double-escaped.
-   *
-   * <p>This method may be called multiple times for the same node, if the node is rendered using
-   * multiple nested tags (e.g. code blocks).
+   * <p>This callback can be invoked multiple times for the same markdown node when that node is
+   * rendered as multiple nested HTML tags, such as {@code pre > code}. Providers should therefore
+   * key their logic on both the node and the target tag name.
    *
    * @param node the node to set attributes for
-   * @param tagName the HTML tag name that these attributes are for (e.g. {@code h1}, {@code pre},
-   *     {@code code}).
+   * @param tagName the HTML tag name that these attributes are for
    * @param attributes the attributes, with any default attributes already set in the map
    */
   void setAttributes(Node node, String tagName, Map<String, String> attributes);

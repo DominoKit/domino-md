@@ -15,31 +15,45 @@
  */
 package org.dominokit.markdown.node;
 
-/** Emphasis. */
+/**
+ * An emphasis span.
+ *
+ * <p>The delimiter string records the exact marker sequence used to open and close the span.
+ */
 public class Emphasis extends Node implements Delimited {
 
   private String delimiter;
 
+  /** Create an empty emphasis node that can be populated later. */
   public Emphasis() {}
 
+  /**
+   * Create an emphasis node using the supplied delimiter sequence.
+   *
+   * @param delimiter the exact delimiter marker used in the source
+   */
   public Emphasis(String delimiter) {
     this.delimiter = delimiter;
   }
 
+  /** Set the delimiter marker string. */
   public void setDelimiter(String delimiter) {
     this.delimiter = delimiter;
   }
 
+  /** @return the opening delimiter sequence */
   @Override
   public String getOpeningDelimiter() {
     return delimiter;
   }
 
+  /** @return the closing delimiter sequence */
   @Override
   public String getClosingDelimiter() {
     return delimiter;
   }
 
+  /** Dispatch this emphasis node to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

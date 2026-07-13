@@ -18,64 +18,36 @@ package org.dominokit.markdown.parser.beta;
 import org.dominokit.markdown.node.Text;
 
 /**
- * A parsed link/image. There are different types of links.
+ * Parsed link or image metadata.
  *
- * <p>Inline links:
- *
- * <pre>
- * [text](destination)
- * [text](destination "title")
- * </pre>
- *
- * <p>Reference links, which have different subtypes. Full::
- *
- * <pre>
- * [text][label]
- * </pre>
- *
- * Collapsed (label is ""):
- *
- * <pre>
- * [text][]
- * </pre>
- *
- * Shortcut (label is null):
- *
- * <pre>
- * [text]
- * </pre>
- *
- * Images use the same syntax as links but with a {@code !} {@link #marker()} front, e.g. {@code
- * ![text](destination)}.
+ * <p>The interface exposes the pieces of a parsed link or image so custom link processors can
+ * inspect the original text, the optional marker, destination, title, and the scanner position at
+ * which parsing should resume.
  */
 public interface LinkInfo {
 
-  /**
-   * The marker if present, or null. A marker is e.g. {@code !} for an image, or a custom marker as
-   * specified in {@link org.dominokit.markdown.parser.Parser.Builder#linkMarker}.
-   */
+  /** @return the marker if present, or {@code null} */
   Text marker();
 
-  /** The text node of the opening bracket {@code [}. */
+  /** @return the text node for the opening bracket {@code [} */
   Text openingBracket();
 
-  /** The text between the first brackets, e.g. `foo` in `[foo][bar]`. */
+  /** @return the text between the first brackets */
   String text();
 
-  /**
-   * The label, or null for inline links or for shortcut links (in which case {@link #text()} should
-   * be used as the label).
-   */
+  /** @return the label, or {@code null} for inline and shortcut links */
   String label();
 
-  /** The destination if available, e.g. in `[foo](destination)`, or null */
+  /** @return the destination if available, or {@code null} */
   String destination();
 
-  /** The title if available, e.g. in `[foo](destination "title")`, or null */
+  /** @return the title if available, or {@code null} */
   String title();
 
   /**
-   * The position after the closing text bracket, e.g.:
+   * @return the scanner position after the closing text bracket
+   *
+   * <p>For example:
    *
    * <pre>
    * [foo][bar]

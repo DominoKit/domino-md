@@ -26,11 +26,26 @@ import org.dominokit.markdown.internal.renderer.NodeRendererMap;
 import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.Renderer;
 
-/** Renders nodes back to canonical CommonMark-style Markdown text. */
+/**
+ * Renders a markdown node tree back to canonical CommonMark-style Markdown text.
+ *
+ * <p>The renderer preserves semantic structure instead of exact source formatting. It rebuilds a
+ * textual representation from the AST, applying the configured renderers and escape rules to
+ * produce stable Markdown output.
+ */
 public class MarkdownRenderer implements Renderer {
 
   private final List<MarkdownNodeRendererFactory> nodeRendererFactories;
 
+  /**
+   * Capture the builder state into an immutable renderer instance.
+   *
+   * <p>The constructor copies the builder list so later builder mutations do not affect the
+   * renderer. The built-in core renderer is appended last so custom Markdown node renderers can
+   * override core behavior when registered earlier.
+   *
+   * @param builder renderer configuration source
+   */
   private MarkdownRenderer(Builder builder) {
     this.nodeRendererFactories = new ArrayList<>(builder.nodeRendererFactories.size() + 1);
     this.nodeRendererFactories.addAll(builder.nodeRendererFactories);
@@ -49,15 +64,17 @@ public class MarkdownRenderer implements Renderer {
         });
   }
 
-  /**
-   * Create a new builder for configuring a {@link MarkdownRenderer}.
-   *
-   * @return a builder
-   */
+  /** Create a new builder for configuring a {@link MarkdownRenderer}. */
   public static Builder builder() {
     return new Builder();
   }
 
+  /**
+   * Render a node tree into the supplied appendable.
+   *
+   * @param node the markdown node tree to render
+   * @param output destination for the generated Markdown text
+   */
   @Override
   public void render(Node node, Appendable output) {
     Objects.requireNonNull(node, "node must not be null");
@@ -68,6 +85,12 @@ public class MarkdownRenderer implements Renderer {
     context.afterRoot(node);
   }
 
+  /**
+   * Render a node tree to a string.
+   *
+   * @param node the markdown node tree to render
+   * @return the rendered Markdown
+   */
   @Override
   public String render(Node node) {
     Objects.requireNonNull(node, "node must not be null");
@@ -76,21 +99,26 @@ public class MarkdownRenderer implements Renderer {
     return sb.toString();
   }
 
-  /** Builder for configuring a {@link MarkdownRenderer}. */
+  /**
+   * Builder for configuring a {@link MarkdownRenderer}.
+   *
+   * <p>The builder collects custom node renderers and extensions before creating an immutable
+   * renderer instance.
+   */
   public static class Builder {
 
     private final List<MarkdownNodeRendererFactory> nodeRendererFactories = new ArrayList<>();
 
-    /** @return the configured {@link MarkdownRenderer} */
+    /** Build the configured {@link MarkdownRenderer}. */
     public MarkdownRenderer build() {
       return new MarkdownRenderer(this);
     }
 
     /**
-     * Add a factory for creating a node renderer.
+     * Register a node renderer factory.
      *
-     * @param nodeRendererFactory the factory to add
-     * @return {@code this}
+     * @param nodeRendererFactory factory used to create renderers during each render pass
+     * @return this builder for chaining
      */
     public Builder nodeRendererFactory(MarkdownNodeRendererFactory nodeRendererFactory) {
       this.nodeRendererFactories.add(
@@ -99,8 +127,10 @@ public class MarkdownRenderer implements Renderer {
     }
 
     /**
-     * @param extensions extensions to use on this Markdown renderer
-     * @return {@code this}
+     * Apply Markdown-renderer-specific extensions.
+     *
+     * @param extensions extensions to inspect for {@link MarkdownRendererExtension} hooks
+     * @return this builder for chaining
      */
     public Builder extensions(Iterable<? extends Extension> extensions) {
       Objects.requireNonNull(extensions, "extensions must not be null");
@@ -115,6 +145,7 @@ public class MarkdownRenderer implements Renderer {
 
   /** Extension contract for {@link MarkdownRenderer}. */
   public interface MarkdownRendererExtension extends Extension {
+    /** Contribute renderer configuration to the supplied builder. */
     void extend(Builder rendererBuilder);
   }
 
@@ -123,6 +154,11 @@ public class MarkdownRenderer implements Renderer {
     private final NodeRendererMap nodeRendererMap = new NodeRendererMap();
     private final Set<Character> additionalTextEscapes;
 
+    /**
+     * Create a render-pass context backed by the supplied writer.
+     *
+     * @param writer destination for generated Markdown text
+     */
     private RendererContext(MarkdownWriter writer) {
       this.writer = writer;
       Set<Character> escapes = new HashSet<>();
@@ -137,24 +173,29 @@ public class MarkdownRenderer implements Renderer {
     }
 
     @Override
+    /** @return the writer used to emit Markdown */
     public MarkdownWriter getWriter() {
       return writer;
     }
 
     @Override
+    /** Render a node using the renderer map associated with this context. */
     public void render(Node node) {
       nodeRendererMap.render(node);
     }
 
     @Override
+    /** @return additional text characters that should be escaped */
     public Set<Character> getSpecialCharacters() {
       return additionalTextEscapes;
     }
 
+    /** Notify node renderers that a root render pass is about to begin. */
     private void beforeRoot(Node node) {
       nodeRendererMap.beforeRoot(node);
     }
 
+    /** Notify node renderers that a root render pass has completed. */
     private void afterRoot(Node node) {
       nodeRendererMap.afterRoot(node);
     }

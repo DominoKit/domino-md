@@ -20,7 +20,12 @@ import org.dominokit.markdown.node.HtmlInline;
 import org.dominokit.markdown.parser.beta.*;
 import org.dominokit.markdown.text.AsciiMatcher;
 
-/** Attempt to parse inline HTML. */
+/**
+ * Attempt to parse inline HTML.
+ *
+ * <p>The parser recognizes the CommonMark inline HTML forms: tags, closing tags, processing
+ * instructions, comments, CDATA sections, and declarations.
+ */
 public class HtmlInlineParser implements InlineContentParser {
 
   private static final AsciiMatcher asciiLetter =
@@ -56,6 +61,12 @@ public class HtmlInlineParser implements InlineContentParser {
           .c('`')
           .build();
 
+  /**
+   * Try to parse an inline HTML fragment at the current position.
+   *
+   * @param inlineParserState the current inline parser state
+   * @return a parsed HTML node, or none when the input is not inline HTML
+   */
   @Override
   public ParsedInline tryParse(InlineParserState inlineParserState) {
     Scanner scanner = inlineParserState.scanner();
@@ -98,6 +109,13 @@ public class HtmlInlineParser implements InlineContentParser {
     return ParsedInline.none();
   }
 
+  /**
+   * Convert the consumed HTML literal into an inline HTML node.
+   *
+   * @param start position where the HTML fragment started
+   * @param scanner scanner positioned after the HTML fragment
+   * @return parsed inline HTML result
+   */
   private static ParsedInline htmlInline(Position start, Scanner scanner) {
     String text = scanner.getSource(start, scanner.position()).getContent();
     HtmlInline node = new HtmlInline();
@@ -105,6 +123,12 @@ public class HtmlInlineParser implements InlineContentParser {
     return ParsedInline.of(node, scanner.position());
   }
 
+  /**
+   * Attempt to scan an inline HTML opening tag.
+   *
+   * @param scanner inline scanner
+   * @return {@code true} if a valid opening tag was consumed
+   */
   private static boolean tryOpenTag(Scanner scanner) {
     // spec: An open tag consists of a < character, a tag name, zero or more attributes, optional
     // whitespace,
@@ -149,6 +173,12 @@ public class HtmlInlineParser implements InlineContentParser {
     return scanner.next('>');
   }
 
+  /**
+   * Attempt to scan an inline HTML closing tag.
+   *
+   * @param scanner inline scanner
+   * @return {@code true} if a valid closing tag was consumed
+   */
   private static boolean tryClosingTag(Scanner scanner) {
     // spec: A closing tag consists of the string </, a tag name, optional whitespace, and the
     // character >.
@@ -161,6 +191,12 @@ public class HtmlInlineParser implements InlineContentParser {
     return false;
   }
 
+  /**
+   * Attempt to scan a processing instruction.
+   *
+   * @param scanner inline scanner
+   * @return {@code true} if a valid processing instruction was consumed
+   */
   private static boolean tryProcessingInstruction(Scanner scanner) {
     // spec: A processing instruction consists of the string <?, a string of characters not
     // including the string ?>,
@@ -175,6 +211,12 @@ public class HtmlInlineParser implements InlineContentParser {
     return false;
   }
 
+  /**
+   * Attempt to scan an HTML comment.
+   *
+   * @param scanner inline scanner
+   * @return {@code true} if a valid comment was consumed
+   */
   private static boolean tryComment(Scanner scanner) {
     // spec: An [HTML comment](@) consists of `<!-->`, `<!--->`, or  `<!--`, a string of
     // characters not including the string `-->`, and `-->` (see the
@@ -202,6 +244,12 @@ public class HtmlInlineParser implements InlineContentParser {
     return false;
   }
 
+  /**
+   * Attempt to scan a CDATA section.
+   *
+   * @param scanner inline scanner
+   * @return {@code true} if a valid CDATA section was consumed
+   */
   private static boolean tryCdata(Scanner scanner) {
     // spec: A CDATA section consists of the string <![CDATA[, a string of characters not including
     // the string ]]>,
@@ -223,6 +271,12 @@ public class HtmlInlineParser implements InlineContentParser {
     return false;
   }
 
+  /**
+   * Attempt to scan an HTML declaration.
+   *
+   * @param scanner inline scanner
+   * @return {@code true} if a valid declaration was consumed
+   */
   private static boolean tryDeclaration(Scanner scanner) {
     // spec: A declaration consists of the string <!, an ASCII letter, zero or more characters not
     // including
@@ -240,11 +294,13 @@ public class HtmlInlineParser implements InlineContentParser {
 
   public static class Factory implements InlineContentParserFactory {
 
+    /** Return the single trigger character that can start inline HTML. */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('<');
     }
 
+    /** Create a new inline HTML parser instance. */
     @Override
     public InlineContentParser create() {
       return new HtmlInlineParser();

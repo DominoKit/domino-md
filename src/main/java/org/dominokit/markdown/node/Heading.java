@@ -15,20 +15,27 @@
  */
 package org.dominokit.markdown.node;
 
-/** A heading block. */
+/**
+ * A heading block.
+ *
+ * <p>The heading level corresponds to the number of leading {@code #} characters in the source.
+ */
 public class Heading extends Block {
 
   private int level;
 
+  /** Dispatch this heading to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the heading level, from 1 to 6 */
   public int getLevel() {
     return level;
   }
 
+  /** Set the heading level. */
   public void setLevel(int level) {
     this.level = level;
   }

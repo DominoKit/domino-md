@@ -17,46 +17,71 @@ package org.dominokit.markdown.node;
 
 import java.util.Iterator;
 
-/** Utility class for working with multiple {@link Node} instances. */
+/**
+ * Utility methods for iterating over node ranges.
+ */
 public final class Nodes {
 
+  /** Utility class; do not instantiate. */
   private Nodes() {}
 
+  /**
+   * Iterate over the siblings that appear strictly between two nodes.
+   *
+   * <p>The {@code start} node itself is excluded, and iteration stops before {@code end}.
+   */
   public static Iterable<Node> between(Node start, Node end) {
     return new NodeIterable(start.getNext(), end);
   }
 
+  /** Iterable view over a sibling range. */
   private static class NodeIterable implements Iterable<Node> {
 
     private final Node first;
     private final Node end;
 
+    /**
+     * Create an iterable view over a sibling range.
+     *
+     * @param first first node in the range, inclusive
+     * @param end node at which iteration should stop, exclusive
+     */
     private NodeIterable(Node first, Node end) {
       this.first = first;
       this.end = end;
     }
 
+    /** @return an iterator over the range */
     @Override
     public Iterator<Node> iterator() {
       return new NodeIterator(first, end);
     }
   }
 
+  /** Iterator over a sibling range. */
   private static class NodeIterator implements Iterator<Node> {
 
     private Node node;
     private final Node end;
 
+    /**
+     * Create an iterator over a sibling range.
+     *
+     * @param first first node in the range, inclusive
+     * @param end node at which iteration should stop, exclusive
+     */
     private NodeIterator(Node first, Node end) {
       node = first;
       this.end = end;
     }
 
+    /** @return whether another node is available */
     @Override
     public boolean hasNext() {
       return node != null && node != end;
     }
 
+    /** @return the next node in the range */
     @Override
     public Node next() {
       Node result = node;
@@ -64,6 +89,7 @@ public final class Nodes {
       return result;
     }
 
+    /** Removal is not supported. */
     @Override
     public void remove() {
       throw new UnsupportedOperationException("remove");

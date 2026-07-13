@@ -15,15 +15,21 @@
  */
 package org.dominokit.markdown.node;
 
-/** A list block like {@link BulletList} or {@link OrderedList}. */
+/**
+ * Base class for list blocks.
+ *
+ * <p>List blocks carry the tight/loose state shared by ordered and unordered lists.
+ */
 public abstract class ListBlock extends Block {
 
   private boolean tight;
 
+  /** @return whether the list is tight */
   public boolean isTight() {
     return tight;
   }
 
+  /** Set whether the list is tight. */
   public void setTight(boolean tight) {
     this.tight = tight;
   }

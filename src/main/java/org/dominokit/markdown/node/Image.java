@@ -15,40 +15,58 @@
  */
 package org.dominokit.markdown.node;
 
-/** An image. */
+/**
+ * An image node.
+ *
+ * <p>Images carry a destination and optional title, and their inline children represent the alt
+ * text.
+ */
 public class Image extends Node {
 
   private String destination;
   private String title;
 
+  /** Create an empty image node that can be populated later. */
   public Image() {}
 
+  /**
+   * Create an image node with its destination and title already set.
+   *
+   * @param destination image destination URL
+   * @param title optional image title
+   */
   public Image(String destination, String title) {
     this.destination = destination;
     this.title = title;
   }
 
+  /** Dispatch this image to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);
   }
 
+  /** @return the image destination */
   public String getDestination() {
     return destination;
   }
 
+  /** Set the image destination. */
   public void setDestination(String destination) {
     this.destination = destination;
   }
 
+  /** @return the image title, or {@code null} */
   public String getTitle() {
     return title;
   }
 
+  /** Set the image title. */
   public void setTitle(String title) {
     this.title = title;
   }
 
+  /** Include the destination and title in debug output. */
   @Override
   protected String toStringAttributes() {
     return "destination=" + destination + ", title=" + title;

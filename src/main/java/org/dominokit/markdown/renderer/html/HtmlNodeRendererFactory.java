@@ -17,13 +17,19 @@ package org.dominokit.markdown.renderer.html;
 
 import org.dominokit.markdown.renderer.NodeRenderer;
 
-/** Factory for instantiating new node renderers when rendering is done. */
+/**
+ * Factory for HTML node renderers.
+ *
+ * <p>Factories are instantiated once per render pass and receive the active context so they can
+ * create renderers with access to the current writer, attribute providers, and configuration
+ * flags.
+ */
 public interface HtmlNodeRendererFactory {
 
   /**
    * Create a new node renderer for the specified rendering context.
    *
-   * @param context the context for rendering (normally passed on to the node renderer)
+   * @param context the context for rendering
    * @return a node renderer
    */
   NodeRenderer create(HtmlNodeRendererContext context);

@@ -30,21 +30,38 @@ import org.dominokit.markdown.parser.block.BlockStart;
 import org.dominokit.markdown.parser.block.MatchedBlockParser;
 import org.dominokit.markdown.parser.block.ParserState;
 
+/**
+ * Block parser for ordered and unordered list containers.
+ *
+ * <p>The parser owns the list block itself, tracks blank-line state so it can decide whether the
+ * list remains tight, and cooperates with child {@link ListItemParser} instances to reconstruct
+ * list item indentation and nesting.
+ */
 public class ListBlockParser extends AbstractBlockParser {
 
   private final ListBlock block;
   private boolean hadBlankLine;
   private int linesAfterBlank;
 
+  /**
+   * Create a parser for the supplied list block.
+   *
+   * @param block list block to populate
+   */
   public ListBlockParser(ListBlock block) {
     this.block = block;
   }
 
+  /** @return {@code true}; list blocks are containers */
   @Override
   public boolean isContainer() {
     return true;
   }
 
+  /**
+   * List blocks can only contain list items, and a blank line can retroactively mark the list as
+   * loose when followed by another item.
+   */
   @Override
   public boolean canContain(Block childBlock) {
     if (childBlock instanceof ListItem) {
@@ -57,11 +74,18 @@ public class ListBlockParser extends AbstractBlockParser {
     return false;
   }
 
+  /** @return the list block being built */
   @Override
   public Block getBlock() {
     return block;
   }
 
+  /**
+   * Keep the list open across blank lines so later items can decide whether the list is tight.
+   *
+   * @param state current parser state
+   * @return a continuation at the current line index
+   */
   @Override
   public BlockContinue tryContinue(ParserState state) {
     if (state.isBlank()) {
@@ -73,6 +97,12 @@ public class ListBlockParser extends AbstractBlockParser {
     return BlockContinue.atIndex(state.getIndex());
   }
 
+  /**
+   * Parse a possible list marker from the current line.
+   *
+   * <p>The result includes the list block type and the column where the list item content should
+   * begin.
+   */
   private static ListData parseList(
       CharSequence line, int markerIndex, int markerColumn, boolean inParagraph) {
     ListMarkerData listMarker = parseListMarker(line, markerIndex);
@@ -116,6 +146,13 @@ public class ListBlockParser extends AbstractBlockParser {
     return new ListData(listBlock, contentColumn);
   }
 
+  /**
+   * Parse a bullet or ordered list marker at the supplied position.
+   *
+   * @param line input line
+   * @param index marker position within the line
+   * @return parsed marker data, or {@code null} when the line does not start a list item
+   */
   private static ListMarkerData parseListMarker(CharSequence line, int index) {
     char c = line.charAt(index);
     switch (c) {
@@ -133,6 +170,13 @@ public class ListBlockParser extends AbstractBlockParser {
     }
   }
 
+  /**
+   * Parse an ordered-list marker such as {@code 1. } or {@code 2) }.
+   *
+   * @param line input line
+   * @param index starting index of the potential marker
+   * @return parsed marker data, or {@code null} when no valid ordered-list marker is present
+   */
   private static ListMarkerData parseOrderedList(CharSequence line, int index) {
     int digits = 0;
     for (int i = index; i < line.length(); i++) {
@@ -170,6 +214,13 @@ public class ListBlockParser extends AbstractBlockParser {
     return null;
   }
 
+  /**
+   * Check whether the supplied position is whitespace or the end of the line.
+   *
+   * @param line input line
+   * @param index position to inspect
+   * @return {@code true} when the position is a space, tab, or end of input
+   */
   private static boolean isSpaceTabOrEnd(CharSequence line, int index) {
     if (index < line.length()) {
       char c = line.charAt(index);
@@ -178,6 +229,11 @@ public class ListBlockParser extends AbstractBlockParser {
     return true;
   }
 
+  /**
+   * Determine whether two list blocks should be treated as the same list.
+   *
+   * <p>Bullet lists compare their bullet marker, while ordered lists compare their delimiter.
+   */
   private static boolean listsMatch(ListBlock a, ListBlock b) {
     if (a instanceof BulletList && b instanceof BulletList) {
       return Objects.equals(((BulletList) a).getMarker(), ((BulletList) b).getMarker());
@@ -191,6 +247,13 @@ public class ListBlockParser extends AbstractBlockParser {
 
   public static class Factory extends AbstractBlockParserFactory {
 
+    /**
+     * Attempt to start a list block at the current position.
+     *
+     * @param state parser state for the current line
+     * @param matchedBlockParser the currently matched block parser chain
+     * @return a block-start result when the line begins a list item, otherwise {@code none}
+     */
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
       BlockParser matched = matchedBlockParser.getMatchedBlockParser();
@@ -221,6 +284,7 @@ public class ListBlockParser extends AbstractBlockParser {
     }
   }
 
+  /** Parsed list metadata used to create a block and compute its content indentation. */
   private static class ListData {
     private final ListBlock listBlock;
     private final int contentColumn;
@@ -231,6 +295,7 @@ public class ListBlockParser extends AbstractBlockParser {
     }
   }
 
+  /** Parsed marker data describing the concrete list block and line offset after the marker. */
   private static class ListMarkerData {
     private final ListBlock listBlock;
     private final int indexAfterMarker;

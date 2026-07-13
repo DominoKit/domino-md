@@ -21,15 +21,31 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRendererContext;
 
+/**
+ * Elemental2 renderer for GFM strikethrough nodes.
+ *
+ * <p>The renderer emits a {@code <del>} element, applies any configured attribute providers, and
+ * then renders the children into that element.
+ */
 public class StrikethroughElementNodeRenderer extends StrikethroughNodeRenderer
     implements ElementNodeRenderer {
 
   private final ElementNodeRendererContext context;
 
+  /**
+   * Create a renderer bound to the active Elemental2 rendering context.
+   *
+   * @param context rendering context used for element creation and child traversal
+   */
   public StrikethroughElementNodeRenderer(ElementNodeRendererContext context) {
     this.context = context;
   }
 
+  /**
+   * Render the strikethrough wrapper as a DOM {@code del} element.
+   *
+   * @param node strikethrough node to render
+   */
   @Override
   public void render(Node node) {
     Element element = context.getDocument().createElement("del");

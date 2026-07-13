@@ -18,7 +18,12 @@ package org.dominokit.markdown.renderer.markdown;
 import java.util.Set;
 import org.dominokit.markdown.node.Node;
 
-/** Context that is passed to custom node renderers. */
+/**
+ * Rendering context exposed to Markdown node renderers.
+ *
+ * <p>The context is scoped to a single render pass and provides access to the writer and to any
+ * custom characters that should be escaped when rendering plain text.
+ */
 public interface MarkdownNodeRendererContext {
 
   /** @return the writer to use */
@@ -26,6 +31,9 @@ public interface MarkdownNodeRendererContext {
 
   /**
    * Render the specified node and its children using the configured renderers.
+   *
+   * <p>This is primarily intended for child traversal. Passing the current node would recurse
+   * forever.
    *
    * @param node the node to render
    */

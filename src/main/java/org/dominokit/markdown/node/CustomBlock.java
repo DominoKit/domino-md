@@ -15,9 +15,12 @@
  */
 package org.dominokit.markdown.node;
 
-/** A block that extensions can subclass to define custom blocks. */
+/**
+ * Base class for extension-defined custom blocks.
+ */
 public abstract class CustomBlock extends Block {
 
+  /** Dispatch this custom block to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

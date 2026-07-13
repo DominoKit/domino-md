@@ -15,4 +15,10 @@
  */
 package org.dominokit.markdown.parser.block;
 
+/**
+ * Convenience base class for block parser factories.
+ *
+ * <p>Factories can extend this type when they only need the {@link BlockParserFactory} contract
+ * without any additional shared behavior.
+ */
 public abstract class AbstractBlockParserFactory implements BlockParserFactory {}

@@ -20,16 +20,24 @@ import org.dominokit.markdown.internal.inline.ParsedInlineImpl;
 import org.dominokit.markdown.node.Node;
 
 /**
- * The result of a single inline parser. Use the static methods to create instances.
+ * Result of a single inline parser invocation.
  *
  * <p><em>This interface is not intended to be implemented by clients.</em>
  */
 public interface ParsedInline {
 
+  /** @return a result indicating that the parser did not handle the input */
   static ParsedInline none() {
     return null;
   }
 
+  /**
+   * Create a successful parse result.
+   *
+   * @param node parsed inline node
+   * @param position scanner position after the parsed node
+   * @return a parse result
+   */
   static ParsedInline of(Node node, Position position) {
     Objects.requireNonNull(node, "node must not be null");
     Objects.requireNonNull(position, "position must not be null");

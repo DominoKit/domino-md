@@ -21,25 +21,41 @@ import org.dominokit.markdown.parser.block.AbstractBlockParser;
 import org.dominokit.markdown.parser.block.BlockContinue;
 import org.dominokit.markdown.parser.block.ParserState;
 
+/**
+ * Root block parser that owns the document node.
+ *
+ * <p>The document parser is always open, always a container, and always able to contain any child
+ * block. Its only continuation rule is to keep the current line position aligned so nested block
+ * parsers can attach to the document root.
+ */
 public class DocumentBlockParser extends AbstractBlockParser {
 
   private final Document document = new Document();
 
+  /** @return {@code true}; the document is a container block */
   @Override
   public boolean isContainer() {
     return true;
   }
 
+  /** @return {@code true}; the document can contain any block type */
   @Override
   public boolean canContain(Block block) {
     return true;
   }
 
+  /** @return the root document node being built */
   @Override
   public Document getBlock() {
     return document;
   }
 
+  /**
+   * Continue parsing from the current line index without consuming additional characters.
+   *
+   * @param state current parser state
+   * @return a continuation positioned at the current index
+   */
   @Override
   public BlockContinue tryContinue(ParserState state) {
     return BlockContinue.atIndex(state.getIndex());

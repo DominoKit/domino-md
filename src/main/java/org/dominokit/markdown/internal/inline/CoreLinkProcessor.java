@@ -24,8 +24,23 @@ import org.dominokit.markdown.parser.beta.LinkProcessor;
 import org.dominokit.markdown.parser.beta.LinkResult;
 import org.dominokit.markdown.parser.beta.Scanner;
 
+/**
+ * Default link processor that turns parsed link metadata into link or image nodes.
+ *
+ * <p>The processor first resolves inline links, then falls back to link-reference definitions when
+ * the input is a reference link. When the parsed marker is {@code !}, the processor creates an
+ * image node instead of a link node and instructs the parser to keep the marker in the input.
+ */
 public class CoreLinkProcessor implements LinkProcessor {
 
+  /**
+   * Resolve a parsed link description into a link or image node.
+   *
+   * @param linkInfo parsed link metadata
+   * @param scanner scanner positioned after the closing delimiter
+   * @param context inline parser context used to resolve reference definitions
+   * @return a link-processing result, or none when the reference cannot be resolved
+   */
   @Override
   public LinkResult process(LinkInfo linkInfo, Scanner scanner, InlineParserContext context) {
     if (linkInfo.destination() != null) {
@@ -43,6 +58,15 @@ public class CoreLinkProcessor implements LinkProcessor {
     return LinkResult.none();
   }
 
+  /**
+   * Create the final link-processing result after the destination and title have been resolved.
+   *
+   * @param linkInfo parsed link metadata
+   * @param scanner scanner positioned after the closing delimiter
+   * @param destination resolved link destination
+   * @param title resolved link title
+   * @return a result that wraps the parsed text in a link or image node
+   */
   private static LinkResult process(
       LinkInfo linkInfo, Scanner scanner, String destination, String title) {
     if (linkInfo.marker() != null && linkInfo.marker().getLiteral().equals("!")) {

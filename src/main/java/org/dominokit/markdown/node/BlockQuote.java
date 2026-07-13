@@ -15,9 +15,14 @@
  */
 package org.dominokit.markdown.node;
 
-/** A block quote. */
+/**
+ * A block quote block.
+ *
+ * <p>Block quotes group child blocks that were introduced by {@code >} markers in the source.
+ */
 public class BlockQuote extends Block {
 
+  /** Dispatch this block quote to the visitor. */
   @Override
   public void accept(Visitor visitor) {
     visitor.visit(this);

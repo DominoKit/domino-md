@@ -25,19 +25,17 @@ import org.dominokit.markdown.parser.SourceLine;
 /**
  * Parser for a specific block node.
  *
- * <p>Implementations should subclass {@link AbstractBlockParser} instead of implementing this
- * directly.
+ * <p>Implementations should usually extend {@link AbstractBlockParser} rather than implement this
+ * interface directly, because the abstract base class already handles most of the bookkeeping
+ * around source spans and block finalization.
  */
 public interface BlockParser {
 
-  /**
-   * Return true if the block that is parsed is a container (contains other blocks), or false if
-   * it's a leaf.
-   */
+  /** @return whether this block can contain other blocks */
   boolean isContainer();
 
   /**
-   * Return true if the block can have lazy continuation lines.
+   * @return whether this block accepts lazy continuation lines
    *
    * <p>Lazy continuation lines are lines that were rejected by this {@link
    * #tryContinue(ParserState)} but didn't match any other block parsers either.
@@ -47,35 +45,53 @@ public interface BlockParser {
    */
   boolean canHaveLazyContinuationLines();
 
+  /** @return whether this block can contain the supplied child block */
   boolean canContain(Block childBlock);
 
+  /** @return the block node being built by this parser */
   Block getBlock();
 
+  /**
+   * Decide whether the parser can continue on the current line.
+   *
+   * @param parserState the current parser state
+   * @return a continuation result, or {@code null} if the block should stop
+   */
   BlockContinue tryContinue(ParserState parserState);
 
   /**
-   * Add the part of a line that belongs to this block parser to parse (i.e. without any container
-   * block markers). Note that the line will only include a {@link SourceLine#getSourceSpan()} if
-   * source spans are enabled for inlines.
+   * Add the part of a line that belongs to this block parser to parse.
+   *
+   * <p>The supplied line excludes any container markers or indentation that were already consumed
+   * by the block parser. The line only carries a {@link SourceLine#getSourceSpan()} when source
+   * spans are enabled for inline parsing.
+   *
+   * @param line the line content that belongs to the block
    */
   void addLine(SourceLine line);
 
   /**
-   * Add a source span of the currently parsed block. The default implementation in {@link
-   * AbstractBlockParser} adds it to the block. Unless you have some complicated parsing where you
-   * need to check source positions, you don't need to override this.
+   * Add a source span of the currently parsed block.
    *
+   * <p>The default implementation in {@link AbstractBlockParser} adds the span to the current
+   * block node.
+   *
+   * @param sourceSpan source span to add
    * @since 0.16.0
    */
   void addSourceSpan(SourceSpan sourceSpan);
 
   /**
-   * Return definitions parsed by this parser. The definitions returned here can later be accessed
-   * during inline parsing via {@link
+   * Return definitions parsed by this parser.
+   *
+   * <p>The definitions returned here can later be accessed during inline parsing via {@link
    * org.dominokit.markdown.parser.InlineParserContext#getDefinition}.
+   *
+   * @return any definition maps produced by this block parser
    */
   List<DefinitionMap<?>> getDefinitions();
 
+  /** Finalize the block after all lines have been consumed. */
   void closeBlock();
 
   void parseInlines(InlineParser inlineParser);

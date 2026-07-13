@@ -15,8 +15,14 @@
  */
 package org.dominokit.markdown.internal.inline;
 
+/**
+ * Emphasis delimiter processor for asterisk-delimited runs.
+ *
+ * <p>This is the CommonMark emphasis implementation specialized to the {@code *} delimiter.
+ */
 public class AsteriskDelimiterProcessor extends EmphasisDelimiterProcessor {
 
+  /** Create a processor for {@code *}-delimited emphasis and strong emphasis. */
   public AsteriskDelimiterProcessor() {
     super('*');
   }

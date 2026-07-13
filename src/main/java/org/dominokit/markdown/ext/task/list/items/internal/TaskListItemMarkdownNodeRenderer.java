@@ -20,17 +20,26 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererContext;
 import org.dominokit.markdown.renderer.markdown.MarkdownWriter;
 
+/**
+ * Renders task-list marker nodes back to Markdown.
+ */
 public class TaskListItemMarkdownNodeRenderer extends TaskListItemNodeRenderer {
 
   private final MarkdownNodeRendererContext context;
   private final MarkdownWriter writer;
 
+  /**
+   * Create a renderer bound to the active Markdown rendering context.
+   *
+   * @param context rendering context used for markdown emission
+   */
   public TaskListItemMarkdownNodeRenderer(MarkdownNodeRendererContext context) {
     this.context = context;
     this.writer = context.getWriter();
   }
 
   @Override
+  /** Write the checkbox marker and render the remaining children. */
   public void render(Node node) {
     TaskListItemMarker marker = (TaskListItemMarker) node;
     writer.raw("[" + (marker.isChecked() ? "x" : " ") + "] ");

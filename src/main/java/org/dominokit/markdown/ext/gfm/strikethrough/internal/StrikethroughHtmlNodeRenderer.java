@@ -20,16 +20,32 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.html.HtmlNodeRendererContext;
 import org.dominokit.markdown.renderer.html.HtmlWriter;
 
+/**
+ * HTML renderer for GFM strikethrough nodes.
+ *
+ * <p>The renderer emits a standard {@code <del>} wrapper and delegates child rendering back to the
+ * HTML renderer context so nested markdown content is processed normally.
+ */
 public class StrikethroughHtmlNodeRenderer extends StrikethroughNodeRenderer {
 
   private final HtmlNodeRendererContext context;
   private final HtmlWriter html;
 
+  /**
+   * Create a renderer bound to the active HTML rendering context.
+   *
+   * @param context rendering context used for HTML emission and child traversal
+   */
   public StrikethroughHtmlNodeRenderer(HtmlNodeRendererContext context) {
     this.context = context;
     this.html = context.getWriter();
   }
 
+  /**
+   * Render the strikethrough wrapper using HTML markup.
+   *
+   * @param node strikethrough node to render
+   */
   @Override
   public void render(Node node) {
     html.tag("del", context.extendAttributes(node, "del", Map.of()));
@@ -37,6 +53,11 @@ public class StrikethroughHtmlNodeRenderer extends StrikethroughNodeRenderer {
     html.tag("/del");
   }
 
+  /**
+   * Render the children of the strikethrough node in document order.
+   *
+   * @param parent parent node whose children should be rendered
+   */
   private void renderChildren(Node parent) {
     Node node = parent.getFirstChild();
     while (node != null) {

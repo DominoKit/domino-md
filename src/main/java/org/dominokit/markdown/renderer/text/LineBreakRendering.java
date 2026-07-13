@@ -15,7 +15,11 @@
  */
 package org.dominokit.markdown.renderer.text;
 
-/** Control how line breaks are rendered. */
+/**
+ * Controls how line breaks are rendered in plain-text output.
+ *
+ * <p>The modes range from fully flattened text to separated blocks with blank lines preserved.
+ */
 public enum LineBreakRendering {
   /**
    * Strip all line breaks within blocks and between blocks, resulting in all the text in a single
