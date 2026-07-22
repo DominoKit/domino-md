@@ -35,4 +35,4 @@ jobs:
           distribution: temurin
 
       - name: Run Maven verify
-        run: ./mvnw verify -B -e
+        run: mvn verify -B -e

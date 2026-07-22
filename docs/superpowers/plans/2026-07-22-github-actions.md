@@ -4,16 +4,16 @@
 
 **Goal:** Add GitHub Actions workflows that verify pull requests and publish releases from this repository using the existing Maven build and Sonatype Central setup.
 
-**Architecture:** Keep CI intentionally small and explicit. One workflow handles pull request verification with `mvn verify`, and one workflow handles release publishing on pushes to the release branches. Both workflows reuse the Maven wrapper and Java 11 so they stay aligned with the repository's build configuration and test execution.
+**Architecture:** Keep CI intentionally small and explicit. One workflow handles pull request verification with `mvn verify`, and one workflow handles release publishing on pushes to the release branches. Both workflows reuse the repository's Maven build and Java 11 so they stay aligned with the repository's build configuration and test execution.
 
 **Tech Stack:** GitHub Actions, `actions/checkout@v4`, `actions/setup-java@v4`, Maven Wrapper, Java 11, Sonatype Central publishing.
 
 ## Global Constraints
 
 - Java compiler and runtime target: `11`
-- Maven entry point: `./mvnw`
-- Verification command: `./mvnw verify -B -e`
-- Release command: `./mvnw --no-transfer-progress clean deploy -B -e -Dci=true -Dgpg.passphrase=${{ secrets.gpg_passphrase }}`
+- Maven entry point: `mvn`
+- Verification command: `mvn verify -B -e`
+- Release command: `mvn --no-transfer-progress clean deploy -B -e -Dci=true -Dgpg.passphrase=${{ secrets.gpg_passphrase }}`
 - Release branch targets: `main` and `development`
 - Publishing server id: `central`
 - GPG private key secret: `secrets.gpg_private_key`
@@ -190,4 +190,3 @@ Expected: `deploy.yaml ok`
 git add .github/workflows/deploy.yaml
 git commit -m "ci: add deployment workflow"
 ```
-
