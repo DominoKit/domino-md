@@ -36,7 +36,7 @@
         <system>GitHub Issues</system>
     </issueManagement>
 
-    <inceptionYear>2019</inceptionYear>
+    <inceptionYear>2026</inceptionYear>
 
     <scm>
         <connection>scm:git:https://github.com/DominoKit/domino-md.git</connection>
