@@ -32,9 +32,9 @@ import org.dominokit.markdown.parser.block.ParserState;
  * Parses CommonMark HTML blocks.
  *
  * <p>The parser recognizes the seven HTML block forms defined by the specification, including raw
- * HTML tags, comments, processing instructions, declarations, CDATA sections, block-level tags,
- * and tag lines. Some block types end when a matching closing line is seen; others remain open
- * until a blank line or end of input.
+ * HTML tags, comments, processing instructions, declarations, CDATA sections, block-level tags, and
+ * tag lines. Some block types end when a matching closing line is seen; others remain open until a
+ * blank line or end of input.
  */
 public class HtmlBlockParser extends AbstractBlockParser {
 
@@ -120,15 +120,17 @@ public class HtmlBlockParser extends AbstractBlockParser {
     this.closingPattern = closingPattern;
   }
 
-  /** @return the HTML block node being accumulated */
+  /**
+   * @return the HTML block node being accumulated
+   */
   @Override
   public Block getBlock() {
     return block;
   }
 
   /**
-   * Continue the block until a closing pattern is seen or, for open-ended HTML blocks, a blank
-   * line ends the block.
+   * Continue the block until a closing pattern is seen or, for open-ended HTML blocks, a blank line
+   * ends the block.
    *
    * @param state current parser state
    * @return the index at which the current line should continue, or none if the block ended
@@ -145,8 +147,7 @@ public class HtmlBlockParser extends AbstractBlockParser {
   }
 
   /**
-   * Record the raw HTML line content and update the finished flag when the closing pattern
-   * matches.
+   * Record the raw HTML line content and update the finished flag when the closing pattern matches.
    *
    * @param line source line to append
    */
@@ -466,27 +467,37 @@ public class HtmlBlockParser extends AbstractBlockParser {
     return index;
   }
 
-  /** @return {@code true} when the character is an ASCII upper-case letter */
+  /**
+   * @return {@code true} when the character is an ASCII upper-case letter
+   */
   private static boolean isAsciiUpperCase(char c) {
     return c >= 'A' && c <= 'Z';
   }
 
-  /** @return {@code true} when the character can start an HTML tag or attribute name */
+  /**
+   * @return {@code true} when the character can start an HTML tag or attribute name
+   */
   private static boolean isTagNameStart(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
   }
 
-  /** @return {@code true} when the character can continue an HTML tag name */
+  /**
+   * @return {@code true} when the character can continue an HTML tag name
+   */
   private static boolean isTagNameContinue(char c) {
     return isTagNameStart(c) || (c >= '0' && c <= '9') || c == '-';
   }
 
-  /** @return {@code true} when the character can start an HTML attribute name */
+  /**
+   * @return {@code true} when the character can start an HTML attribute name
+   */
   private static boolean isAttributeStart(char c) {
     return isTagNameStart(c) || c == '_' || c == ':';
   }
 
-  /** @return {@code true} when the character can continue an HTML attribute name */
+  /**
+   * @return {@code true} when the character can continue an HTML attribute name
+   */
   private static boolean isAttributeContinue(char c) {
     return isAttributeStart(c) || (c >= '0' && c <= '9') || c == '.' || c == '-';
   }
@@ -527,9 +538,7 @@ public class HtmlBlockParser extends AbstractBlockParser {
     }
   }
 
-  /**
-   * Predicate used to determine whether a given line closes a particular HTML block.
-   */
+  /** Predicate used to determine whether a given line closes a particular HTML block. */
   @FunctionalInterface
   private interface LineCondition {
     boolean matches(CharSequence line);

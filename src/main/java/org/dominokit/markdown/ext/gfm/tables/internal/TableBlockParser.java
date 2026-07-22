@@ -55,21 +55,23 @@ public class TableBlockParser extends AbstractBlockParser {
   }
 
   @Override
-  /** @return whether the current table can accept lazy continuation lines */
+  /**
+   * @return whether the current table can accept lazy continuation lines
+   */
   public boolean canHaveLazyContinuationLines() {
     return canHaveLazyContinuationLines;
   }
 
   @Override
-  /** @return the table block being built */
+  /**
+   * @return the table block being built
+   */
   public Block getBlock() {
     return block;
   }
 
   @Override
-  /**
-   * Continue the table only when the current line still looks like a table row.
-   */
+  /** Continue the table only when the current line still looks like a table row. */
   public BlockContinue tryContinue(ParserState state) {
     CharSequence content = state.getLine().getContent();
     int pipe = Characters.find('|', content, state.getNextNonSpaceIndex());
@@ -91,9 +93,7 @@ public class TableBlockParser extends AbstractBlockParser {
   }
 
   @Override
-  /**
-   * Convert the collected table lines into table head/body/cell nodes and parse inline content.
-   */
+  /** Convert the collected table lines into table head/body/cell nodes and parse inline content. */
   public void parseInlines(InlineParser inlineParser) {
     List<SourceSpan> sourceSpans = block.getSourceSpans();
 
@@ -141,9 +141,7 @@ public class TableBlockParser extends AbstractBlockParser {
     }
   }
 
-  /**
-   * Parse one table cell, trimming outer whitespace and applying column metadata.
-   */
+  /** Parse one table cell, trimming outer whitespace and applying column metadata. */
   private TableCell parseCell(SourceLine cell, int column, InlineParser inlineParser) {
     TableCell tableCell = new TableCell();
     SourceSpan sourceSpan = cell.getSourceSpan();
@@ -164,9 +162,7 @@ public class TableBlockParser extends AbstractBlockParser {
     return tableCell;
   }
 
-  /**
-   * Split a table row into cells while preserving cell source spans.
-   */
+  /** Split a table row into cells while preserving cell source spans. */
   private static List<SourceLine> split(SourceLine line) {
     CharSequence row = line.getContent();
     int nonSpace = Characters.skipSpaceTab(row, 0, row.length());
@@ -210,9 +206,7 @@ public class TableBlockParser extends AbstractBlockParser {
     return cells;
   }
 
-  /**
-   * Parse the table separator row into column metadata.
-   */
+  /** Parse the table separator row into column metadata. */
   private static List<TableCellInfo> parseSeparator(CharSequence value) {
     List<TableCellInfo> columns = new ArrayList<>();
     int pipes = 0;
@@ -295,9 +289,7 @@ public class TableBlockParser extends AbstractBlockParser {
   public static class Factory extends AbstractBlockParserFactory {
 
     @Override
-    /**
-     * Detect a table header followed by a valid separator line.
-     */
+    /** Detect a table header followed by a valid separator line. */
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {
       List<SourceLine> paragraphLines = matchedBlockParser.getParagraphLines().getLines();
       if (paragraphLines.isEmpty()) {

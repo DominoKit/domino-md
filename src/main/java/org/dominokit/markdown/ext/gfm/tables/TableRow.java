@@ -17,7 +17,5 @@ package org.dominokit.markdown.ext.gfm.tables;
 
 import org.dominokit.markdown.node.CustomNode;
 
-/**
- * A table row containing table cells.
- */
+/** A table row containing table cells. */
 public class TableRow extends CustomNode {}

@@ -36,9 +36,9 @@ import org.dominokit.markdown.renderer.html.UrlSanitizer;
  * Renders a markdown node tree into Elemental2 DOM nodes.
  *
  * <p>The renderer composes a render pass from a document, a stack of active DOM containers, one or
- * more node renderers, and optional attribute providers. The result is always a detached
- * {@link DocumentFragment}, which keeps rendering side-effect free until the caller inserts the
- * fragment into the live DOM.
+ * more node renderers, and optional attribute providers. The result is always a detached {@link
+ * DocumentFragment}, which keeps rendering side-effect free until the caller inserts the fragment
+ * into the live DOM.
  */
 public final class Elemental2Renderer {
 
@@ -235,6 +235,27 @@ public final class Elemental2Renderer {
       }
       return this;
     }
+
+    /**
+     * Apply a single Elemental2 renderer extension.
+     *
+     * @param extension extension to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtension(Extension extension) {
+      return extensions(List.of(Objects.requireNonNull(extension, "extension must not be null")));
+    }
+
+    /**
+     * Apply one or more Elemental2 renderer extensions.
+     *
+     * @param extensions extensions to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtensions(Extension... extensions) {
+      Objects.requireNonNull(extensions, "extensions must not be null");
+      return extensions(List.of(extensions));
+    }
   }
 
   /** Extension contract for {@link Elemental2Renderer}. */
@@ -255,8 +276,8 @@ public final class Elemental2Renderer {
     /**
      * Create a render-pass context backed by the provided document.
      *
-     * <p>The context owns the fragment that accumulates rendered nodes, the container stack used
-     * by nested renderers, and the per-pass renderer/attribute-provider instances.
+     * <p>The context owns the fragment that accumulates rendered nodes, the container stack used by
+     * nested renderers, and the per-pass renderer/attribute-provider instances.
      */
     private RendererContext(Document document) {
       this.document = document;
@@ -273,7 +294,9 @@ public final class Elemental2Renderer {
       }
     }
 
-    /** @return the document used to create elements */
+    /**
+     * @return the document used to create elements
+     */
     @Override
     public Document getDocument() {
       return document;
@@ -293,8 +316,8 @@ public final class Elemental2Renderer {
     /**
      * Merge default attributes with all registered Elemental2 attribute providers.
      *
-     * <p>Providers are applied in registration order and may mutate the shared attribute map to add,
-     * replace, or remove entries before the renderer creates the final DOM element.
+     * <p>Providers are applied in registration order and may mutate the shared attribute map to
+     * add, replace, or remove entries before the renderer creates the final DOM element.
      */
     @Override
     public Map<String, String> extendAttributes(
@@ -350,7 +373,9 @@ public final class Elemental2Renderer {
       containers.peek().appendChild(node);
     }
 
-    /** @return the configured soft-break behavior */
+    /**
+     * @return the configured soft-break behavior
+     */
     @Override
     public SoftBreakRendering softBreakRendering() {
       return softBreakRendering;
@@ -364,19 +389,25 @@ public final class Elemental2Renderer {
       return omitSingleParagraphP;
     }
 
-    /** @return whether URLs should be sanitized */
+    /**
+     * @return whether URLs should be sanitized
+     */
     @Override
     public boolean shouldSanitizeUrls() {
       return sanitizeUrls;
     }
 
-    /** @return the configured URL sanitizer */
+    /**
+     * @return the configured URL sanitizer
+     */
     @Override
     public UrlSanitizer urlSanitizer() {
       return urlSanitizer;
     }
 
-    /** @return the configured raw HTML handler, or {@code null} */
+    /**
+     * @return the configured raw HTML handler, or {@code null}
+     */
     @Override
     public RawHtmlHandler rawHtmlHandler() {
       return rawHtmlHandler;

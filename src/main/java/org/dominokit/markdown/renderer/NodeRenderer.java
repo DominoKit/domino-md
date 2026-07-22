@@ -21,7 +21,9 @@ import org.dominokit.markdown.node.Node;
 /** A renderer for a set of node types. */
 public interface NodeRenderer {
 
-  /** @return the types of nodes that this renderer handles */
+  /**
+   * @return the types of nodes that this renderer handles
+   */
   Set<Class<? extends Node>> getNodeTypes();
 
   /**

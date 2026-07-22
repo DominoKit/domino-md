@@ -20,9 +20,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.text.TextContentNodeRendererContext;
 import org.dominokit.markdown.renderer.text.TextContentWriter;
 
-/**
- * Renders task-list marker nodes as plain text checkboxes.
- */
+/** Renders task-list marker nodes as plain text checkboxes. */
 public class TaskListItemTextContentNodeRenderer extends TaskListItemNodeRenderer {
 
   private final TextContentWriter textContent;

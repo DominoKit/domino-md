@@ -22,8 +22,8 @@ import org.dominokit.markdown.parser.beta.Position;
 /**
  * Concrete successful inline-parse result.
  *
- * <p>The parser uses this immutable wrapper to return both the parsed node and the scanner
- * position to resume from after the node has been consumed.
+ * <p>The parser uses this immutable wrapper to return both the parsed node and the scanner position
+ * to resume from after the node has been consumed.
  */
 public class ParsedInlineImpl implements ParsedInline {
   private final Node node;
@@ -40,12 +40,16 @@ public class ParsedInlineImpl implements ParsedInline {
     this.position = position;
   }
 
-  /** @return the parsed node */
+  /**
+   * @return the parsed node
+   */
   public Node getNode() {
     return node;
   }
 
-  /** @return the scanner position after the parsed node */
+  /**
+   * @return the scanner position after the parsed node
+   */
   public Position getPosition() {
     return position;
   }

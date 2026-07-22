@@ -15,9 +15,7 @@
  */
 package org.dominokit.markdown.parser.beta;
 
-/**
- * Mutable inline-parser state exposed to custom inline parsers.
- */
+/** Mutable inline-parser state exposed to custom inline parsers. */
 public interface InlineParserState {
 
   /**

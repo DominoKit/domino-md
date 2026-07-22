@@ -25,24 +25,38 @@ import org.dominokit.markdown.parser.SourceLine;
  */
 public interface ParserState {
 
-  /** @return the current logical source line */
+  /**
+   * @return the current logical source line
+   */
   SourceLine getLine();
 
-  /** @return the current character index within the source line */
+  /**
+   * @return the current character index within the source line
+   */
   int getIndex();
 
-  /** @return the index of the next non-space character on the line */
+  /**
+   * @return the index of the next non-space character on the line
+   */
   int getNextNonSpaceIndex();
 
-  /** @return the current visual column */
+  /**
+   * @return the current visual column
+   */
   int getColumn();
 
-  /** @return the indentation measured from the current line start */
+  /**
+   * @return the indentation measured from the current line start
+   */
   int getIndent();
 
-  /** @return whether the current line is blank */
+  /**
+   * @return whether the current line is blank
+   */
   boolean isBlank();
 
-  /** @return the block parser that is currently active */
+  /**
+   * @return the block parser that is currently active
+   */
   BlockParser getActiveBlockParser();
 }

@@ -43,7 +43,9 @@ public class DefinitionMap<D> {
     this.type = type;
   }
 
-  /** @return the definition type stored by this map */
+  /**
+   * @return the definition type stored by this map
+   */
   public Class<D> getType() {
     return type;
   }
@@ -51,8 +53,8 @@ public class DefinitionMap<D> {
   /**
    * Merge definitions from another map without overwriting existing labels.
    *
-   * <p>This preserves the first definition seen for a given normalized label, matching the
-   * parser's preference for earlier definitions.
+   * <p>This preserves the first definition seen for a given normalized label, matching the parser's
+   * preference for earlier definitions.
    */
   public void addAll(DefinitionMap<D> other) {
     for (Map.Entry<String, D> entry : other.definitions.entrySet()) {
@@ -83,12 +85,16 @@ public class DefinitionMap<D> {
     return definitions.get(normalizedLabel);
   }
 
-  /** @return the normalized labels currently stored in this map */
+  /**
+   * @return the normalized labels currently stored in this map
+   */
   public Set<String> keySet() {
     return definitions.keySet();
   }
 
-  /** @return the definitions currently stored in this map */
+  /**
+   * @return the definitions currently stored in this map
+   */
   public Collection<D> values() {
     return definitions.values();
   }

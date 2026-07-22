@@ -15,9 +15,7 @@
  */
 package org.dominokit.markdown.node;
 
-/**
- * An indented code block.
- */
+/** An indented code block. */
 public class IndentedCodeBlock extends Block {
 
   private String literal;
@@ -28,7 +26,9 @@ public class IndentedCodeBlock extends Block {
     visitor.visit(this);
   }
 
-  /** @return the literal code content */
+  /**
+   * @return the literal code content
+   */
   public String getLiteral() {
     return literal;
   }

@@ -32,19 +32,25 @@ public class DocumentBlockParser extends AbstractBlockParser {
 
   private final Document document = new Document();
 
-  /** @return {@code true}; the document is a container block */
+  /**
+   * @return {@code true}; the document is a container block
+   */
   @Override
   public boolean isContainer() {
     return true;
   }
 
-  /** @return {@code true}; the document can contain any block type */
+  /**
+   * @return {@code true}; the document can contain any block type
+   */
   @Override
   public boolean canContain(Block block) {
     return true;
   }
 
-  /** @return the root document node being built */
+  /**
+   * @return the root document node being built
+   */
   @Override
   public Document getBlock() {
     return document;

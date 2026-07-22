@@ -60,37 +60,49 @@ public class InlineParserContextImpl implements InlineParserContext {
     this.definitions = definitions;
   }
 
-  /** @return custom inline-content parser factories registered on the parser */
+  /**
+   * @return custom inline-content parser factories registered on the parser
+   */
   @Override
   public List<InlineContentParserFactory> getCustomInlineContentParserFactories() {
     return inlineContentParserFactories;
   }
 
-  /** @return custom delimiter processors registered on the parser */
+  /**
+   * @return custom delimiter processors registered on the parser
+   */
   @Override
   public List<DelimiterProcessor> getCustomDelimiterProcessors() {
     return delimiterProcessors;
   }
 
-  /** @return custom link processors registered on the parser */
+  /**
+   * @return custom link processors registered on the parser
+   */
   @Override
   public List<LinkProcessor> getCustomLinkProcessors() {
     return linkProcessors;
   }
 
-  /** @return custom link-marker characters registered on the parser */
+  /**
+   * @return custom link-marker characters registered on the parser
+   */
   @Override
   public Set<Character> getCustomLinkMarkers() {
     return linkMarkers;
   }
 
-  /** @return the link reference definition for the given label, or {@code null} */
+  /**
+   * @return the link reference definition for the given label, or {@code null}
+   */
   @Override
   public LinkReferenceDefinition getLinkReferenceDefinition(String label) {
     return definitions.getDefinition(LinkReferenceDefinition.class, label);
   }
 
-  /** @return the definition of the requested type for the given label, or {@code null} */
+  /**
+   * @return the definition of the requested type for the given label, or {@code null}
+   */
   @Override
   public <D> D getDefinition(Class<D> type, String label) {
     return definitions.getDefinition(type, label);

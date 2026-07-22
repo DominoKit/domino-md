@@ -43,7 +43,9 @@ public class Text extends Node {
     visitor.visit(this);
   }
 
-  /** @return the literal text content */
+  /**
+   * @return the literal text content
+   */
   public String getLiteral() {
     return literal;
   }

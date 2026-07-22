@@ -33,7 +33,8 @@ public class LinkScanner {
    * rejected.
    *
    * @param scanner shared inline scanner
-   * @return {@code true} if the scanner reached a possible label terminator, otherwise {@code false}
+   * @return {@code true} if the scanner reached a possible label terminator, otherwise {@code
+   *     false}
    */
   public static boolean scanLinkLabelContent(Scanner scanner) {
     while (scanner.hasNext()) {

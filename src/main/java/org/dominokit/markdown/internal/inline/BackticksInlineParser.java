@@ -77,13 +77,17 @@ public class BackticksInlineParser implements InlineContentParser {
   }
 
   public static class Factory implements InlineContentParserFactory {
-    /** @return the trigger character set for code-span parsing */
+    /**
+     * @return the trigger character set for code-span parsing
+     */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('`');
     }
 
-    /** @return a new backtick parser */
+    /**
+     * @return a new backtick parser
+     */
     @Override
     public InlineContentParser create() {
       return new BackticksInlineParser();

@@ -157,6 +157,29 @@ public class ParserTest {
   }
 
   @Test
+  public void withExtensionShouldRegisterAParserExtension() {
+    AtomicInteger extensionCalls = new AtomicInteger();
+    Parser parser =
+        Parser.builder()
+            .withExtension(
+                new Parser.ParserExtension() {
+                  @Override
+                  public void extend(Parser.Builder builder) {
+                    builder.postProcessor(
+                        document -> {
+                          extensionCalls.incrementAndGet();
+                          return document;
+                        });
+                  }
+                })
+            .build();
+
+    parser.parse("hello");
+
+    assertThat(extensionCalls.get()).isEqualTo(1);
+  }
+
+  @Test
   public void includeSourceSpansShouldPopulateBlocksAndInlineText() {
     Parser parser =
         Parser.builder().includeSourceSpans(IncludeSourceSpans.BLOCKS_AND_INLINES).build();

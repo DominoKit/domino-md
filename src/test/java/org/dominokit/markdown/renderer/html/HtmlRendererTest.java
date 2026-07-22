@@ -234,6 +234,64 @@ public class HtmlRendererTest {
   }
 
   @Test
+  public void withExtensionShouldRegisterAnHtmlRendererExtension() {
+    HtmlRenderer renderer =
+        HtmlRenderer.builder()
+            .withExtension(
+                new HtmlRenderer.HtmlRendererExtension() {
+                  @Override
+                  public void extend(HtmlRenderer.Builder builder) {
+                    builder.attributeProviderFactory(
+                        context ->
+                            (node, tagName, attributes) -> {
+                              if ("p".equals(tagName)) {
+                                attributes.put("data-single", "true");
+                              }
+                            });
+                  }
+                })
+            .build();
+
+    assertThat(renderer.render(parse("paragraph")))
+        .isEqualTo("<p data-single=\"true\">paragraph</p>\n");
+  }
+
+  @Test
+  public void withExtensionsShouldRegisterMultipleHtmlRendererExtensions() {
+    HtmlRenderer renderer =
+        HtmlRenderer.builder()
+            .withExtensions(
+                new HtmlRenderer.HtmlRendererExtension() {
+                  @Override
+                  public void extend(HtmlRenderer.Builder builder) {
+                    builder.attributeProviderFactory(
+                        context ->
+                            (node, tagName, attributes) -> {
+                              if ("p".equals(tagName)) {
+                                attributes.put("data-first", "true");
+                              }
+                            });
+                  }
+                },
+                new HtmlRenderer.HtmlRendererExtension() {
+                  @Override
+                  public void extend(HtmlRenderer.Builder builder) {
+                    builder.attributeProviderFactory(
+                        context ->
+                            (node, tagName, attributes) -> {
+                              if ("p".equals(tagName)) {
+                                attributes.put("data-second", "true");
+                              }
+                            });
+                  }
+                })
+            .build();
+
+    assertThat(renderer.render(parse("paragraph")))
+        .isEqualTo("<p data-first=\"true\" data-second=\"true\">paragraph</p>\n");
+  }
+
+  @Test
   public void customNodeRendererShouldOverrideCoreLinkRendering() {
     HtmlNodeRendererFactory nodeRendererFactory =
         context ->

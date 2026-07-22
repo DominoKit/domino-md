@@ -43,7 +43,9 @@ public class ThematicBreakParser extends AbstractBlockParser {
     block.setLiteral(literal);
   }
 
-  /** @return the thematic break node being built */
+  /**
+   * @return the thematic break node being built
+   */
   @Override
   public Block getBlock() {
     return block;

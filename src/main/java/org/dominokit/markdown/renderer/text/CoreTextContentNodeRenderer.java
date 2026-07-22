@@ -107,9 +107,7 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
     visitChildren(document);
   }
 
-  /**
-   * Render block quotes using guillemets to keep the nesting visually distinct in plain text.
-   */
+  /** Render block quotes using guillemets to keep the nesting visually distinct in plain text. */
   @Override
   public void visit(BlockQuote blockQuote) {
     textContent.write('\u00AB');
@@ -351,7 +349,9 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
     }
   }
 
-  /** @return whether line breaks should be flattened */
+  /**
+   * @return whether line breaks should be flattened
+   */
   private boolean stripNewlines() {
     return context.lineBreakRendering() == LineBreakRendering.STRIP;
   }
@@ -400,7 +400,9 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
       this.marker = list.getMarker();
     }
 
-    /** @return the bullet marker used for this list */
+    /**
+     * @return the bullet marker used for this list
+     */
     private String getMarker() {
       return marker;
     }
@@ -419,7 +421,9 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
       this.parent = parent;
     }
 
-    /** @return the enclosing list holder, or {@code null} at the root */
+    /**
+     * @return the enclosing list holder, or {@code null} at the root
+     */
     private ListHolder getParent() {
       return parent;
     }
@@ -442,12 +446,16 @@ public class CoreTextContentNodeRenderer extends AbstractVisitor implements Node
       this.counter = list.getMarkerStartNumber() != null ? list.getMarkerStartNumber() : 1;
     }
 
-    /** @return the ordered-list delimiter, such as {@code .} or {@code )} */
+    /**
+     * @return the ordered-list delimiter, such as {@code .} or {@code )}
+     */
     private String getDelimiter() {
       return delimiter;
     }
 
-    /** @return the current list item number */
+    /**
+     * @return the current list item number
+     */
     private int getCounter() {
       return counter;
     }

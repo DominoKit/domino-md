@@ -52,7 +52,9 @@ public class ListBlockParser extends AbstractBlockParser {
     this.block = block;
   }
 
-  /** @return {@code true}; list blocks are containers */
+  /**
+   * @return {@code true}; list blocks are containers
+   */
   @Override
   public boolean isContainer() {
     return true;
@@ -74,7 +76,9 @@ public class ListBlockParser extends AbstractBlockParser {
     return false;
   }
 
-  /** @return the list block being built */
+  /**
+   * @return the list block being built
+   */
   @Override
   public Block getBlock() {
     return block;

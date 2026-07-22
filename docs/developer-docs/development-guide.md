@@ -10,7 +10,7 @@ Important build inputs from `pom.xml`:
 
 - `maven.compiler.source` and `maven.compiler.target` are both `11`
 - GWT support is wired into `test` and `verify`
-- formatting is enforced with `fmt-maven-plugin`
+- formatting is enforced with `spotless-maven-plugin`
 - license headers are checked with `license-maven-plugin`
 
 ## Common Commands
@@ -18,10 +18,12 @@ Important build inputs from `pom.xml`:
 ```bash
 mvn test -q
 mvn verify -q
+mvn spotless:check -q
 ```
 
 Use `test` for the normal JVM + browser-path test flow. Use `verify` when you want to include the
 GWT compile step as well.
+Use `spotless:check` when you want to validate Java formatting without running the full test suite.
 
 ## Test Layout
 
@@ -167,4 +169,3 @@ large ad hoc block.
 - Do the changes preserve browser compatibility?
 - Do the changes respect the package boundaries?
 - Do the renderers still produce stable output for the existing spec coverage?
-

@@ -27,8 +27,8 @@ import org.dominokit.markdown.renderer.Renderer;
  *
  * <p>The renderer is configurable through a builder so callers can control HTML escaping, URL
  * sanitization, percent-encoding, soft-break rendering, and extension hooks for custom node and
- * attribute renderers. Rendering is single-pass and writes directly to the supplied
- * {@link Appendable}.
+ * attribute renderers. Rendering is single-pass and writes directly to the supplied {@link
+ * Appendable}.
  */
 public class HtmlRenderer implements Renderer {
 
@@ -45,8 +45,8 @@ public class HtmlRenderer implements Renderer {
    * Capture the builder state into an immutable renderer instance.
    *
    * <p>The constructor copies the builder collections so later builder mutations do not affect
-   * already-created renderers. The built-in core renderer is appended last so custom node
-   * renderers can override core behavior when they register earlier in the builder.
+   * already-created renderers. The built-in core renderer is appended last so custom node renderers
+   * can override core behavior when they register earlier in the builder.
    *
    * @param builder renderer configuration source
    */
@@ -105,8 +105,8 @@ public class HtmlRenderer implements Renderer {
   /**
    * Builder for configuring an {@link HtmlRenderer}.
    *
-   * <p>The builder collects renderer flags, factories, and extensions before producing an
-   * immutable renderer instance.
+   * <p>The builder collects renderer flags, factories, and extensions before producing an immutable
+   * renderer instance.
    */
   public static class Builder {
 
@@ -127,9 +127,8 @@ public class HtmlRenderer implements Renderer {
     /**
      * Configure the HTML that should be emitted for soft line breaks.
      *
-     * <p>Use {@code "\n"} to preserve source line wrapping invisibly, {@code " "} to normalize
-     * soft breaks to spaces, or {@code "<br>"} / {@code "<br />"} to materialize them as visible
-     * breaks.
+     * <p>Use {@code "\n"} to preserve source line wrapping invisibly, {@code " "} to normalize soft
+     * breaks to spaces, or {@code "<br>"} / {@code "<br />"} to materialize them as visible breaks.
      *
      * @param softbreak HTML fragment to emit for soft line breaks
      * @return this builder for chaining
@@ -142,9 +141,9 @@ public class HtmlRenderer implements Renderer {
     /**
      * Enable or disable HTML escaping for raw HTML nodes.
      *
-     * <p>When enabled, {@link HtmlInline} and {@link HtmlBlock} are emitted as text instead of being
-     * interpreted as markup. This only affects literal HTML nodes, not ordinary text content inside
-     * other markdown structures.
+     * <p>When enabled, {@link HtmlInline} and {@link HtmlBlock} are emitted as text instead of
+     * being interpreted as markup. This only affects literal HTML nodes, not ordinary text content
+     * inside other markdown structures.
      *
      * @param escapeHtml {@code true} to escape raw HTML nodes
      * @return this builder for chaining
@@ -246,6 +245,27 @@ public class HtmlRenderer implements Renderer {
       }
       return this;
     }
+
+    /**
+     * Apply a single HTML renderer extension.
+     *
+     * @param extension extension to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtension(Extension extension) {
+      return extensions(List.of(Objects.requireNonNull(extension, "extension must not be null")));
+    }
+
+    /**
+     * Apply one or more HTML renderer extensions.
+     *
+     * @param extensions extensions to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtensions(Extension... extensions) {
+      Objects.requireNonNull(extensions, "extensions must not be null");
+      return extensions(List.of(extensions));
+    }
   }
 
   /** Extension contract for {@link HtmlRenderer}. */
@@ -281,25 +301,33 @@ public class HtmlRenderer implements Renderer {
     }
 
     @Override
-    /** @return whether raw HTML nodes should be escaped */
+    /**
+     * @return whether raw HTML nodes should be escaped
+     */
     public boolean shouldEscapeHtml() {
       return escapeHtml;
     }
 
     @Override
-    /** @return whether a single root paragraph should omit the wrapper tag */
+    /**
+     * @return whether a single root paragraph should omit the wrapper tag
+     */
     public boolean shouldOmitSingleParagraphP() {
       return omitSingleParagraphP;
     }
 
     @Override
-    /** @return whether URLs should be sanitized before emission */
+    /**
+     * @return whether URLs should be sanitized before emission
+     */
     public boolean shouldSanitizeUrls() {
       return sanitizeUrls;
     }
 
     @Override
-    /** @return the sanitizer used for links and images */
+    /**
+     * @return the sanitizer used for links and images
+     */
     public UrlSanitizer urlSanitizer() {
       return urlSanitizer;
     }
@@ -336,13 +364,17 @@ public class HtmlRenderer implements Renderer {
     }
 
     @Override
-    /** @return the writer used to emit HTML */
+    /**
+     * @return the writer used to emit HTML
+     */
     public HtmlWriter getWriter() {
       return htmlWriter;
     }
 
     @Override
-    /** @return the configured soft-break HTML fragment */
+    /**
+     * @return the configured soft-break HTML fragment
+     */
     public String getSoftbreak() {
       return softbreak;
     }

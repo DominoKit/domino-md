@@ -55,7 +55,9 @@ public class BackslashInlineParser implements InlineContentParser {
   }
 
   public static class Factory implements InlineContentParserFactory {
-    /** @return the trigger character set for backslash escape parsing */
+    /**
+     * @return the trigger character set for backslash escape parsing
+     */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('\\');

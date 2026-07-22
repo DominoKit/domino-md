@@ -28,7 +28,9 @@ public class TableCell extends CustomNode {
   private Alignment alignment;
   private int width;
 
-  /** @return whether this cell belongs to the header row */
+  /**
+   * @return whether this cell belongs to the header row
+   */
   public boolean isHeader() {
     return header;
   }
@@ -38,7 +40,9 @@ public class TableCell extends CustomNode {
     this.header = header;
   }
 
-  /** @return the parsed alignment, or {@code null} */
+  /**
+   * @return the parsed alignment, or {@code null}
+   */
   public Alignment getAlignment() {
     return alignment;
   }
@@ -48,7 +52,9 @@ public class TableCell extends CustomNode {
     this.alignment = alignment;
   }
 
-  /** @return the separator width parsed for this column */
+  /**
+   * @return the separator width parsed for this column
+   */
   public int getWidth() {
     return width;
   }

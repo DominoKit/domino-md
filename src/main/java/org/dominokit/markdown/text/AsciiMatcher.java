@@ -31,18 +31,24 @@ public class AsciiMatcher implements CharMatcher {
     this.set = builder.set;
   }
 
-  /** @return whether the ASCII character is contained in the configured set */
+  /**
+   * @return whether the ASCII character is contained in the configured set
+   */
   @Override
   public boolean matches(char c) {
     return set.get(c);
   }
 
-  /** @return a builder initialized with the current character set */
+  /**
+   * @return a builder initialized with the current character set
+   */
   public Builder newBuilder() {
     return new Builder((BitSet) set.clone());
   }
 
-  /** @return a new empty builder */
+  /**
+   * @return a new empty builder
+   */
   public static Builder builder() {
     return new Builder(new BitSet());
   }
@@ -98,7 +104,9 @@ public class AsciiMatcher implements CharMatcher {
       return this;
     }
 
-    /** @return the built matcher */
+    /**
+     * @return the built matcher
+     */
     public AsciiMatcher build() {
       return new AsciiMatcher(this);
     }

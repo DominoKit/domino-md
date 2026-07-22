@@ -81,8 +81,8 @@ public class TextContentWriter {
   /**
    * Queue a block separator according to the current line-break mode and nesting tightness.
    *
-   * <p>The actual separator is written lazily so adjacent block writes can still collapse or
-   * expand spacing based on the surrounding content.
+   * <p>The actual separator is written lazily so adjacent block writes can still collapse or expand
+   * spacing based on the surrounding content.
    */
   public void block() {
     if (lineBreakRendering == LineBreakRendering.STRIP) {
@@ -170,7 +170,9 @@ public class TextContentWriter {
     this.tight.removeLast();
   }
 
-  /** @return whether the current nested block context is tight */
+  /**
+   * @return whether the current nested block context is tight
+   */
   private boolean isTight() {
     return !tight.isEmpty() && tight.getLast();
   }

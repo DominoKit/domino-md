@@ -30,7 +30,9 @@ public class ThematicBreak extends Block {
     visitor.visit(this);
   }
 
-  /** @return the literal marker text */
+  /**
+   * @return the literal marker text
+   */
   public String getLiteral() {
     return literal;
   }

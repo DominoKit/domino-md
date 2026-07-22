@@ -71,37 +71,49 @@ public class Delimiter implements DelimiterRun {
     this.originalLength = characters.size();
   }
 
-  /** @return whether this delimiter run can open emphasis */
+  /**
+   * @return whether this delimiter run can open emphasis
+   */
   @Override
   public boolean canOpen() {
     return canOpen;
   }
 
-  /** @return whether this delimiter run can close emphasis */
+  /**
+   * @return whether this delimiter run can close emphasis
+   */
   @Override
   public boolean canClose() {
     return canClose;
   }
 
-  /** @return the number of delimiter characters remaining for processing */
+  /**
+   * @return the number of delimiter characters remaining for processing
+   */
   @Override
   public int length() {
     return characters.size();
   }
 
-  /** @return the original number of delimiters in this run */
+  /**
+   * @return the original number of delimiters in this run
+   */
   @Override
   public int originalLength() {
     return originalLength;
   }
 
-  /** @return the opener text node for this run */
+  /**
+   * @return the opener text node for this run
+   */
   @Override
   public Text getOpener() {
     return characters.get(characters.size() - 1);
   }
 
-  /** @return the closer text node for this run */
+  /**
+   * @return the closer text node for this run
+   */
   @Override
   public Text getCloser() {
     return characters.get(0);

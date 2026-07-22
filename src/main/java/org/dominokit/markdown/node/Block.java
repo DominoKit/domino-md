@@ -19,7 +19,9 @@ package org.dominokit.markdown.node;
 public abstract class Block extends Node {
 
   @Override
-  /** @return the parent block, or {@code null} for the root */
+  /**
+   * @return the parent block, or {@code null} for the root
+   */
   public Block getParent() {
     return (Block) super.getParent();
   }

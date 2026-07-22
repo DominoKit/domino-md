@@ -23,9 +23,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRendererContext;
 
-/**
- * Renders task-list marker nodes as DOM checkbox inputs.
- */
+/** Renders task-list marker nodes as DOM checkbox inputs. */
 public class TaskListItemElementNodeRenderer extends TaskListItemNodeRenderer
     implements ElementNodeRenderer {
 

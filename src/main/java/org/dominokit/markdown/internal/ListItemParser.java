@@ -47,7 +47,9 @@ public class ListItemParser extends AbstractBlockParser {
     block.setContentIndent(contentIndent);
   }
 
-  /** @return {@code true} because a list item is a container block */
+  /**
+   * @return {@code true} because a list item is a container block
+   */
   @Override
   public boolean isContainer() {
     return true;
@@ -71,7 +73,9 @@ public class ListItemParser extends AbstractBlockParser {
     return true;
   }
 
-  /** @return the list item node being constructed */
+  /**
+   * @return the list item node being constructed
+   */
   @Override
   public Block getBlock() {
     return block;

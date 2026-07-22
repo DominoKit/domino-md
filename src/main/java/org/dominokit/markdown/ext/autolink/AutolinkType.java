@@ -15,9 +15,7 @@
  */
 package org.dominokit.markdown.ext.autolink;
 
-/**
- * Autolink kinds supported by {@link AutolinkExtension}.
- */
+/** Autolink kinds supported by {@link AutolinkExtension}. */
 public enum AutolinkType {
   URL,
   EMAIL,

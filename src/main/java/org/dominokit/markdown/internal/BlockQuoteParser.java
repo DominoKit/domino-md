@@ -37,19 +37,25 @@ public class BlockQuoteParser extends AbstractBlockParser {
 
   private final BlockQuote block = new BlockQuote();
 
-  /** @return {@code true}; block quotes are containers */
+  /**
+   * @return {@code true}; block quotes are containers
+   */
   @Override
   public boolean isContainer() {
     return true;
   }
 
-  /** @return {@code true}; block quotes can contain any block */
+  /**
+   * @return {@code true}; block quotes can contain any block
+   */
   @Override
   public boolean canContain(Block block) {
     return true;
   }
 
-  /** @return the block quote node being built */
+  /**
+   * @return the block quote node being built
+   */
   @Override
   public BlockQuote getBlock() {
     return block;

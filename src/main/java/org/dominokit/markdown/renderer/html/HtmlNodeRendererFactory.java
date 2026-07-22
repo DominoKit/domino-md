@@ -21,8 +21,7 @@ import org.dominokit.markdown.renderer.NodeRenderer;
  * Factory for HTML node renderers.
  *
  * <p>Factories are instantiated once per render pass and receive the active context so they can
- * create renderers with access to the current writer, attribute providers, and configuration
- * flags.
+ * create renderers with access to the current writer, attribute providers, and configuration flags.
  */
 public interface HtmlNodeRendererFactory {
 

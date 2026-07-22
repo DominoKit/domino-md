@@ -8,6 +8,7 @@ This repository ships these built-in extensions:
 - strikethrough
 - GFM tables
 - task list items
+- optional markdown class styling extensions
 
 ## Extension Basics
 
@@ -22,6 +23,10 @@ An extension can contribute to one or more of these areas:
 
 Most applications just reuse the built-in extension factories and register them on the parser and
 renderers they use.
+
+If you are only installing one extension, you can use `withExtension(...)` instead of building a
+collection. If you are installing a few extensions inline, `withExtensions(...)` is the varargs
+convenience form.
 
 ## Simple Registration
 
@@ -174,3 +179,26 @@ Examples:
   extension.
 - Use builder APIs when you need to tune extension behavior.
 
+## Class Styling
+
+If you want predictable CSS hooks on rendered markdown, install the optional class extension on
+the renderers you use:
+
+```java
+List<Extension> extensions = List.of(new DuiClassExtension());
+
+Parser parser = Parser.builder()
+    .extensions(extensions)
+    .build();
+
+HtmlRenderer htmlRenderer = HtmlRenderer.builder()
+    .extensions(extensions)
+    .build();
+
+Elemental2Renderer domRenderer = Elemental2Renderer.builder()
+    .extensions(extensions)
+    .build();
+```
+
+This is opt-in. The default parser and renderers do not add these classes unless you install the
+extension yourself.

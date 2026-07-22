@@ -127,8 +127,8 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
   /**
    * Render a thematic break.
    *
-   * <p>If the node does not carry a literal, the renderer falls back to the canonical
-   * {@code ___} representation.
+   * <p>If the node does not carry a literal, the renderer falls back to the canonical {@code ___}
+   * representation.
    */
   @Override
   public void visit(ThematicBreak thematicBreak) {
@@ -141,8 +141,8 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
   }
 
   /**
-   * Render headings using ATX syntax, falling back to Setext syntax for level 1 and 2 headings
-   * that contain line breaks.
+   * Render headings using ATX syntax, falling back to Setext syntax for level 1 and 2 headings that
+   * contain line breaks.
    */
   @Override
   public void visit(Heading heading) {
@@ -187,8 +187,8 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
   }
 
   /**
-   * Render a fenced code block, preserving fence style, fence length, indentation, and info
-   * string when available.
+   * Render a fenced code block, preserving fence style, fence length, indentation, and info string
+   * when available.
    */
   @Override
   public void visit(FencedCodeBlock codeBlock) {
@@ -265,9 +265,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
-  /**
-   * Render an unordered list, keeping track of list tightness and the active bullet marker.
-   */
+  /** Render an unordered list, keeping track of list tightness and the active bullet marker. */
   @Override
   public void visit(BulletList bulletList) {
     writer.pushTight(bulletList.isTight());
@@ -278,9 +276,7 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
     writer.block();
   }
 
-  /**
-   * Render an ordered list, keeping track of tightness and list numbering across nested items.
-   */
+  /** Render an ordered list, keeping track of tightness and list numbering across nested items. */
   @Override
   public void visit(OrderedList orderedList) {
     writer.pushTight(orderedList.isTight());
@@ -718,7 +714,9 @@ public class CoreMarkdownNodeRenderer extends AbstractVisitor implements NodeRen
   private static class LineBreakVisitor extends AbstractVisitor {
     private boolean lineBreak;
 
-    /** @return whether a line break has been encountered in the current subtree */
+    /**
+     * @return whether a line break has been encountered in the current subtree
+     */
     private boolean hasLineBreak() {
       return lineBreak;
     }

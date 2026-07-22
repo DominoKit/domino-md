@@ -42,27 +42,37 @@ public class BlockStartImpl extends BlockStart {
     this.blockParsers = blockParsers;
   }
 
-  /** @return the block parsers that should be pushed onto the open-block stack */
+  /**
+   * @return the block parsers that should be pushed onto the open-block stack
+   */
   public BlockParser[] getBlockParsers() {
     return blockParsers;
   }
 
-  /** @return the next character index the parser should resume from, or {@code -1} */
+  /**
+   * @return the next character index the parser should resume from, or {@code -1}
+   */
   public int getNewIndex() {
     return newIndex;
   }
 
-  /** @return the next column the parser should resume from, or {@code -1} */
+  /**
+   * @return the next column the parser should resume from, or {@code -1}
+   */
   public int getNewColumn() {
     return newColumn;
   }
 
-  /** @return whether the currently active block parser should be replaced */
+  /**
+   * @return whether the currently active block parser should be replaced
+   */
   public boolean isReplaceActiveBlockParser() {
     return replaceActiveBlockParser;
   }
 
-  /** @return the number of paragraph lines to replace, or {@code 0} if none */
+  /**
+   * @return the number of paragraph lines to replace, or {@code 0} if none
+   */
   int getReplaceParagraphLines() {
     return replaceParagraphLines;
   }

@@ -25,7 +25,9 @@ import org.dominokit.markdown.node.Node;
  * construct with a different node.
  */
 public interface LinkResult {
-  /** @return a result indicating that the processor did not handle the link */
+  /**
+   * @return a result indicating that the processor did not handle the link
+   */
   static LinkResult none() {
     return null;
   }

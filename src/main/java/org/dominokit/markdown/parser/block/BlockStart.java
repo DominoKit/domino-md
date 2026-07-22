@@ -27,7 +27,9 @@ public abstract class BlockStart {
 
   protected BlockStart() {}
 
-  /** @return no block start */
+  /**
+   * @return no block start
+   */
   public static BlockStart none() {
     return null;
   }

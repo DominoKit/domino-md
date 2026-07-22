@@ -31,19 +31,25 @@ import org.dominokit.markdown.parser.SourceLine;
  */
 public abstract class AbstractBlockParser implements BlockParser {
 
-  /** @return {@code false} because leaf parsers are not containers by default */
+  /**
+   * @return {@code false} because leaf parsers are not containers by default
+   */
   @Override
   public boolean isContainer() {
     return false;
   }
 
-  /** @return {@code false} because leaf parsers do not accept lazy continuation lines by default */
+  /**
+   * @return {@code false} because leaf parsers do not accept lazy continuation lines by default
+   */
   @Override
   public boolean canHaveLazyContinuationLines() {
     return false;
   }
 
-  /** @return {@code false} because leaf parsers do not accept child blocks by default */
+  /**
+   * @return {@code false} because leaf parsers do not accept child blocks by default
+   */
   @Override
   public boolean canContain(Block childBlock) {
     return false;
@@ -63,7 +69,9 @@ public abstract class AbstractBlockParser implements BlockParser {
     getBlock().addSourceSpan(sourceSpan);
   }
 
-  /** @return no definitions by default */
+  /**
+   * @return no definitions by default
+   */
   @Override
   public List<DefinitionMap<?>> getDefinitions() {
     return List.of();

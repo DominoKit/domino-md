@@ -23,8 +23,8 @@ import org.dominokit.markdown.parser.delimiter.DelimiterRun;
  * Shared implementation for emphasis and strong emphasis delimiters.
  *
  * <p>The processor applies the CommonMark multiple-of-three rule, chooses between emphasis and
- * strong emphasis based on the number of available delimiters, and then moves all nodes between
- * the opener and closer inside the new wrapper node while preserving source spans.
+ * strong emphasis based on the number of available delimiters, and then moves all nodes between the
+ * opener and closer inside the new wrapper node while preserving source spans.
  */
 public abstract class EmphasisDelimiterProcessor implements DelimiterProcessor {
 
@@ -39,19 +39,25 @@ public abstract class EmphasisDelimiterProcessor implements DelimiterProcessor {
     this.delimiterChar = delimiterChar;
   }
 
-  /** @return the delimiter character that can open this run */
+  /**
+   * @return the delimiter character that can open this run
+   */
   @Override
   public char getOpeningCharacter() {
     return delimiterChar;
   }
 
-  /** @return the delimiter character that can close this run */
+  /**
+   * @return the delimiter character that can close this run
+   */
   @Override
   public char getClosingCharacter() {
     return delimiterChar;
   }
 
-  /** @return the minimum number of delimiters required to activate the processor */
+  /**
+   * @return the minimum number of delimiters required to activate the processor
+   */
   @Override
   public int getMinLength() {
     return 1;

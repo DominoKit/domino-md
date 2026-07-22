@@ -26,7 +26,9 @@ import org.dominokit.markdown.node.Node;
  */
 public interface ParsedInline {
 
-  /** @return a result indicating that the parser did not handle the input */
+  /**
+   * @return a result indicating that the parser did not handle the input
+   */
   static ParsedInline none() {
     return null;
   }

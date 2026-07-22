@@ -42,7 +42,9 @@ public class IndentedCodeBlockParser extends AbstractBlockParser {
   private final IndentedCodeBlock block = new IndentedCodeBlock();
   private final List<CharSequence> lines = new ArrayList<>();
 
-  /** @return the code block node being constructed */
+  /**
+   * @return the code block node being constructed
+   */
   @Override
   public Block getBlock() {
     return block;
@@ -51,9 +53,9 @@ public class IndentedCodeBlockParser extends AbstractBlockParser {
   /**
    * Decide whether the current line belongs to the code block.
    *
-   * <p>Indented code blocks continue while the indentation is at least four spaces. Blank lines
-   * are also allowed to continue so that internal spacing is preserved, but the continuation
-   * column is anchored to the next non-space character.
+   * <p>Indented code blocks continue while the indentation is at least four spaces. Blank lines are
+   * also allowed to continue so that internal spacing is preserved, but the continuation column is
+   * anchored to the next non-space character.
    *
    * @param state current block parser state
    * @return the continuation result, or none when the block should end

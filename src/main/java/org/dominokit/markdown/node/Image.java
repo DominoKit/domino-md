@@ -46,7 +46,9 @@ public class Image extends Node {
     visitor.visit(this);
   }
 
-  /** @return the image destination */
+  /**
+   * @return the image destination
+   */
   public String getDestination() {
     return destination;
   }
@@ -56,7 +58,9 @@ public class Image extends Node {
     this.destination = destination;
   }
 
-  /** @return the image title, or {@code null} */
+  /**
+   * @return the image title, or {@code null}
+   */
   public String getTitle() {
     return title;
   }

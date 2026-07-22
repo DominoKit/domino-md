@@ -47,9 +47,9 @@ import org.dominokit.markdown.node.ThematicBreak;
  * Core renderer that maps the built-in markdown node types to Elemental2 DOM nodes.
  *
  * <p>This renderer is intentionally opinionated: it knows how to translate the stock node set into
- * native DOM elements, handles the renderer configuration flags exposed by
- * {@link Elemental2Renderer}, and delegates all child traversal back through the active rendering
- * context so nested nodes inherit the same attribute, raw HTML, and soft-break behavior.
+ * native DOM elements, handles the renderer configuration flags exposed by {@link
+ * Elemental2Renderer}, and delegates all child traversal back through the active rendering context
+ * so nested nodes inherit the same attribute, raw HTML, and soft-break behavior.
  */
 public class CoreElementNodeRenderer extends AbstractVisitor implements ElementNodeRenderer {
 
@@ -71,8 +71,8 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
    * Return the node types handled by this renderer.
    *
    * <p>The set mirrors the built-in node hierarchy so the renderer can participate as the default
-   * fallback for common markdown structures while still allowing extensions to contribute their
-   * own specialized renderers.
+   * fallback for common markdown structures while still allowing extensions to contribute their own
+   * specialized renderers.
    */
   @Override
   public Set<Class<? extends Node>> getNodeTypes() {
@@ -152,9 +152,9 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
   /**
    * Render a fenced code block as a {@code pre > code} structure.
    *
-   * <p>If the fence info string contains a language hint, the hint is converted into a
-   * {@code language-*} class on the inner {@code code} element so downstream syntax highlighters
-   * can detect it.
+   * <p>If the fence info string contains a language hint, the hint is converted into a {@code
+   * language-*} class on the inner {@code code} element so downstream syntax highlighters can
+   * detect it.
    */
   @Override
   public void visit(FencedCodeBlock fencedCodeBlock) {
@@ -203,8 +203,8 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
    * Render a link as an anchor element.
    *
    * <p>The destination may be sanitized and percent-encoded depending on the renderer
-   * configuration. Any configured attribute providers can further adjust the resulting
-   * attributes before the children are rendered into the anchor.
+   * configuration. Any configured attribute providers can further adjust the resulting attributes
+   * before the children are rendered into the anchor.
    */
   @Override
   public void visit(Link link) {
@@ -486,7 +486,9 @@ public class CoreElementNodeRenderer extends AbstractVisitor implements ElementN
       builder.append('\n');
     }
 
-    /** @return the accumulated alt text built from the image's inline children */
+    /**
+     * @return the accumulated alt text built from the image's inline children
+     */
     private String getAltText() {
       return builder.toString();
     }

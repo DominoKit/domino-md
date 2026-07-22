@@ -20,9 +20,9 @@ import java.util.*;
 /**
  * Default URL sanitizer for HTML rendering.
  *
- * <p>By default this sanitizer allows {@code http}, {@code https}, {@code mailto}, and
- * {@code data} URLs, as well as relative and protocol-relative URLs. The implementation is based
- * on the URL filtering rules used by OWASP's HTML sanitizer.
+ * <p>By default this sanitizer allows {@code http}, {@code https}, {@code mailto}, and {@code data}
+ * URLs, as well as relative and protocol-relative URLs. The implementation is based on the URL
+ * filtering rules used by OWASP's HTML sanitizer.
  */
 public class DefaultUrlSanitizer implements UrlSanitizer {
   private Set<String> protocols;

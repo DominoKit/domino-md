@@ -348,9 +348,7 @@ public class LinkReferenceDefinitionParser {
     return true;
   }
 
-  /**
-   * Finish the currently buffered reference definition, if it is valid.
-   */
+  /** Finish the currently buffered reference definition, if it is valid. */
   private void finishReference() {
     if (!referenceValid) {
       return;

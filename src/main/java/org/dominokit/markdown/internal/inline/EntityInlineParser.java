@@ -88,13 +88,17 @@ public class EntityInlineParser implements InlineContentParser {
 
   public static class Factory implements InlineContentParserFactory {
 
-    /** @return the trigger character set for entity parsing */
+    /**
+     * @return the trigger character set for entity parsing
+     */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('&');
     }
 
-    /** @return a new entity parser */
+    /**
+     * @return a new entity parser
+     */
     @Override
     public InlineContentParser create() {
       return new EntityInlineParser();

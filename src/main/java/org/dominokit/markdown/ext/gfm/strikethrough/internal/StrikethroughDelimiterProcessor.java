@@ -23,9 +23,7 @@ import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
 import org.dominokit.markdown.parser.delimiter.DelimiterRun;
 
-/**
- * Delimiter processor for {@code ~} strikethrough runs.
- */
+/** Delimiter processor for {@code ~} strikethrough runs. */
 public class StrikethroughDelimiterProcessor implements DelimiterProcessor {
 
   private final boolean requireTwoTildes;
@@ -36,19 +34,25 @@ public class StrikethroughDelimiterProcessor implements DelimiterProcessor {
   }
 
   @Override
-  /** @return the opening delimiter character */
+  /**
+   * @return the opening delimiter character
+   */
   public char getOpeningCharacter() {
     return '~';
   }
 
   @Override
-  /** @return the closing delimiter character */
+  /**
+   * @return the closing delimiter character
+   */
   public char getClosingCharacter() {
     return '~';
   }
 
   @Override
-  /** @return the minimum delimiter length */
+  /**
+   * @return the minimum delimiter length
+   */
   public int getMinLength() {
     return requireTwoTildes ? 2 : 1;
   }

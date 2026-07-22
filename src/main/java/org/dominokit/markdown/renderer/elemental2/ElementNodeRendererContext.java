@@ -23,7 +23,9 @@ import org.dominokit.markdown.renderer.html.UrlSanitizer;
 /** Context exposed to Elemental2 DOM node renderers. */
 public interface ElementNodeRendererContext {
 
-  /** @return the document used to create DOM nodes for this render pass */
+  /**
+   * @return the document used to create DOM nodes for this render pass
+   */
   Document getDocument();
 
   /**
@@ -71,18 +73,28 @@ public interface ElementNodeRendererContext {
    */
   void append(elemental2.dom.Node node);
 
-  /** @return configured soft break behavior */
+  /**
+   * @return configured soft break behavior
+   */
   SoftBreakRendering softBreakRendering();
 
-  /** @return whether a single document paragraph should omit the wrapping {@code <p>} */
+  /**
+   * @return whether a single document paragraph should omit the wrapping {@code <p>}
+   */
   boolean shouldOmitSingleParagraphP();
 
-  /** @return whether URLs should be sanitized before assignment */
+  /**
+   * @return whether URLs should be sanitized before assignment
+   */
   boolean shouldSanitizeUrls();
 
-  /** @return sanitizer to use when {@link #shouldSanitizeUrls()} is true */
+  /**
+   * @return sanitizer to use when {@link #shouldSanitizeUrls()} is true
+   */
   UrlSanitizer urlSanitizer();
 
-  /** @return configured raw HTML handling strategy, or {@code null} for safe fallback mode */
+  /**
+   * @return configured raw HTML handling strategy, or {@code null} for safe fallback mode
+   */
   RawHtmlHandler rawHtmlHandler();
 }

@@ -25,9 +25,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.html.HtmlNodeRendererContext;
 import org.dominokit.markdown.renderer.html.HtmlWriter;
 
-/**
- * Renders tables as HTML.
- */
+/** Renders tables as HTML. */
 public class TableHtmlNodeRenderer extends TableNodeRenderer {
 
   private final HtmlNodeRendererContext context;

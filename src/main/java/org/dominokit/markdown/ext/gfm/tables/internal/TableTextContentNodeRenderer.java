@@ -24,9 +24,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.text.TextContentNodeRendererContext;
 import org.dominokit.markdown.renderer.text.TextContentWriter;
 
-/**
- * Renders tables as readable plain text.
- */
+/** Renders tables as readable plain text. */
 public class TableTextContentNodeRenderer extends TableNodeRenderer {
 
   private final TextContentNodeRendererContext context;

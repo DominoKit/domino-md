@@ -204,43 +204,57 @@ public class DocumentParser implements ParserState {
     return finalizeAndProcess();
   }
 
-  /** @return the current logical source line */
+  /**
+   * @return the current logical source line
+   */
   @Override
   public SourceLine getLine() {
     return line;
   }
 
-  /** @return the current character index within the source line */
+  /**
+   * @return the current character index within the source line
+   */
   @Override
   public int getIndex() {
     return index;
   }
 
-  /** @return the index of the next non-space character on the line */
+  /**
+   * @return the index of the next non-space character on the line
+   */
   @Override
   public int getNextNonSpaceIndex() {
     return nextNonSpace;
   }
 
-  /** @return the current visual column */
+  /**
+   * @return the current visual column
+   */
   @Override
   public int getColumn() {
     return column;
   }
 
-  /** @return the indentation measured from the current line start */
+  /**
+   * @return the indentation measured from the current line start
+   */
   @Override
   public int getIndent() {
     return indent;
   }
 
-  /** @return whether the current line is blank */
+  /**
+   * @return whether the current line is blank
+   */
   @Override
   public boolean isBlank() {
     return blank;
   }
 
-  /** @return the block parser that is currently active */
+  /**
+   * @return the block parser that is currently active
+   */
   @Override
   public BlockParser getActiveBlockParser() {
     return openBlockParsers.get(openBlockParsers.size() - 1).blockParser;
@@ -644,8 +658,8 @@ public class DocumentParser implements ParserState {
   /**
    * Prepare an active block parser to be replaced by a new block.
    *
-   * <p>The block is finalized for source-span collection, then unlinked so the replacement block can
-   * take its place in the tree.
+   * <p>The block is finalized for source-span collection, then unlinked so the replacement block
+   * can take its place in the tree.
    */
   private List<SourceSpan> prepareActiveBlockParserForReplacement(BlockParser blockParser) {
     // Note that we don't want to parse inlines here, as it's getting replaced.
@@ -698,9 +712,7 @@ public class DocumentParser implements ParserState {
     blockParser.closeBlock();
   }
 
-  /**
-   * Copy the definitions exposed by a block parser into the parser-wide definition registry.
-   */
+  /** Copy the definitions exposed by a block parser into the parser-wide definition registry. */
   private void addDefinitionsFrom(BlockParser blockParser) {
     for (var definitionMap : blockParser.getDefinitions()) {
       definitions.addDefinitions(definitionMap);
@@ -730,7 +742,9 @@ public class DocumentParser implements ParserState {
       this.matchedBlockParser = matchedBlockParser;
     }
 
-    /** @return the parser that already matched the current line */
+    /**
+     * @return the parser that already matched the current line
+     */
     @Override
     public BlockParser getMatchedBlockParser() {
       return matchedBlockParser;

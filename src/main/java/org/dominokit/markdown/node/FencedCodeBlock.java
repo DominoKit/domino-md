@@ -36,7 +36,9 @@ public class FencedCodeBlock extends Block {
     visitor.visit(this);
   }
 
-  /** @return the fence character, such as {@code `} or {@code ~} */
+  /**
+   * @return the fence character, such as {@code `} or {@code ~}
+   */
   public String getFenceCharacter() {
     return fenceCharacter;
   }
@@ -46,7 +48,9 @@ public class FencedCodeBlock extends Block {
     this.fenceCharacter = fenceCharacter;
   }
 
-  /** @return the opening fence length, or {@code null} */
+  /**
+   * @return the opening fence length, or {@code null}
+   */
   public Integer getOpeningFenceLength() {
     return openingFenceLength;
   }
@@ -60,7 +64,9 @@ public class FencedCodeBlock extends Block {
     this.openingFenceLength = openingFenceLength;
   }
 
-  /** @return the closing fence length, or {@code null} */
+  /**
+   * @return the closing fence length, or {@code null}
+   */
   public Integer getClosingFenceLength() {
     return closingFenceLength;
   }
@@ -74,7 +80,9 @@ public class FencedCodeBlock extends Block {
     this.closingFenceLength = closingFenceLength;
   }
 
-  /** @return the indentation that preceded the opening fence */
+  /**
+   * @return the indentation that preceded the opening fence
+   */
   public int getFenceIndent() {
     return fenceIndent;
   }
@@ -84,7 +92,9 @@ public class FencedCodeBlock extends Block {
     this.fenceIndent = fenceIndent;
   }
 
-  /** @return the info string, or {@code null} */
+  /**
+   * @return the info string, or {@code null}
+   */
   public String getInfo() {
     return info;
   }
@@ -94,7 +104,9 @@ public class FencedCodeBlock extends Block {
     this.info = info;
   }
 
-  /** @return the literal code content */
+  /**
+   * @return the literal code content
+   */
   public String getLiteral() {
     return literal;
   }

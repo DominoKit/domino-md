@@ -24,8 +24,8 @@ import org.dominokit.markdown.node.Node;
  * Rendering context exposed to HTML node renderers.
  *
  * <p>Renderers use this context to write HTML, delegate rendering of child nodes, and inspect the
- * active renderer configuration. The context is render-pass scoped, so implementations should
- * treat it as ephemeral and not retain it after rendering completes.
+ * active renderer configuration. The context is render-pass scoped, so implementations should treat
+ * it as ephemeral and not retain it after rendering completes.
  */
 public interface HtmlNodeRendererContext {
 
@@ -50,23 +50,29 @@ public interface HtmlNodeRendererContext {
    */
   Map<String, String> extendAttributes(Node node, String tagName, Map<String, String> attributes);
 
-  /** @return the HTML writer to use */
+  /**
+   * @return the HTML writer to use
+   */
   HtmlWriter getWriter();
 
-  /** @return HTML that should be rendered for a soft line break */
+  /**
+   * @return HTML that should be rendered for a soft line break
+   */
   String getSoftbreak();
 
   /**
    * Render the specified node and its children using the configured renderers.
    *
-   * <p>This should be used to render child nodes. Passing the node that is currently being
-   * rendered would recurse forever.
+   * <p>This should be used to render child nodes. Passing the node that is currently being rendered
+   * would recurse forever.
    *
    * @param node the node to render
    */
   void render(Node node);
 
-  /** @return whether HTML blocks and tags should be escaped or not */
+  /**
+   * @return whether HTML blocks and tags should be escaped or not
+   */
   boolean shouldEscapeHtml();
 
   /**

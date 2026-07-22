@@ -31,24 +31,28 @@ import org.dominokit.markdown.parser.SourceLine;
  */
 public interface BlockParser {
 
-  /** @return whether this block can contain other blocks */
+  /**
+   * @return whether this block can contain other blocks
+   */
   boolean isContainer();
 
   /**
    * @return whether this block accepts lazy continuation lines
-   *
-   * <p>Lazy continuation lines are lines that were rejected by this {@link
-   * #tryContinue(ParserState)} but didn't match any other block parsers either.
-   *
-   * <p>If true is returned here, those lines will get added via {@link #addLine(SourceLine)}. For
-   * false, the block is closed instead.
+   *     <p>Lazy continuation lines are lines that were rejected by this {@link
+   *     #tryContinue(ParserState)} but didn't match any other block parsers either.
+   *     <p>If true is returned here, those lines will get added via {@link #addLine(SourceLine)}.
+   *     For false, the block is closed instead.
    */
   boolean canHaveLazyContinuationLines();
 
-  /** @return whether this block can contain the supplied child block */
+  /**
+   * @return whether this block can contain the supplied child block
+   */
   boolean canContain(Block childBlock);
 
-  /** @return the block node being built by this parser */
+  /**
+   * @return the block node being built by this parser
+   */
   Block getBlock();
 
   /**
@@ -73,8 +77,8 @@ public interface BlockParser {
   /**
    * Add a source span of the currently parsed block.
    *
-   * <p>The default implementation in {@link AbstractBlockParser} adds the span to the current
-   * block node.
+   * <p>The default implementation in {@link AbstractBlockParser} adds the span to the current block
+   * node.
    *
    * @param sourceSpan source span to add
    * @since 0.16.0

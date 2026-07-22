@@ -10,6 +10,7 @@ It provides:
 - plain-text rendering
 - Markdown-to-Markdown rendering
 - built-in extensions for autolink, strikethrough, tables, and task list items
+- optional class-styling extensions for custom markdown element CSS classes
 
 ## Quick Build
 
@@ -26,6 +27,12 @@ mvn verify -q
 ```
 
 Use this when you also want the GWT compile step.
+
+```bash
+mvn spotless:check -q
+```
+
+Use this to validate Java formatting with the Spotless configuration used by the repository.
 
 ## Documentation
 
@@ -69,6 +76,8 @@ Use this when you also want the GWT compile step.
 - `org.dominokit.markdown.renderer.text.TextContentRenderer`
 - `org.dominokit.markdown.renderer.markdown.MarkdownRenderer`
 - `org.dominokit.markdown.extensions.discovery.ExtensionDiscovery`
+- `org.dominokit.markdown.ext.classes.MarkdownClassExtension`
+- `org.dominokit.markdown.ext.dui.DuiClassExtension`
 
 ## Example
 
@@ -82,4 +91,3 @@ String html = renderer.render(parser.parse("Hello **world**"));
 ## License
 
 Apache License 2.0
-

@@ -32,7 +32,9 @@ public class ListItem extends Block {
     visitor.visit(this);
   }
 
-  /** @return the indentation used by the list marker, or {@code null} if unknown */
+  /**
+   * @return the indentation used by the list marker, or {@code null} if unknown
+   */
   public Integer getMarkerIndent() {
     return markerIndent;
   }
@@ -42,7 +44,9 @@ public class ListItem extends Block {
     this.markerIndent = markerIndent;
   }
 
-  /** @return the indentation where the list content begins, or {@code null} if unknown */
+  /**
+   * @return the indentation where the list content begins, or {@code null} if unknown
+   */
   public Integer getContentIndent() {
     return contentIndent;
   }

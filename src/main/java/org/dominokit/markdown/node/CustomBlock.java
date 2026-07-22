@@ -15,9 +15,7 @@
  */
 package org.dominokit.markdown.node;
 
-/**
- * Base class for extension-defined custom blocks.
- */
+/** Base class for extension-defined custom blocks. */
 public abstract class CustomBlock extends Block {
 
   /** Dispatch this custom block to the visitor. */

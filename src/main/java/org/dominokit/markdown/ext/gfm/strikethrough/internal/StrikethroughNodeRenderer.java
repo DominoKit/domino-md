@@ -28,7 +28,9 @@ import org.dominokit.markdown.renderer.NodeRenderer;
  */
 abstract class StrikethroughNodeRenderer implements NodeRenderer {
 
-  /** @return the strikethrough node type handled by this renderer family */
+  /**
+   * @return the strikethrough node type handled by this renderer family
+   */
   @Override
   public Set<Class<? extends Node>> getNodeTypes() {
     return Set.of(Strikethrough.class);

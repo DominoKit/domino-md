@@ -22,8 +22,8 @@ import org.dominokit.markdown.node.SourceSpan;
  * A single logical line from the original source, optionally paired with a source span.
  *
  * <p>The parser uses {@code SourceLine} both for whole lines and for slices of a line when block
- * parsers consume leading indentation. The content and the source-span view stay aligned as long
- * as callers create derived instances through {@link #substring(int, int)}.
+ * parsers consume leading indentation. The content and the source-span view stay aligned as long as
+ * callers create derived instances through {@link #substring(int, int)}.
  */
 public class SourceLine {
 
@@ -46,12 +46,16 @@ public class SourceLine {
     this.sourceSpan = sourceSpan;
   }
 
-  /** @return the line content */
+  /**
+   * @return the line content
+   */
   public CharSequence getContent() {
     return content;
   }
 
-  /** @return the source span associated with this line, or {@code null} */
+  /**
+   * @return the source span associated with this line, or {@code null}
+   */
   public SourceSpan getSourceSpan() {
     return sourceSpan;
   }

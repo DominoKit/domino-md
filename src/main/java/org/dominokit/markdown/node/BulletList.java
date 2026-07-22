@@ -18,8 +18,8 @@ package org.dominokit.markdown.node;
 /**
  * An unordered list.
  *
- * <p>The marker stores the exact bullet token used in the source, such as {@code -}, {@code *},
- * or {@code +}.
+ * <p>The marker stores the exact bullet token used in the source, such as {@code -}, {@code *}, or
+ * {@code +}.
  */
 public class BulletList extends ListBlock {
 
@@ -31,7 +31,9 @@ public class BulletList extends ListBlock {
     visitor.visit(this);
   }
 
-  /** @return the bullet marker token, or {@code null} */
+  /**
+   * @return the bullet marker token, or {@code null}
+   */
   public String getMarker() {
     return marker;
   }

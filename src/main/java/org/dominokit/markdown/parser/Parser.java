@@ -33,8 +33,8 @@ import org.dominokit.markdown.parser.delimiter.DelimiterProcessor;
  * Configurable entry point for turning Markdown text into an AST.
  *
  * <p>The parser orchestrates block parsing, inline parsing, reference-definition collection, and
- * post-processing. Use {@link #builder()} to assemble a parser with custom extensions or
- * additional syntax handlers.
+ * post-processing. Use {@link #builder()} to assemble a parser with custom extensions or additional
+ * syntax handlers.
  *
  * <p>Example:
  *
@@ -158,7 +158,9 @@ public class Parser {
     private IncludeSourceSpans includeSourceSpans = IncludeSourceSpans.NONE;
     private int maxOpenBlockParsers = Integer.MAX_VALUE;
 
-    /** @return the configured {@link Parser} */
+    /**
+     * @return the configured {@link Parser}
+     */
     public Parser build() {
       return new Parser(this);
     }
@@ -176,6 +178,27 @@ public class Parser {
         }
       }
       return this;
+    }
+
+    /**
+     * Apply a single parser extension.
+     *
+     * @param extension extension to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtension(Extension extension) {
+      return extensions(List.of(Objects.requireNonNull(extension, "extension must not be null")));
+    }
+
+    /**
+     * Apply one or more parser extensions.
+     *
+     * @param extensions extensions to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtensions(Extension... extensions) {
+      Objects.requireNonNull(extensions, "extensions must not be null");
+      return extensions(List.of(extensions));
     }
 
     /**
@@ -267,8 +290,8 @@ public class Parser {
     }
 
     /**
-     * Add a factory for a custom inline content parser, for extending inline parsing or
-     * overriding built-in parsing.
+     * Add a factory for a custom inline content parser, for extending inline parsing or overriding
+     * built-in parsing.
      *
      * <p>Parsers are triggered by the characters returned from {@link
      * InlineContentParserFactory#getTriggerCharacters()}. It is possible to register multiple

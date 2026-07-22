@@ -20,13 +20,13 @@ import org.dominokit.markdown.ext.task.list.items.TaskListItemMarker;
 import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.NodeRenderer;
 
-/**
- * Base renderer for task-list marker nodes.
- */
+/** Base renderer for task-list marker nodes. */
 abstract class TaskListItemNodeRenderer implements NodeRenderer {
 
   @Override
-  /** @return the task marker node type handled by this renderer */
+  /**
+   * @return the task marker node type handled by this renderer
+   */
   public Set<Class<? extends Node>> getNodeTypes() {
     return Set.of(TaskListItemMarker.class);
   }

@@ -20,6 +20,7 @@ import elemental2.dom.DomGlobal;
 import elemental2.dom.Element;
 import java.util.List;
 import org.dominokit.markdown.Extension;
+import org.dominokit.markdown.ext.dui.DuiClassExtension;
 import org.dominokit.markdown.extensions.discovery.ExtensionDiscovery;
 import org.dominokit.markdown.parser.Parser;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
@@ -225,6 +226,28 @@ public class MarkdownSuite extends GWTTestCase {
     assertEquals(
         "<p><a href=\"http://www.example.com\">www.example.com</a></p>",
         serialize(renderer.render(parser.parse("www.example.com"))));
+  }
+
+  public void testElemental2RendererShouldSupportDuiClassExtension() {
+    Parser parser = Parser.builder().build();
+    Elemental2Renderer renderer =
+        Elemental2Renderer.builder()
+            .extensions(List.of(new DuiClassExtension()))
+            .percentEncodeUrls(true)
+            .build();
+
+    assertEquals(
+        "<h1 class=\"dui dui-md-heading dui-md-h1\">Hello</h1>",
+        serialize(renderer.render(parser.parse("# Hello\n"))));
+    assertEquals(
+        "<p class=\"dui dui-md-paragraph dui-md-p\">Paragraph</p>",
+        serialize(renderer.render(parser.parse("Paragraph"))));
+    assertEquals(
+        "<pre class=\"dui dui-md-fenced-code-block dui-md-pre\"><code class=\"language-java dui dui-md-fenced-code-block dui-md-code\">code\n</code></pre>",
+        serialize(renderer.render(parser.parse("```java\ncode\n```\n"))));
+    assertEquals(
+        "<p class=\"dui dui-md-paragraph dui-md-p\"><a href=\"/docs\" class=\"dui dui-md-link dui-md-a\">link</a></p>",
+        serialize(renderer.render(parser.parse("[link](/docs)"))));
   }
 
   public void testTextContentRendererShouldSupportBrowserBuild() {

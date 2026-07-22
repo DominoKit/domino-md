@@ -413,6 +413,68 @@ Use these quick rules:
 - `TextContentRenderer` when you need readable text
 - `MarkdownRenderer` when you need canonical Markdown
 
+## Recipe 19: Style Rendered Markdown With CSS Classes
+
+Goal: attach predictable CSS hooks to the HTML or DOM that comes out of markdown rendering.
+
+Start with the built-in preset if you want the repository's default class naming scheme:
+
+```java
+List<Extension> extensions = List.of(new DuiClassExtension());
+
+Parser parser = Parser.builder()
+    .extensions(extensions)
+    .build();
+
+HtmlRenderer htmlRenderer = HtmlRenderer.builder()
+    .extensions(extensions)
+    .build();
+
+String html = htmlRenderer.render(parser.parse("# Title"));
+```
+
+The rendered heading will carry the generic `dui` class plus `dui-md-heading` and `dui-md-h1`.
+That makes it easy to theme all markdown output consistently without replacing the renderer.
+
+### Variant: Add Your Own Classes
+
+If you want your own naming scheme, use the generic extension directly:
+
+```java
+MarkdownClassExtension markdownClasses =
+    MarkdownClassExtension.builder()
+        .classes("article-content", "prose")
+        .nodeClasses(Paragraph.class, "article-paragraph")
+        .nodeClasses(Heading.class, "article-heading")
+        .tagClasses("h1", "heading-xl")
+        .tagClasses("p", "paragraph-body")
+        .build();
+
+List<Extension> extensions = List.of(markdownClasses);
+
+Parser parser = Parser.builder()
+    .extensions(extensions)
+    .build();
+
+Elemental2Renderer renderer = Elemental2Renderer.builder()
+    .extensions(extensions)
+    .build();
+```
+
+This is useful when you want:
+
+- one shared base class for all rendered content
+- node-specific selectors for layout or spacing
+- tag-specific selectors for headings, paragraphs, links, or code blocks
+- a single extension that works for both HTML strings and detached DOM fragments
+
+### Important Note
+
+The class extension merges with any classes already present on the element.
+
+That means built-in renderer classes such as `language-java` on fenced code blocks stay intact
+while your custom class names are appended.
+
 ## Final Advice
 
 Start with the default builders and the built-in extension set.

@@ -26,9 +26,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRenderer;
 import org.dominokit.markdown.renderer.elemental2.ElementNodeRendererContext;
 
-/**
- * Renders tables as DOM elements.
- */
+/** Renders tables as DOM elements. */
 public class TableElementNodeRenderer extends TableNodeRenderer implements ElementNodeRenderer {
 
   private final ElementNodeRendererContext context;

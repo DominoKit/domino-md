@@ -25,13 +25,19 @@ import org.dominokit.markdown.node.Text;
  */
 public interface DelimiterRun {
 
-  /** @return whether this can open a delimiter */
+  /**
+   * @return whether this can open a delimiter
+   */
   boolean canOpen();
 
-  /** @return whether this can close a delimiter */
+  /**
+   * @return whether this can close a delimiter
+   */
   boolean canClose();
 
-  /** @return the number of characters in this delimiter run that are left for processing */
+  /**
+   * @return the number of characters in this delimiter run that are left for processing
+   */
   int length();
 
   /**
@@ -40,10 +46,14 @@ public interface DelimiterRun {
    */
   int originalLength();
 
-  /** @return the innermost opening delimiter, e.g. for {@code ***} this is the last {@code *} */
+  /**
+   * @return the innermost opening delimiter, e.g. for {@code ***} this is the last {@code *}
+   */
   Text getOpener();
 
-  /** @return the innermost closing delimiter, e.g. for {@code ***} this is the first {@code *} */
+  /**
+   * @return the innermost closing delimiter, e.g. for {@code ***} this is the first {@code *}
+   */
   Text getCloser();
 
   /**

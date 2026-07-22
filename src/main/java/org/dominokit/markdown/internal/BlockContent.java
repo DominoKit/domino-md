@@ -39,7 +39,9 @@ final class BlockContent {
     lineCount++;
   }
 
-  /** @return the concatenated block content */
+  /**
+   * @return the concatenated block content
+   */
   public String getString() {
     return sb.toString();
   }

@@ -21,8 +21,8 @@ import org.dominokit.markdown.renderer.NodeRenderer;
 /**
  * Factory for Markdown node renderers.
  *
- * <p>Factories are instantiated per render pass so custom renderers can observe the current
- * writer and escape configuration.
+ * <p>Factories are instantiated per render pass so custom renderers can observe the current writer
+ * and escape configuration.
  */
 public interface MarkdownNodeRendererFactory {
 
@@ -34,6 +34,8 @@ public interface MarkdownNodeRendererFactory {
    */
   NodeRenderer create(MarkdownNodeRendererContext context);
 
-  /** @return additional ASCII special characters that should be escaped in normal text */
+  /**
+   * @return additional ASCII special characters that should be escaped in normal text
+   */
   Set<Character> getSpecialCharacters();
 }

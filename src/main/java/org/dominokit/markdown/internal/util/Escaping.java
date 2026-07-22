@@ -22,8 +22,8 @@ import java.util.Locale;
  * Escaping and normalization helpers shared across parsing and rendering.
  *
  * <p>The methods in this class intentionally mirror CommonMark's escaping behavior so the parser,
- * HTML renderer, and Markdown re-renderer all make consistent decisions about entity decoding,
- * URL encoding, and reference-label normalization.
+ * HTML renderer, and Markdown re-renderer all make consistent decisions about entity decoding, URL
+ * encoding, and reference-label normalization.
  */
 public class Escaping {
 
@@ -113,8 +113,8 @@ public class Escaping {
   /**
    * Percent-encode a URL or URI component using UTF-8 bytes.
    *
-   * <p>Existing percent escapes are preserved when they already look valid, while unsafe
-   * characters are encoded one code point at a time.
+   * <p>Existing percent escapes are preserved when they already look valid, while unsafe characters
+   * are encoded one code point at a time.
    *
    * @param s URL or URL component to encode
    * @return percent-encoded URL text
@@ -306,7 +306,9 @@ public class Escaping {
     return sb.toString();
   }
 
-  /** @return whether the code point may be written to a URL without percent-encoding */
+  /**
+   * @return whether the code point may be written to a URL without percent-encoding
+   */
   private static boolean isUriSafeCodePoint(int codePoint) {
     return (codePoint >= 'A' && codePoint <= 'Z')
         || (codePoint >= 'a' && codePoint <= 'z')
@@ -343,27 +345,37 @@ public class Escaping {
     }
   }
 
-  /** @return whether the character is a hexadecimal digit */
+  /**
+   * @return whether the character is a hexadecimal digit
+   */
   private static boolean isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
   }
 
-  /** @return whether the character is an ASCII decimal digit */
+  /**
+   * @return whether the character is an ASCII decimal digit
+   */
   private static boolean isDigit(char c) {
     return c >= '0' && c <= '9';
   }
 
-  /** @return whether the character is an ASCII letter */
+  /**
+   * @return whether the character is an ASCII letter
+   */
   private static boolean isAsciiLetter(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
   }
 
-  /** @return whether the character is an ASCII letter or digit */
+  /**
+   * @return whether the character is an ASCII letter or digit
+   */
   private static boolean isAsciiLetterOrDigit(char c) {
     return isAsciiLetter(c) || isDigit(c);
   }
 
-  /** @return whether the character is one of the Markdown ASCII whitespace characters */
+  /**
+   * @return whether the character is one of the Markdown ASCII whitespace characters
+   */
   private static boolean isAsciiWhitespace(char c) {
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
   }

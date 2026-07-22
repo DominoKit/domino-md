@@ -22,9 +22,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.html.HtmlNodeRendererContext;
 import org.dominokit.markdown.renderer.html.HtmlWriter;
 
-/**
- * Renders task-list marker nodes as disabled checkbox inputs.
- */
+/** Renders task-list marker nodes as disabled checkbox inputs. */
 public class TaskListItemHtmlNodeRenderer extends TaskListItemNodeRenderer {
 
   private final HtmlNodeRendererContext context;

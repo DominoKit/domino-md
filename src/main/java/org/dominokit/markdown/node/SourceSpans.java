@@ -21,20 +21,24 @@ import java.util.List;
 /**
  * Mutable accumulator for source spans.
  *
- * <p>The class keeps spans in insertion order and merges only the narrow case where the last
- * stored span touches the first span in the next batch. That is sufficient for the parser's span
+ * <p>The class keeps spans in insertion order and merges only the narrow case where the last stored
+ * span touches the first span in the next batch. That is sufficient for the parser's span
  * accumulation patterns without paying a merge cost for every append.
  */
 public class SourceSpans {
 
   private List<SourceSpan> sourceSpans;
 
-  /** @return a new, empty span accumulator */
+  /**
+   * @return a new, empty span accumulator
+   */
   public static SourceSpans empty() {
     return new SourceSpans();
   }
 
-  /** @return the accumulated spans, or an empty list if none have been added */
+  /**
+   * @return the accumulated spans, or an empty list if none have been added
+   */
   public List<SourceSpan> getSourceSpans() {
     return sourceSpans != null ? sourceSpans : List.of();
   }

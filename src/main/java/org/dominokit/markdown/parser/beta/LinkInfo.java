@@ -26,30 +26,40 @@ import org.dominokit.markdown.node.Text;
  */
 public interface LinkInfo {
 
-  /** @return the marker if present, or {@code null} */
+  /**
+   * @return the marker if present, or {@code null}
+   */
   Text marker();
 
-  /** @return the text node for the opening bracket {@code [} */
+  /**
+   * @return the text node for the opening bracket {@code [}
+   */
   Text openingBracket();
 
-  /** @return the text between the first brackets */
+  /**
+   * @return the text between the first brackets
+   */
   String text();
 
-  /** @return the label, or {@code null} for inline and shortcut links */
+  /**
+   * @return the label, or {@code null} for inline and shortcut links
+   */
   String label();
 
-  /** @return the destination if available, or {@code null} */
+  /**
+   * @return the destination if available, or {@code null}
+   */
   String destination();
 
-  /** @return the title if available, or {@code null} */
+  /**
+   * @return the title if available, or {@code null}
+   */
   String title();
 
   /**
    * @return the scanner position after the closing text bracket
-   *
-   * <p>For example:
-   *
-   * <pre>
+   *     <p>For example:
+   *     <pre>
    * [foo][bar]
    *      ^
    * </pre>

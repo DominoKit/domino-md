@@ -31,9 +31,7 @@ import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererFactory;
 import org.dominokit.markdown.renderer.markdown.MarkdownRenderer;
 import org.dominokit.markdown.renderer.text.TextContentRenderer;
 
-/**
- * Extension for GitHub-style strikethrough using {@code ~} or {@code ~~}.
- */
+/** Extension for GitHub-style strikethrough using {@code ~} or {@code ~~}. */
 public final class StrikethroughExtension
     implements Parser.ParserExtension,
         HtmlRenderer.HtmlRendererExtension,

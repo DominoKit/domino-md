@@ -46,7 +46,9 @@ public class Link extends Node {
     visitor.visit(this);
   }
 
-  /** @return the link destination */
+  /**
+   * @return the link destination
+   */
   public String getDestination() {
     return destination;
   }
@@ -56,7 +58,9 @@ public class Link extends Node {
     this.destination = destination;
   }
 
-  /** @return the link title, or {@code null} */
+  /**
+   * @return the link title, or {@code null}
+   */
   public String getTitle() {
     return title;
   }

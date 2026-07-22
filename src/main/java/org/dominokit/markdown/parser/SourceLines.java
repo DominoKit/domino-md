@@ -29,7 +29,9 @@ public class SourceLines {
 
   private final List<SourceLine> lines = new ArrayList<>();
 
-  /** @return an empty line collection */
+  /**
+   * @return an empty line collection
+   */
   public static SourceLines empty() {
     return new SourceLines();
   }
@@ -63,12 +65,16 @@ public class SourceLines {
     lines.add(sourceLine);
   }
 
-  /** @return the underlying ordered line list */
+  /**
+   * @return the underlying ordered line list
+   */
   public List<SourceLine> getLines() {
     return lines;
   }
 
-  /** @return whether this collection contains no lines */
+  /**
+   * @return whether this collection contains no lines
+   */
   public boolean isEmpty() {
     return lines.isEmpty();
   }

@@ -15,9 +15,7 @@
  */
 package org.dominokit.markdown.parser.block;
 
-/**
- * Factory that decides whether the current line starts a block parser.
- */
+/** Factory that decides whether the current line starts a block parser. */
 public interface BlockParserFactory {
 
   /**

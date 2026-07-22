@@ -17,9 +17,7 @@ package org.dominokit.markdown.node;
 
 import java.util.Iterator;
 
-/**
- * Utility methods for iterating over node ranges.
- */
+/** Utility methods for iterating over node ranges. */
 public final class Nodes {
 
   /** Utility class; do not instantiate. */
@@ -51,7 +49,9 @@ public final class Nodes {
       this.end = end;
     }
 
-    /** @return an iterator over the range */
+    /**
+     * @return an iterator over the range
+     */
     @Override
     public Iterator<Node> iterator() {
       return new NodeIterator(first, end);
@@ -75,13 +75,17 @@ public final class Nodes {
       this.end = end;
     }
 
-    /** @return whether another node is available */
+    /**
+     * @return whether another node is available
+     */
     @Override
     public boolean hasNext() {
       return node != null && node != end;
     }
 
-    /** @return the next node in the range */
+    /**
+     * @return the next node in the range
+     */
     @Override
     public Node next() {
       Node result = node;

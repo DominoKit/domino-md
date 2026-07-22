@@ -22,10 +22,9 @@ import java.util.List;
 /**
  * Base type for every node in the Markdown abstract syntax tree.
  *
- * <p>The tree is represented as a doubly linked sibling list with explicit parent/child
- * references. A node may have any number of children, but each node has at most one parent and at
- * most one predecessor and successor sibling. The root document node is the only node without a
- * parent.
+ * <p>The tree is represented as a doubly linked sibling list with explicit parent/child references.
+ * A node may have any number of children, but each node has at most one parent and at most one
+ * predecessor and successor sibling. The root document node is the only node without a parent.
  *
  * <p>All tree mutation methods first detach the node being moved from its current location. This
  * keeps the tree structurally consistent and makes the operations safe to use when re-parenting
@@ -50,27 +49,37 @@ public abstract class Node {
    */
   public abstract void accept(Visitor visitor);
 
-  /** @return the next sibling node, or {@code null} if this is the last sibling */
+  /**
+   * @return the next sibling node, or {@code null} if this is the last sibling
+   */
   public Node getNext() {
     return next;
   }
 
-  /** @return the previous sibling node, or {@code null} if this is the first sibling */
+  /**
+   * @return the previous sibling node, or {@code null} if this is the first sibling
+   */
   public Node getPrevious() {
     return previous;
   }
 
-  /** @return the first child, or {@code null} if this node has no children */
+  /**
+   * @return the first child, or {@code null} if this node has no children
+   */
   public Node getFirstChild() {
     return firstChild;
   }
 
-  /** @return the last child, or {@code null} if this node has no children */
+  /**
+   * @return the last child, or {@code null} if this node has no children
+   */
   public Node getLastChild() {
     return lastChild;
   }
 
-  /** @return the parent node, or {@code null} if this node is detached or is the root */
+  /**
+   * @return the parent node, or {@code null} if this node is detached or is the root
+   */
   public Node getParent() {
     return parent;
   }
@@ -78,8 +87,8 @@ public abstract class Node {
   /**
    * Set the parent reference without updating sibling links.
    *
-   * <p>This is protected because callers must preserve the bidirectional parent/sibling
-   * invariants; public tree mutation methods take care of that bookkeeping.
+   * <p>This is protected because callers must preserve the bidirectional parent/sibling invariants;
+   * public tree mutation methods take care of that bookkeeping.
    */
   protected void setParent(Node parent) {
     this.parent = parent;
@@ -151,8 +160,8 @@ public abstract class Node {
   /**
    * Insert a sibling immediately after this node.
    *
-   * <p>The sibling is unlinked from its previous location before being attached. Parent and
-   * sibling pointers are updated so the surrounding list remains consistent.
+   * <p>The sibling is unlinked from its previous location before being attached. Parent and sibling
+   * pointers are updated so the surrounding list remains consistent.
    *
    * @param sibling the node to insert after this node
    */
@@ -173,8 +182,8 @@ public abstract class Node {
   /**
    * Insert a sibling immediately before this node.
    *
-   * <p>The sibling is unlinked from its previous location before being attached. Parent and
-   * sibling pointers are updated so the surrounding list remains consistent.
+   * <p>The sibling is unlinked from its previous location before being attached. Parent and sibling
+   * pointers are updated so the surrounding list remains consistent.
    *
    * @param sibling the node to insert before this node
    */
@@ -205,8 +214,8 @@ public abstract class Node {
   /**
    * Replace the current source-span list.
    *
-   * <p>Empty input clears the stored spans entirely so the node remains in the cheaper
-   * "no-span" state.
+   * <p>Empty input clears the stored spans entirely so the node remains in the cheaper "no-span"
+   * state.
    *
    * @param sourceSpans source spans to associate with this node
    */
@@ -233,9 +242,7 @@ public abstract class Node {
     sourceSpans.add(sourceSpan);
   }
 
-  /**
-   * Render the node type and any subclass-specific attributes for debugging.
-   */
+  /** Render the node type and any subclass-specific attributes for debugging. */
   @Override
   public String toString() {
     return getClass().getSimpleName() + "{" + toStringAttributes() + "}";

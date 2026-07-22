@@ -42,8 +42,10 @@ public class LinkResultImpl implements LinkResult {
 
   /** Requested link-processing action. */
   private final Type type;
+
   /** Node produced by the processor. */
   private final Node node;
+
   /** Scanner position to resume from. */
   private final Position position;
 
@@ -63,22 +65,30 @@ public class LinkResultImpl implements LinkResult {
     this.position = position;
   }
 
-  /** @return the requested action */
+  /**
+   * @return the requested action
+   */
   public Type getType() {
     return type;
   }
 
-  /** @return the node produced by the processor */
+  /**
+   * @return the node produced by the processor
+   */
   public Node getNode() {
     return node;
   }
 
-  /** @return the scanner position to resume from */
+  /**
+   * @return the scanner position to resume from
+   */
   public Position getPosition() {
     return position;
   }
 
-  /** @return whether the marker should be included in the processing decision */
+  /**
+   * @return whether the marker should be included in the processing decision
+   */
   public boolean isIncludeMarker() {
     return includeMarker;
   }

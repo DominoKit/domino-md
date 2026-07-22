@@ -27,7 +27,9 @@ public class BlockContinue {
 
   protected BlockContinue() {}
 
-  /** @return no continuation result */
+  /**
+   * @return no continuation result
+   */
   public static BlockContinue none() {
     return null;
   }

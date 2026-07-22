@@ -43,19 +43,25 @@ class StaggeredDelimiterProcessor implements DelimiterProcessor {
     this.delim = delim;
   }
 
-  /** @return the delimiter character accepted on the opening side */
+  /**
+   * @return the delimiter character accepted on the opening side
+   */
   @Override
   public char getOpeningCharacter() {
     return delim;
   }
 
-  /** @return the delimiter character accepted on the closing side */
+  /**
+   * @return the delimiter character accepted on the closing side
+   */
   @Override
   public char getClosingCharacter() {
     return delim;
   }
 
-  /** @return the minimum delimiter run length across all registered child processors */
+  /**
+   * @return the minimum delimiter run length across all registered child processors
+   */
   @Override
   public int getMinLength() {
     return minLength;

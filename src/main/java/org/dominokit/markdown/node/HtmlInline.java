@@ -30,7 +30,9 @@ public class HtmlInline extends Node {
     visitor.visit(this);
   }
 
-  /** @return the raw HTML literal */
+  /**
+   * @return the raw HTML literal
+   */
   public String getLiteral() {
     return literal;
   }

@@ -30,7 +30,9 @@ public class Heading extends Block {
     visitor.visit(this);
   }
 
-  /** @return the heading level, from 1 to 6 */
+  /**
+   * @return the heading level, from 1 to 6
+   */
   public int getLevel() {
     return level;
   }

@@ -24,8 +24,8 @@ import org.dominokit.markdown.parser.beta.*;
 /**
  * Inline parser for autolinks wrapped in angle brackets.
  *
- * <p>The parser recognizes both URI autolinks and email autolinks, converting them into link
- * nodes with the link text preserved as literal content.
+ * <p>The parser recognizes both URI autolinks and email autolinks, converting them into link nodes
+ * with the link text preserved as literal content.
  */
 public class AutolinkInlineParser implements InlineContentParser {
 
@@ -99,8 +99,8 @@ public class AutolinkInlineParser implements InlineContentParser {
   /**
    * Determine whether the supplied content matches an email autolink.
    *
-   * <p>The local part uses the CommonMark autolink character set and the domain must be a series
-   * of valid DNS labels separated by dots.
+   * <p>The local part uses the CommonMark autolink character set and the domain must be a series of
+   * valid DNS labels separated by dots.
    */
   private static boolean isEmailAutolink(String content) {
     int at = content.indexOf('@');
@@ -221,7 +221,9 @@ public class AutolinkInlineParser implements InlineContentParser {
   }
 
   public static class Factory implements InlineContentParserFactory {
-    /** @return the trigger character set for autolink parsing */
+    /**
+     * @return the trigger character set for autolink parsing
+     */
     @Override
     public Set<Character> getTriggerCharacters() {
       return Set.of('<');

@@ -37,13 +37,17 @@ public class Strikethrough extends CustomNode implements Delimited {
     this.delimiter = delimiter;
   }
 
-  /** @return the opening delimiter sequence */
+  /**
+   * @return the opening delimiter sequence
+   */
   @Override
   public String getOpeningDelimiter() {
     return delimiter;
   }
 
-  /** @return the closing delimiter sequence */
+  /**
+   * @return the closing delimiter sequence
+   */
   @Override
   public String getClosingDelimiter() {
     return delimiter;

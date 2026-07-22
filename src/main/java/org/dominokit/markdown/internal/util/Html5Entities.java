@@ -21,9 +21,9 @@ import java.util.Map;
 /**
  * Lookup table and decoder for HTML5 named and numeric character references.
  *
- * <p>The class preloads the HTML5 entity set into a map so parser components can convert both
- * named references such as {@code &amp;} and numeric references such as {@code &#x1F600;} into
- * their Unicode string values.
+ * <p>The class preloads the HTML5 entity set into a map so parser components can convert both named
+ * references such as {@code &amp;} and numeric references such as {@code &#x1F600;} into their
+ * Unicode string values.
  */
 public final class Html5Entities {
 

@@ -15,14 +15,10 @@
  */
 package org.dominokit.markdown.internal.util;
 
-/**
- * Small parsing-related constants and helpers shared across block and inline parsers.
- */
+/** Small parsing-related constants and helpers shared across block and inline parsers. */
 public final class Parsing {
 
-  /**
-   * CommonMark's indentation threshold for code blocks and other four-space indentation checks.
-   */
+  /** CommonMark's indentation threshold for code blocks and other four-space indentation checks. */
   public static final int CODE_BLOCK_INDENT = 4;
 
   /** Prevent instantiation. */

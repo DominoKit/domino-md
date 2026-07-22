@@ -149,6 +149,27 @@ public class TextContentRenderer implements Renderer {
       }
       return this;
     }
+
+    /**
+     * Apply a single text renderer extension.
+     *
+     * @param extension extension to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtension(Extension extension) {
+      return extensions(List.of(Objects.requireNonNull(extension, "extension must not be null")));
+    }
+
+    /**
+     * Apply one or more text renderer extensions.
+     *
+     * @param extensions extensions to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtensions(Extension... extensions) {
+      Objects.requireNonNull(extensions, "extensions must not be null");
+      return extensions(List.of(extensions));
+    }
   }
 
   /** Extension contract for {@link TextContentRenderer}. */
@@ -174,20 +195,26 @@ public class TextContentRenderer implements Renderer {
     }
 
     @Override
-    /** @return the configured line-break mode */
+    /**
+     * @return the configured line-break mode
+     */
     public LineBreakRendering lineBreakRendering() {
       return lineBreakRendering;
     }
 
     @Override
     @Deprecated
-    /** @return whether line breaks are stripped */
+    /**
+     * @return whether line breaks are stripped
+     */
     public boolean stripNewlines() {
       return lineBreakRendering == LineBreakRendering.STRIP;
     }
 
     @Override
-    /** @return the writer used to emit text content */
+    /**
+     * @return the writer used to emit text content
+     */
     public TextContentWriter getWriter() {
       return textContentWriter;
     }

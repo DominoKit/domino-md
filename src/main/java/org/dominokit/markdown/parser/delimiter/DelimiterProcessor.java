@@ -25,13 +25,19 @@ import org.dominokit.markdown.node.Text;
  */
 public interface DelimiterProcessor {
 
-  /** @return the character that marks the beginning of a delimited node */
+  /**
+   * @return the character that marks the beginning of a delimited node
+   */
   char getOpeningCharacter();
 
-  /** @return the character that marks the ending of a delimited node */
+  /**
+   * @return the character that marks the ending of a delimited node
+   */
   char getClosingCharacter();
 
-  /** @return the minimum number of delimiter characters required to activate this processor */
+  /**
+   * @return the minimum number of delimiter characters required to activate this processor
+   */
   int getMinLength();
 
   /**

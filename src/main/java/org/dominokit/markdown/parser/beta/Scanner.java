@@ -145,7 +145,9 @@ public class Scanner {
     }
   }
 
-  /** @return whether advancing would still remain within the input */
+  /**
+   * @return whether advancing would still remain within the input
+   */
   public boolean hasNext() {
     if (index < lineLength) {
       return true;
@@ -303,7 +305,9 @@ public class Scanner {
   // Don't expose the int index, because it would be good if we could switch input to a List<String>
   // of lines later
   // instead of one contiguous String.
-  /** @return the current scanner position */
+  /**
+   * @return the current scanner position
+   */
   public Position position() {
     return new Position(lineIndex, index);
   }

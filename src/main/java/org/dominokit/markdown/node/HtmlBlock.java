@@ -15,9 +15,7 @@
  */
 package org.dominokit.markdown.node;
 
-/**
- * A block-level HTML fragment.
- */
+/** A block-level HTML fragment. */
 public class HtmlBlock extends Block {
 
   private String literal;
@@ -28,7 +26,9 @@ public class HtmlBlock extends Block {
     visitor.visit(this);
   }
 
-  /** @return the raw HTML literal */
+  /**
+   * @return the raw HTML literal
+   */
   public String getLiteral() {
     return literal;
   }

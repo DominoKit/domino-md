@@ -43,7 +43,9 @@ public class Code extends Node {
     visitor.visit(this);
   }
 
-  /** @return the literal code content */
+  /**
+   * @return the literal code content
+   */
   public String getLiteral() {
     return literal;
   }

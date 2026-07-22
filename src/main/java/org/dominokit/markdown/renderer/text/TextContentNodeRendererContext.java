@@ -20,8 +20,8 @@ import org.dominokit.markdown.node.Node;
 /**
  * Rendering context exposed to text-content node renderers.
  *
- * <p>The context is scoped to a single render pass and provides access to the output writer and
- * the line-break policy used by the plain-text renderer.
+ * <p>The context is scoped to a single render pass and provides access to the output writer and the
+ * line-break policy used by the plain-text renderer.
  */
 public interface TextContentNodeRendererContext {
 
@@ -39,7 +39,9 @@ public interface TextContentNodeRendererContext {
   @Deprecated
   boolean stripNewlines();
 
-  /** @return the writer to use */
+  /**
+   * @return the writer to use
+   */
   TextContentWriter getWriter();
 
   /**

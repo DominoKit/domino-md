@@ -23,9 +23,7 @@ import org.dominokit.markdown.node.Paragraph;
 import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.PostProcessor;
 
-/**
- * Converts leading task-list markers into explicit task marker nodes.
- */
+/** Converts leading task-list markers into explicit task marker nodes. */
 public class TaskListItemPostProcessor implements PostProcessor {
 
   @Override

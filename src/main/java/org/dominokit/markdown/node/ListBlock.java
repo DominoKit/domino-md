@@ -24,7 +24,9 @@ public abstract class ListBlock extends Block {
 
   private boolean tight;
 
-  /** @return whether the list is tight */
+  /**
+   * @return whether the list is tight
+   */
   public boolean isTight() {
     return tight;
   }

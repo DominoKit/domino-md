@@ -60,7 +60,9 @@ public class Characters {
     return -1;
   }
 
-  /** @see <a href="https://spec.commonmark.org/0.31.2/#blank-line">CommonMark blank line</a> */
+  /**
+   * @see <a href="https://spec.commonmark.org/0.31.2/#blank-line">CommonMark blank line</a>
+   */
   public static boolean isBlank(CharSequence s) {
     return skipSpaceTab(s, 0, s.length()) == s.length();
   }

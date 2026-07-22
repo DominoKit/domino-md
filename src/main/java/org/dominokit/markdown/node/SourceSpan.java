@@ -20,10 +20,10 @@ import java.util.Objects;
 /**
  * Describes a contiguous slice of the original source input.
  *
- * <p>A span records three coordinates for the start of the slice: the line index, the column
- * index, and the absolute input index. The length is measured in characters from that start
- * position. Source spans are used to preserve origin information for parsed nodes and for any
- * derived spans created while slicing the source.
+ * <p>A span records three coordinates for the start of the slice: the line index, the column index,
+ * and the absolute input index. The length is measured in characters from that start position.
+ * Source spans are used to preserve origin information for parsed nodes and for any derived spans
+ * created while slicing the source.
  */
 public class SourceSpan {
 
@@ -48,8 +48,8 @@ public class SourceSpan {
   /**
    * Create a span using only line, column, and length.
    *
-   * <p>This overload is retained for older call sites that do not track absolute input offsets.
-   * New code should prefer {@link #of(int, int, int, int)}.
+   * <p>This overload is retained for older call sites that do not track absolute input offsets. New
+   * code should prefer {@link #of(int, int, int, int)}.
    */
   @Deprecated
   public static SourceSpan of(int lineIndex, int columnIndex, int length) {
@@ -83,22 +83,30 @@ public class SourceSpan {
     this.length = length;
   }
 
-  /** @return the 0-based line index where the span starts */
+  /**
+   * @return the 0-based line index where the span starts
+   */
   public int getLineIndex() {
     return lineIndex;
   }
 
-  /** @return the 0-based column index where the span starts */
+  /**
+   * @return the 0-based column index where the span starts
+   */
   public int getColumnIndex() {
     return columnIndex;
   }
 
-  /** @return the 0-based absolute input index where the span starts */
+  /**
+   * @return the 0-based absolute input index where the span starts
+   */
   public int getInputIndex() {
     return inputIndex;
   }
 
-  /** @return the length of the span in characters */
+  /**
+   * @return the length of the span in characters
+   */
   public int getLength() {
     return length;
   }
@@ -165,13 +173,17 @@ public class SourceSpan {
         && length == sourceSpan.length;
   }
 
-  /** @return a stable hash derived from all span coordinates */
+  /**
+   * @return a stable hash derived from all span coordinates
+   */
   @Override
   public int hashCode() {
     return Objects.hash(lineIndex, columnIndex, inputIndex, length);
   }
 
-  /** @return a human-readable description of the span coordinates */
+  /**
+   * @return a human-readable description of the span coordinates
+   */
   @Override
   public String toString() {
     return "SourceSpan{"

@@ -48,8 +48,8 @@ public class CoreHtmlNodeRenderer extends AbstractVisitor implements NodeRendere
   /**
    * Return the node types handled by the built-in HTML renderer.
    *
-   * <p>The returned set mirrors the standard markdown node hierarchy so the renderer can act as
-   * the default fallback for the core syntax.
+   * <p>The returned set mirrors the standard markdown node hierarchy so the renderer can act as the
+   * default fallback for the core syntax.
    */
   public Set<Class<? extends Node>> getNodeTypes() {
     return Set.of(
@@ -145,8 +145,8 @@ public class CoreHtmlNodeRenderer extends AbstractVisitor implements NodeRendere
   /**
    * Render fenced code blocks as {@code pre > code}.
    *
-   * <p>If the fence info string includes a language token, it is preserved as a
-   * {@code language-*} class on the inner {@code code} element.
+   * <p>If the fence info string includes a language token, it is preserved as a {@code language-*}
+   * class on the inner {@code code} element.
    */
   @Override
   public void visit(FencedCodeBlock fencedCodeBlock) {
@@ -232,9 +232,7 @@ public class CoreHtmlNodeRenderer extends AbstractVisitor implements NodeRendere
     html.line();
   }
 
-  /**
-   * Render ordered lists as {@code ol} elements and preserve the starting number when needed.
-   */
+  /** Render ordered lists as {@code ol} elements and preserve the starting number when needed. */
   @Override
   public void visit(OrderedList orderedList) {
     int start = orderedList.getMarkerStartNumber() != null ? orderedList.getMarkerStartNumber() : 1;
@@ -245,9 +243,7 @@ public class CoreHtmlNodeRenderer extends AbstractVisitor implements NodeRendere
     renderListBlock(orderedList, "ol", getAttrs(orderedList, "ol", attrs));
   }
 
-  /**
-   * Render images as void {@code img} elements and derive the alt text from inline children.
-   */
+  /** Render images as void {@code img} elements and derive the alt text from inline children. */
   @Override
   public void visit(Image image) {
     String url = image.getDestination();
@@ -425,7 +421,9 @@ public class CoreHtmlNodeRenderer extends AbstractVisitor implements NodeRendere
 
     private final StringBuilder sb = new StringBuilder();
 
-    /** @return the accumulated alt text built from the image's inline children */
+    /**
+     * @return the accumulated alt text built from the image's inline children
+     */
     String getAltText() {
       return sb.toString();
     }

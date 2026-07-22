@@ -33,8 +33,8 @@ import org.dominokit.markdown.text.Characters;
  * Parses fenced code blocks delimited by backticks or tildes.
  *
  * <p>The parser stores the opening fence metadata, preserves the first info string line separately
- * from the remaining literal content, and stops when a valid closing fence appears at or beyond
- * the opening fence length.
+ * from the remaining literal content, and stops when a valid closing fence appears at or beyond the
+ * opening fence length.
  */
 public class FencedCodeBlockParser extends AbstractBlockParser {
 
@@ -59,7 +59,9 @@ public class FencedCodeBlockParser extends AbstractBlockParser {
     block.setFenceIndent(fenceIndent);
   }
 
-  /** @return the fenced code block being constructed */
+  /**
+   * @return the fenced code block being constructed
+   */
   @Override
   public Block getBlock() {
     return block;

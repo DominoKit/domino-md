@@ -148,12 +148,16 @@ public class MarkdownWriter {
     rawEscapes.removeLast();
   }
 
-  /** @return the last character that was written */
+  /**
+   * @return the last character that was written
+   */
   public char getLastChar() {
     return lastChar;
   }
 
-  /** @return whether the next write is at the logical start of the line, excluding prefixes */
+  /**
+   * @return whether the next write is at the logical start of the line, excluding prefixes
+   */
   public boolean isAtLineStart() {
     return atLineStart;
   }
@@ -236,12 +240,16 @@ public class MarkdownWriter {
     }
   }
 
-  /** @return whether the current nested block context is tight */
+  /**
+   * @return whether the current nested block context is tight
+   */
   private boolean isTight() {
     return !tight.isEmpty() && tight.getLast();
   }
 
-  /** @return whether the character must be escaped in the current context */
+  /**
+   * @return whether the character must be escaped in the current context
+   */
   private boolean needsEscaping(char c, CharMatcher escape) {
     return (escape != null && escape.matches(c)) || rawNeedsEscaping(c);
   }

@@ -20,9 +20,7 @@ import org.dominokit.markdown.node.Node;
 import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererContext;
 import org.dominokit.markdown.renderer.markdown.MarkdownWriter;
 
-/**
- * Renders task-list marker nodes back to Markdown.
- */
+/** Renders task-list marker nodes back to Markdown. */
 public class TaskListItemMarkdownNodeRenderer extends TaskListItemNodeRenderer {
 
   private final MarkdownNodeRendererContext context;

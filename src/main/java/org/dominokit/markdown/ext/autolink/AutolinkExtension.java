@@ -22,9 +22,7 @@ import org.dominokit.markdown.Extension;
 import org.dominokit.markdown.ext.autolink.internal.AutolinkPostProcessor;
 import org.dominokit.markdown.parser.Parser;
 
-/**
- * Extension that turns plain URLs and email addresses into links.
- */
+/** Extension that turns plain URLs and email addresses into links. */
 public final class AutolinkExtension implements Parser.ParserExtension {
 
   private final Set<AutolinkType> linkTypes;

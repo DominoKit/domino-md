@@ -27,9 +27,7 @@ import org.dominokit.markdown.renderer.markdown.MarkdownNodeRendererContext;
 import org.dominokit.markdown.renderer.markdown.MarkdownWriter;
 import org.dominokit.markdown.text.AsciiMatcher;
 
-/**
- * Renders tables back to pipe-table Markdown.
- */
+/** Renders tables back to pipe-table Markdown. */
 public class TableMarkdownNodeRenderer extends TableNodeRenderer {
 
   private final MarkdownWriter writer;

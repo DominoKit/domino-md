@@ -34,9 +34,9 @@ import org.dominokit.markdown.text.Characters;
 /**
  * Parses ATX and Setext headings.
  *
- * <p>ATX headings are created directly from a line starting with {@code #} markers. Setext
- * headings are recognized when a paragraph is followed by a line of {@code =} or {@code -}
- * markers, at which point the paragraph text is reclassified as the heading body.
+ * <p>ATX headings are created directly from a line starting with {@code #} markers. Setext headings
+ * are recognized when a paragraph is followed by a line of {@code =} or {@code -} markers, at which
+ * point the paragraph text is reclassified as the heading body.
  */
 public class HeadingParser extends AbstractBlockParser {
 
@@ -54,7 +54,9 @@ public class HeadingParser extends AbstractBlockParser {
     this.content = content;
   }
 
-  /** @return the heading node being built */
+  /**
+   * @return the heading node being built
+   */
   @Override
   public Block getBlock() {
     return block;
@@ -89,8 +91,7 @@ public class HeadingParser extends AbstractBlockParser {
      *
      * @param state current parser state
      * @param matchedBlockParser most recent matched block parser
-     * @return a heading parser start when the line matches an ATX or Setext heading, otherwise
-     *     none
+     * @return a heading parser start when the line matches an ATX or Setext heading, otherwise none
      */
     @Override
     public BlockStart tryStart(ParserState state, MatchedBlockParser matchedBlockParser) {

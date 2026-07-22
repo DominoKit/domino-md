@@ -45,6 +45,8 @@ The builder is where you configure parsing behavior.
 Important methods:
 
 - `extensions(Iterable<? extends Extension>)`
+- `withExtension(Extension)`
+- `withExtensions(Extension...)`
 - `enabledBlockTypes(Set<Class<? extends Block>>)`
 - `includeSourceSpans(IncludeSourceSpans)`
 - `maxOpenBlockParsers(int)`
@@ -273,6 +275,8 @@ Builder options:
 - `attributeProviderFactory(AttributeProviderFactory)`
 - `nodeRendererFactory(HtmlNodeRendererFactory)`
 - `extensions(Iterable<? extends Extension>)`
+- `withExtension(Extension)`
+- `withExtensions(Extension...)`
 
 Example:
 
@@ -312,6 +316,14 @@ Use these when you want to control what destination URLs are allowed in HTML out
 
 These are the extension points for changing how specific node types render.
 
+### HTML class styling hooks
+
+- `MarkdownClassExtension`
+- `DuiClassExtension`
+
+Use these when you want to attach deterministic CSS classes to rendered HTML elements based on
+both the markdown node type and the emitted tag name.
+
 ## Elemental2 Renderer API
 
 ### `Elemental2Renderer`
@@ -334,6 +346,8 @@ Builder options:
 - `attributeProviderFactory(ElementAttributeProviderFactory)`
 - `nodeRendererFactory(ElementNodeRendererFactory)`
 - `extensions(Iterable<? extends Extension>)`
+- `withExtension(Extension)`
+- `withExtensions(Extension...)`
 
 Example:
 
@@ -367,6 +381,13 @@ Use this when you want to turn raw HTML literals into custom DOM nodes.
 - `ElementNodeRenderer`
 - `CoreElementNodeRenderer`
 
+### Elemental2 class styling hooks
+
+- `MarkdownClassExtension`
+- `DuiClassExtension`
+
+Use these when you want the same class strategy to apply to detached Elemental2 DOM output.
+
 ## Plain Text Renderer API
 
 ### `TextContentRenderer`
@@ -385,6 +406,8 @@ Builder options:
 - `stripNewlines(boolean)` for compatibility
 - `nodeRendererFactory(TextContentNodeRendererFactory)`
 - `extensions(Iterable<? extends Extension>)`
+- `withExtension(Extension)`
+- `withExtensions(Extension...)`
 
 Example:
 
@@ -421,6 +444,8 @@ Builder options:
 
 - `nodeRendererFactory(MarkdownNodeRendererFactory)`
 - `extensions(Iterable<? extends Extension>)`
+- `withExtension(Extension)`
+- `withExtensions(Extension...)`
 
 Example:
 
@@ -477,6 +502,27 @@ This extension has no tunable builder options.
 ### `TaskListItemsExtension`
 
 Adds checkbox-style task list item support.
+
+This extension has no tunable builder options.
+
+### `MarkdownClassExtension`
+
+Adds configurable CSS classes to rendered HTML and Elemental2 output.
+
+Builder methods:
+
+- `builder()`
+- `classes(String...)`
+- `nodeClasses(Class<? extends Node>, String...)`
+- `tagClasses(String, String...)`
+- `build()`
+
+Use this extension when you want to attach your own class names to every generated element, to a
+specific markdown node type, or to a specific rendered tag name.
+
+### `DuiClassExtension`
+
+Preset extension that applies the repository's built-in `dui` and `dui-md-*` class naming scheme.
 
 This extension has no tunable builder options.
 

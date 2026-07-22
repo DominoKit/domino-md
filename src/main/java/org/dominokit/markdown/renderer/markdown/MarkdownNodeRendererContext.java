@@ -26,7 +26,9 @@ import org.dominokit.markdown.node.Node;
  */
 public interface MarkdownNodeRendererContext {
 
-  /** @return the writer to use */
+  /**
+   * @return the writer to use
+   */
   MarkdownWriter getWriter();
 
   /**
@@ -39,6 +41,8 @@ public interface MarkdownNodeRendererContext {
    */
   void render(Node node);
 
-  /** @return additional ASCII special characters that should be escaped in normal text */
+  /**
+   * @return additional ASCII special characters that should be escaped in normal text
+   */
   Set<Character> getSpecialCharacters();
 }

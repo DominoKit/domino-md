@@ -37,7 +37,9 @@ public class LinkReferenceDefinition extends Block {
     this.title = title;
   }
 
-  /** @return the reference label */
+  /**
+   * @return the reference label
+   */
   public String getLabel() {
     return label;
   }
@@ -47,7 +49,9 @@ public class LinkReferenceDefinition extends Block {
     this.label = label;
   }
 
-  /** @return the destination URI */
+  /**
+   * @return the destination URI
+   */
   public String getDestination() {
     return destination;
   }
@@ -57,7 +61,9 @@ public class LinkReferenceDefinition extends Block {
     this.destination = destination;
   }
 
-  /** @return the optional title, or {@code null} */
+  /**
+   * @return the optional title, or {@code null}
+   */
   public String getTitle() {
     return title;
   }

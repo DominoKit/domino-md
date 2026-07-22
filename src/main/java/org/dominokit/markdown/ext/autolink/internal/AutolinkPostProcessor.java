@@ -28,9 +28,7 @@ import org.dominokit.markdown.node.SourceSpan;
 import org.dominokit.markdown.node.Text;
 import org.dominokit.markdown.parser.PostProcessor;
 
-/**
- * Post-processes plain text nodes and converts recognized URLs and email addresses into links.
- */
+/** Post-processes plain text nodes and converts recognized URLs and email addresses into links. */
 public class AutolinkPostProcessor implements PostProcessor {
 
   private final Set<AutolinkType> linkTypes;
@@ -269,8 +267,8 @@ public class AutolinkPostProcessor implements PostProcessor {
   /**
    * Scan the maximal raw URL token.
    *
-   * <p>Scanning stops at whitespace or angle brackets because those characters cannot appear in
-   * an autolink token.
+   * <p>Scanning stops at whitespace or angle brackets because those characters cannot appear in an
+   * autolink token.
    */
   private int scanUrlToken(String literal, int startIndex) {
     int index = startIndex;
@@ -533,22 +531,30 @@ public class AutolinkPostProcessor implements PostProcessor {
     return true;
   }
 
-  /** @return whether the character is an ASCII letter */
+  /**
+   * @return whether the character is an ASCII letter
+   */
   private boolean isAsciiLetter(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
   }
 
-  /** @return whether the character is an ASCII letter or digit */
+  /**
+   * @return whether the character is an ASCII letter or digit
+   */
   private boolean isAsciiLetterOrDigit(char c) {
     return isAsciiLetter(c) || (c >= '0' && c <= '9');
   }
 
-  /** @return whether the character is valid inside a URL scheme */
+  /**
+   * @return whether the character is valid inside a URL scheme
+   */
   private boolean isSchemeChar(char c) {
     return isAsciiLetterOrDigit(c) || c == '.' || c == '+' || c == '-';
   }
 
-  /** @return whether the character is valid in an email local part */
+  /**
+   * @return whether the character is valid in an email local part
+   */
   private boolean isEmailLocalPartChar(char c) {
     return isAsciiLetterOrDigit(c)
         || c == '.'
@@ -631,9 +637,7 @@ public class AutolinkPostProcessor implements PostProcessor {
     }
   }
 
-  /**
-   * Immutable description of a detected autolink match.
-   */
+  /** Immutable description of a detected autolink match. */
   private static final class LinkMatch {
     private final int beginIndex;
     private final int endIndex;

@@ -141,6 +141,27 @@ public class MarkdownRenderer implements Renderer {
       }
       return this;
     }
+
+    /**
+     * Apply a single Markdown renderer extension.
+     *
+     * @param extension extension to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtension(Extension extension) {
+      return extensions(List.of(Objects.requireNonNull(extension, "extension must not be null")));
+    }
+
+    /**
+     * Apply one or more Markdown renderer extensions.
+     *
+     * @param extensions extensions to apply
+     * @return this builder for chaining
+     */
+    public Builder withExtensions(Extension... extensions) {
+      Objects.requireNonNull(extensions, "extensions must not be null");
+      return extensions(List.of(extensions));
+    }
   }
 
   /** Extension contract for {@link MarkdownRenderer}. */
@@ -173,7 +194,9 @@ public class MarkdownRenderer implements Renderer {
     }
 
     @Override
-    /** @return the writer used to emit Markdown */
+    /**
+     * @return the writer used to emit Markdown
+     */
     public MarkdownWriter getWriter() {
       return writer;
     }
@@ -185,7 +208,9 @@ public class MarkdownRenderer implements Renderer {
     }
 
     @Override
-    /** @return additional text characters that should be escaped */
+    /**
+     * @return additional text characters that should be escaped
+     */
     public Set<Character> getSpecialCharacters() {
       return additionalTextEscapes;
     }

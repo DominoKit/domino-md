@@ -32,7 +32,9 @@ public class OrderedList extends ListBlock {
     visitor.visit(this);
   }
 
-  /** @return the starting marker number, or {@code null} */
+  /**
+   * @return the starting marker number, or {@code null}
+   */
   public Integer getMarkerStartNumber() {
     return markerStartNumber;
   }
@@ -42,7 +44,9 @@ public class OrderedList extends ListBlock {
     this.markerStartNumber = markerStartNumber;
   }
 
-  /** @return the delimiter token, or {@code null} */
+  /**
+   * @return the delimiter token, or {@code null}
+   */
   public String getMarkerDelimiter() {
     return markerDelimiter;
   }
