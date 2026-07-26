@@ -91,3 +91,6 @@ String html = renderer.render(parser.parse("Hello **world**"));
 ## License
 
 Apache License 2.0
+
+See [Third-Party Notices](THIRD_PARTY_NOTICES.md) for upstream attribution and license details for
+ported CommonMark-derived code and the checked-in CommonMark spec fixture.

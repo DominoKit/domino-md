@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 /**
- * AST node types and visitors.
+ * Internal parsing support.
  *
- * <p>Most of the node model in this package was adapted from upstream {@code commonmark-java}
- * commit {@code 9477a93b6b0965efc54c55bd40ad88fbbe25bc6f}; see {@code THIRD_PARTY_NOTICES.md} for
- * provenance and licensing details.
+ * <p>Most of the code in this package tree was adapted from upstream
+ * {@code commonmark-java} commit {@code 9477a93b6b0965efc54c55bd40ad88fbbe25bc6f}; see
+ * {@code THIRD_PARTY_NOTICES.md} for provenance and licensing details.
  */
-package org.dominokit.markdown.node;
+package org.dominokit.markdown.internal;

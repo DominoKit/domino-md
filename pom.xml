@@ -189,6 +189,8 @@
                     </mapping>
                     <excludes>
                         <exclude>**/README.md</exclude>
+                        <exclude>**/THIRD_PARTY_NOTICES.md</exclude>
+                        <exclude>**/THIRD_PARTY_LICENSES/**</exclude>
                         <exclude>**/LICENSE</exclude>
                         <exclude>**/LICENSE.header</exclude>
                         <exclude>**/AUTHORS</exclude>
