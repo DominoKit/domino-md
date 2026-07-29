@@ -13,5 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** HTML rendering (see {@link org.dominokit.markdown.renderer.html.HtmlRenderer}) */
+/**
+ * HTML rendering (see {@link org.dominokit.markdown.renderer.html.HtmlRenderer}).
+ *
+ * <p>Most of the renderer code in this package was adapted from upstream {@code commonmark-java}
+ * commit {@code 9477a93b6b0965efc54c55bd40ad88fbbe25bc6f}; see {@code THIRD_PARTY_NOTICES.md} for
+ * provenance and licensing details.
+ */
 package org.dominokit.markdown.renderer.html;
