@@ -16,8 +16,8 @@
 /**
  * Rendering entry points and renderer implementations.
  *
- * <p>Most of the renderer stack in this package tree was adapted from upstream
- * {@code commonmark-java} commit {@code 9477a93b6b0965efc54c55bd40ad88fbbe25bc6f}; see
- * {@code THIRD_PARTY_NOTICES.md} for provenance and licensing details.
+ * <p>Most of the renderer stack in this package tree was adapted from upstream {@code
+ * commonmark-java} commit {@code 9477a93b6b0965efc54c55bd40ad88fbbe25bc6f}; see {@code
+ * THIRD_PARTY_NOTICES.md} for provenance and licensing details.
  */
 package org.dominokit.markdown.renderer;
